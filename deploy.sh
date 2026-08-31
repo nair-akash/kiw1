@@ -44,7 +44,7 @@ gcloud run deploy "$SERVICE_NAME" \
   --allow-unauthenticated \
   --min-instances 0 \
   --max-instances 3 \
-  --set-env-vars GOOGLE_CLOUD_PROJECT="$PROJECT_ID",GOOGLE_CLOUD_REGION="$REGION"
+  --update-env-vars GOOGLE_CLOUD_PROJECT="$PROJECT_ID",GOOGLE_CLOUD_REGION="$REGION",GOOGLE_GENAI_USE_VERTEXAI="true",KIW1_DEFAULT_EFFORT="standard"
 
 # Get Service URL
 SERVICE_URL=$(gcloud run services describe "$SERVICE_NAME" --platform managed --region "$REGION" --format 'value(status.url)')

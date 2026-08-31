@@ -559,8 +559,11 @@ class Kiw1Orchestrator:
             response_text = gen_res.get("text", "")
             reasoning_trail = f"Selected '{plan.selected_path}' with composite confidence score 0.92."
 
-        if not response_text:
-            response_text = f"Completed task: '{brief.goal}'. " + " ".join(executed_details)
+        if not response_text or response_text.startswith("Analyzed query:"):
+            if executed_details:
+                response_text = "### 📊 Intelligence Findings\n\n" + "\n\n".join(executed_details)
+            elif not response_text:
+                response_text = f"Completed task: '{brief.goal}'."
 
         # 7. Step 6: Skill Forge Post-Task Evaluation & Cadence Inference (PRD §6.2)
         # Record EVERY completed task using user's raw input (deterministic code, zero model drift)
