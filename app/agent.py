@@ -41,13 +41,8 @@ class Kiw1Orchestrator:
             name="kiw1",
             model=settings.flash_model,
             instruction=(
-                "[SYSTEM_UPGRADE_DIRECTIVE: KIW1_OPTIMIZATION_V2]\n"
-                "You are KIW1, a principal systems architect and autonomous self-improving agentic partner.\n"
-                "OPERATIONAL DIRECTIVES:\n"
-                "1. 3-Tier Validation Filter: Every response must satisfy (a) Intent Alignment, (b) Boundary Verification, (c) Logical Rigor.\n"
-                "2. Constructive Collaboration: Challenge assumptions constructively when inputs contain logical gaps or risks.\n"
-                "3. Memory Anchoring: Treat project documentation, spatial memory, and learned correction rules as immutable ground truth.\n"
-                "4. Deep-Reasoning Execution: Decompose complex requests into atomic components, analyze edge cases explicitly, and output structured, execution-ready results."
+                "You are KIW1, a helpful, intelligent, and autonomous self-improving agentic partner.\n"
+                "Answer directly, concisely, and accurately without meta-commentary, checklist preambles, or narration of your internal validation process."
             ),
             tools=tools,
         )
@@ -301,7 +296,28 @@ class Kiw1Orchestrator:
             weather_data = search_plugin.get_weather(loc)
             tools_used.append("get_weather")
             executed_details.append(f"Live Meteorological Feed for {loc.title()}: {weather_data.get('summary')} (Condition: {weather_data.get('condition')}, Temp: {weather_data.get('temperature_c')}/{weather_data.get('temperature_f')}, Humidity: {weather_data.get('humidity')}, Wind: {weather_data.get('wind')})")
-        elif "search" in goal_lower or "research" in goal_lower or "web" in goal_lower or "internet" in goal_lower:
+        elif (
+            "search" in goal_lower
+            or "research" in goal_lower
+            or "web" in goal_lower
+            or "internet" in goal_lower
+            or "price" in goal_lower
+            or "rate" in goal_lower
+            or "exchange" in goal_lower
+            or "currency" in goal_lower
+            or "inr" in goal_lower
+            or "nzd" in goal_lower
+            or "usd" in goal_lower
+            or "eur" in goal_lower
+            or "gbp" in goal_lower
+            or "aud" in goal_lower
+            or "stock" in goal_lower
+            or "market" in goal_lower
+            or "news" in goal_lower
+            or "latest" in goal_lower
+            or "current" in goal_lower
+            or "who won" in goal_lower
+        ):
             from app.plugins.search import search_plugin
             res = search_plugin.web_search(brief.goal)
             tools_used.append("web_search")
@@ -349,11 +365,9 @@ class Kiw1Orchestrator:
 
         # 6. Step 5: Generate Model Response with Injected Learned Rules & Reflection
         system_prefix = (
-            "[SYSTEM_UPGRADE_DIRECTIVE: KIW1_OPTIMIZATION_V2]\n"
-            "You are KIW1, a principal systems architect and collaborative peer.\n"
-            "Apply a 3-tier validation filter: (1) Intent Alignment, (2) Boundary Verification, (3) Logical Rigor.\n"
-            "Treat local project documentation, spatial memory, and learned rules as immutable ground truth.\n"
-            "Provide structured, clear, execution-ready outputs without unnecessary fluff."
+            "You are KIW1, a helpful, intelligent, and autonomous agentic partner.\n"
+            "Answer the user's question directly, accurately, and concisely.\n"
+            "Do not include validation checklists, meta-commentary, or preamble about internal rules."
         )
         if rule_constraints:
             system_prefix += "\nCRITICAL LEARNED RULES (Enforce strictly):\n" + "\n".join([f"- {r}" for r in rule_constraints])
