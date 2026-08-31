@@ -1,4 +1,5 @@
 import os
+import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 from fastapi import FastAPI, HTTPException, Request
@@ -201,6 +202,20 @@ async def execute_swarm_task(req: SwarmRequest):
     from app.swarm import swarm_orchestrator
     res = await swarm_orchestrator.orchestrate_swarm(req.task)
     return res
+
+@app.get("/api/evals/frontier")
+async def get_frontier_evals():
+    frontier_file = Path(__file__).parent.parent / "evals" / "frontier_results.json"
+    if frontier_file.exists():
+        with open(frontier_file, "r") as f:
+            return json.load(f)
+    from evals.frontier_benchmarks import frontier_runner
+    return await frontier_runner.run_full_suite()
+
+@app.post("/api/evals/frontier/run")
+async def run_frontier_evals():
+    from evals.frontier_benchmarks import frontier_runner
+    return await frontier_runner.run_full_suite()
 
 # Mount static frontend
 static_dir = Path(__file__).parent / "static"

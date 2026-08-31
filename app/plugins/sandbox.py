@@ -57,6 +57,8 @@ class CodeSandboxPlugin(BasePlugin):
 
         # Safe global execution context
         safe_globals: Dict[str, Any] = {
+            "__name__": "__sandbox__",
+            "__doc__": None,
             "__builtins__": {
                 "__import__": safe_import,
                 "abs": abs,
@@ -103,20 +105,37 @@ class CodeSandboxPlugin(BasePlugin):
                 "TypeError": TypeError,
                 "KeyError": KeyError,
                 "IndexError": IndexError,
+                "__build_class__": __build_class__,
+                "getattr": getattr,
+                "setattr": setattr,
+                "hasattr": hasattr,
+                "callable": callable,
+                "property": property,
+                "staticmethod": staticmethod,
+                "classmethod": classmethod,
+                "super": super,
             }
         }
 
-        # Provide standard mathematical and data modules
+        # Provide standard mathematical, algorithmic, and data modules
         import math
         import json
         import statistics
         import datetime
+        import bisect
+        import collections
+        import itertools
+        import heapq
         safe_globals["math"] = math
         safe_globals["json"] = json
         safe_globals["statistics"] = statistics
         safe_globals["datetime"] = datetime
+        safe_globals["bisect"] = bisect
+        safe_globals["collections"] = collections
+        safe_globals["itertools"] = itertools
+        safe_globals["heapq"] = heapq
 
-        local_vars: Dict[str, Any] = {}
+        exec_scope = dict(safe_globals)
         start_time = time.perf_counter()
         success = True
         error_msg = None
@@ -130,13 +149,13 @@ class CodeSandboxPlugin(BasePlugin):
             # First try compiling as single expression to capture implicit return
             try:
                 compiled = compile(code_clean, "<sandbox>", "eval")
-                eval_result = eval(compiled, safe_globals, local_vars)
+                eval_result = eval(compiled, exec_scope, exec_scope)
                 if eval_result is not None:
                     print(repr(eval_result), file=stdout_capture)
             except SyntaxError:
                 # Compile and execute as full script
                 compiled = compile(code_clean, "<sandbox>", "exec")
-                exec(compiled, safe_globals, local_vars)
+                exec(compiled, exec_scope, exec_scope)
         except Exception as ex:
             success = False
             error_msg = f"{type(ex).__name__}: {str(ex)}"
@@ -150,7 +169,7 @@ class CodeSandboxPlugin(BasePlugin):
         err_str = stderr_capture.getvalue()
 
         # Extract returned result variable if present
-        returned_val = local_vars.get("result", local_vars.get("output", out_str.strip()))
+        returned_val = exec_scope.get("result", exec_scope.get("output", out_str.strip()))
 
         return {
             "success": success,

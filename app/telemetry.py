@@ -127,19 +127,19 @@ class TelemetryService:
                 "tokens": {
                     "prompt": r.total_prompt_tokens,
                     "completion": r.total_completion_tokens,
-                    "thinking": r.total_thinking_tokens,
-                    "total": r.total_prompt_tokens + r.total_completion_tokens + r.total_thinking_tokens,
+                    "thinking": r.total_thinking_tokens or 0,
+                    "total": (r.total_prompt_tokens or 0) + (r.total_completion_tokens or 0) + (r.total_thinking_tokens or 0),
                 },
-                "cost_usd": round(r.total_cost_usd, 6),
+                "cost_usd": round(r.total_cost_usd or 0.0, 6),
                 "success": r.success,
                 "steps_count": len(r.steps),
                 "steps": [
                     {
                         "name": s.name,
                         "model": s.model,
-                        "tokens": s.prompt_tokens + s.completion_tokens + s.thinking_tokens,
-                        "latency_ms": s.latency_ms,
-                        "cost_usd": s.cost_usd,
+                        "tokens": (s.prompt_tokens or 0) + (s.completion_tokens or 0) + (s.thinking_tokens or 0),
+                        "latency_ms": s.latency_ms or 0,
+                        "cost_usd": s.cost_usd or 0.0,
                         "status": s.status,
                         "details": s.details,
                     }

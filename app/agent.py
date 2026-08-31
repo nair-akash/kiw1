@@ -262,7 +262,7 @@ class Kiw1Orchestrator:
             brief = refinery.apply_clarifications(user_input, clarification_answers)
         else:
             brief = refinery.refine(user_input)
-            if brief.is_ambiguous:
+            if brief.is_ambiguous and not hands_off:
                 # Need user clarification
                 telemetry.end_run(trace_id, success=True)
                 return {
