@@ -178,16 +178,24 @@
           </div>
 
           <div class="composer-shortcuts">
-            <button class="chip-shortcut" data-insert="/remember "><span>🧠</span> Remember fact</button>
-            <button class="chip-shortcut" data-insert="/recall "><span>🔍</span> Recall memory</button>
-            <button class="chip-shortcut" data-insert="/skills"><span>⚡</span> My skills</button>
-            <button class="chip-shortcut" data-insert="/research"><span>🌙</span> Nightly research</button>
+            <button class="chip-shortcut" data-insert="/swarm "><span>🌐</span> Swarm</button>
+            <button class="chip-shortcut" data-insert="/python "><span>🐍</span> Python</button>
+            <button class="chip-shortcut" data-insert="/remember "><span>🧠</span> Remember</button>
+            <button class="chip-shortcut" data-insert="/recall "><span>🔍</span> Recall</button>
+            <button class="chip-shortcut" data-insert="/skills"><span>⚡</span> Skills</button>
+            <button class="chip-shortcut" data-insert="/research"><span>🌙</span> Nightly</button>
             <button class="chip-shortcut" data-insert="/evals"><span>🏆</span> Benchmark</button>
           </div>
 
           <div class="composer-pill-box">
-            <textarea id="composer-input" rows="1" placeholder="Ask KIW1 anything, give instructions, or type /command..."></textarea>
+            <textarea id="composer-input" rows="1" placeholder="Ask KIW1 anything, give instructions, run Python code, or launch /swarm..."></textarea>
             <div class="composer-buttons">
+              <button class="btn-icon btn-voice-input" id="btn-voice-input" title="Voice Input (Speech-to-Text)">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+              </button>
+              <button class="btn-icon btn-voice-output" id="btn-voice-output" title="Toggle Living Audio Readout">
+                🔊
+              </button>
               <button class="btn-voice-toggle" id="btn-hands-off" title="Toggle Hands-Off Autonomous Mode">
                 <span class="hands-off-indicator"></span>
                 <span class="hands-off-text">Autonomous</span>
@@ -212,6 +220,21 @@
               <span>+</span> Teach New Fact
             </button>
           </div>
+          
+          <!-- Interactive Spatial Memory Palace 2D Graph -->
+          <div class="palace-canvas-box">
+            <div class="palace-canvas-top">
+              <span class="palace-canvas-title">🏰 Spatial Loci Constellation</span>
+              <div class="palace-legend">
+                <span class="dot-legend" style="--c:#6366f1">Projects</span>
+                <span class="dot-legend" style="--c:#10b981">Knowledge</span>
+                <span class="dot-legend" style="--c:#f59e0b">Preferences</span>
+                <span class="dot-legend" style="--c:#ec4899">People</span>
+              </div>
+            </div>
+            <canvas id="palace-canvas" width="760" height="220"></canvas>
+          </div>
+
           <div class="memory-grid" id="memory-grid-view"></div>
         </div>
       </section>
@@ -299,6 +322,49 @@
       </section>
 
     </main>
+
+    <!-- ── Interactive Canvas & Artifacts Workspace (Claude 3.7 / Codex Style) ── -->
+    <aside class="canvas-drawer hidden" id="canvas-drawer">
+      <div class="canvas-header">
+        <div class="canvas-title-group">
+          <span class="canvas-icon" id="canvas-icon">⚡</span>
+          <div>
+            <div class="canvas-title" id="canvas-title">Artifact Workspace</div>
+            <div class="canvas-subtitle" id="canvas-subtitle">Live code &amp; execution preview</div>
+          </div>
+          <span class="canvas-badge" id="canvas-badge">Python</span>
+        </div>
+        <div class="canvas-actions">
+          <button class="btn-canvas-action" id="btn-run-sandbox" title="Run in Python Sandbox">
+            ▶ Run
+          </button>
+          <button class="btn-canvas-action" id="btn-copy-artifact" title="Copy Artifact to Clipboard">
+            📋 Copy
+          </button>
+          <button class="btn-canvas-action" id="btn-download-artifact" title="Download Artifact File">
+            💾 Save
+          </button>
+          <button class="btn-canvas-close" id="btn-close-canvas" title="Close Canvas">&times;</button>
+        </div>
+      </div>
+
+      <div class="canvas-body" id="canvas-body">
+        <div class="canvas-code-wrapper" id="canvas-code-wrapper">
+          <pre><code id="canvas-code-content"></code></pre>
+        </div>
+        <div class="canvas-preview-wrapper hidden" id="canvas-preview-wrapper">
+          <iframe id="canvas-preview-frame" sandbox="allow-scripts"></iframe>
+        </div>
+        <div class="canvas-console-wrapper hidden" id="canvas-console-wrapper">
+          <div class="console-header">
+            <span>Terminal / Python Sandbox Output</span>
+            <span class="console-timing" id="console-timing">0 ms</span>
+          </div>
+          <pre id="canvas-console-output"></pre>
+        </div>
+      </div>
+    </aside>
+
   </div>
 
   <!-- Quick Teach / Correction Modal -->

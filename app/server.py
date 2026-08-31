@@ -184,6 +184,24 @@ async def run_evals_endpoint():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+class SandboxRequest(BaseModel):
+    code: str
+
+class SwarmRequest(BaseModel):
+    task: str
+
+@app.post("/api/sandbox/run")
+async def run_sandbox_code(req: SandboxRequest):
+    from app.plugins.sandbox import sandbox_plugin
+    res = sandbox_plugin.execute_python_code(req.code)
+    return res
+
+@app.post("/api/swarm/execute")
+async def execute_swarm_task(req: SwarmRequest):
+    from app.swarm import swarm_orchestrator
+    res = await swarm_orchestrator.orchestrate_swarm(req.task)
+    return res
+
 # Mount static frontend
 static_dir = Path(__file__).parent / "static"
 if static_dir.exists():
