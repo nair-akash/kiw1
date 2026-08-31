@@ -165,6 +165,25 @@ async def get_plugins():
         "plugins": kernel.list_plugins(),
     }
 
+@app.get("/api/evals")
+async def get_eval_results():
+    results_path = Path(__file__).parent / "static" / "results.json"
+    if results_path.exists():
+        import json
+        with open(results_path, "r") as f:
+            return json.load(f)
+    return {"status": "no_results_yet"}
+
+@app.post("/api/evals/run")
+async def run_evals_endpoint():
+    try:
+        from evals.runner import BenchmarkRunner
+        runner = BenchmarkRunner()
+        summary = await runner.run_benchmark()
+        return summary
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 # Mount static frontend
 static_dir = Path(__file__).parent / "static"
 if static_dir.exists():
