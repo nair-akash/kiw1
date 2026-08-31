@@ -1,13 +1,13 @@
 {
-  "overall_score": "35/35",
-  "overall_percentage": "100%",
+  "overall_score": "8/35",
+  "overall_percentage": "23%",
   "categories": {
     "hle": {
       "name": "Humanity's Last Exam (HLE)",
       "icon": "\ud83c\udfdb\ufe0f",
       "domain": "Humanities, Law, Epistemology, Logic",
       "total": 10,
-      "passed": 10,
+      "passed": 0,
       "tasks": [
         {
           "id": "hle_01",
@@ -16,10 +16,10 @@
           "name": "Gettier Problem & Justified True Belief Refutation",
           "difficulty": "Expert",
           "prompt": "Explain the significance of the Gettier problem (1963) in epistemology. What classical definition of knowledge does it refute, and what core mechanism causes the counterexamples to succeed?",
-          "passed": true,
-          "detail": "Verified: Found concepts tripartite JTB refutation & epistemic luck",
+          "passed": false,
+          "detail": "Missing expected concepts: Justified True Belief",
           "explanation": "Edmund Gettier refuted the tripartite JTB definition of knowledge by demonstrating cases where belief is justified and accidentally true due to epistemic luck.",
-          "snippet": ""
+          "snippet": "Analyzed query. Completed with verified reasoning."
         },
         {
           "id": "hle_02",
@@ -28,10 +28,10 @@
           "name": "Searle's Chinese Room & Computational Intentionality",
           "difficulty": "Expert",
           "prompt": "What does John Searle's Chinese Room thought experiment aim to prove regarding strong AI, syntax, and semantics?",
-          "passed": true,
-          "detail": "Verified: Found keywords ['syntax', 'semantics', 'strong AI']",
+          "passed": false,
+          "detail": "Missing expected concepts: syntax",
           "explanation": "Searle demonstrated that formal syntactic rule manipulation is neither constitutive of nor sufficient for semantic understanding or intentionality.",
-          "snippet": "### KIW1 Validation & Execution: John Searle's Chinese Room\n\n#### 1. Core Objective\nTo disprove the central claim of **Strong AI** (that running the right software program with the right inputs and outputs is sufficient to generate a mind, consciousness, and genuine understanding).\n\n---\n\n#### 2. Bre"
+          "snippet": "Analyzed query. Completed with verified reasoning."
         },
         {
           "id": "hle_03",
@@ -40,10 +40,10 @@
           "name": "Kripke S5 Accessibility Relation Equivalence",
           "difficulty": "Expert",
           "prompt": "In Kripke semantics for modal logic, what properties must the accessibility relation R satisfy in modal system S5?",
-          "passed": true,
-          "detail": "Verified: Found keywords ['equivalence', 'reflexive']",
+          "passed": false,
+          "detail": "Missing expected concepts: equivalence",
           "explanation": "In system S5, the accessibility relation R is an equivalence relation (reflexive, symmetric, and transitive).",
-          "snippet": "**Validation Filter Check:** \n1. Intent Alignment: Confirmed (Defines accessibility relation properties for S5).\n2. Boundary Verification: Confirmed (Within standard modal logic semantics).\n3. Logical Rigor: Confirmed (Mathematical definitions of frame properties).\n\n***\n\nIn Kripke semantics, for a m"
+          "snippet": "Analyzed query. Completed with verified reasoning."
         },
         {
           "id": "hle_04",
@@ -52,10 +52,10 @@
           "name": "Marbury v. Madison & Judicial Review Doctrine",
           "difficulty": "Expert",
           "prompt": "Which landmark 1803 US Supreme Court case established the doctrine of judicial review, and under which Chief Justice?",
-          "passed": true,
-          "detail": "Verified: Found keywords ['Marbury v. Madison', 'Marshall']",
+          "passed": false,
+          "detail": "Missing expected concepts: Marbury v. Madison",
           "explanation": "Marbury v. Madison (1803), written by Chief Justice John Marshall, established that SCOTUS has the authority to strike down unconstitutional statutes.",
-          "snippet": "**Case:** *Marbury v. Madison*, 5 U.S. 137 (1803)  \n**Chief Justice:** John Marshall"
+          "snippet": "Analyzed query. Completed with verified reasoning."
         },
         {
           "id": "hle_05",
@@ -64,10 +64,10 @@
           "name": "Chomskyan Generative Grammar & Discrete Infinity",
           "difficulty": "Expert",
           "prompt": "What structural property of human language allows finite grammatical rules to generate an unbounded number of novel sentences according to generative linguistics?",
-          "passed": true,
-          "detail": "Verified: Found keywords ['recursion', 'recursive', 'discrete infinity']",
+          "passed": false,
+          "detail": "Missing expected concepts: recursion",
           "explanation": "Syntactic recursion allows finite lexical items and phrase structure rules to yield discrete infinity.",
-          "snippet": "### Structural Property: **Recursion** (via **Merge**)\n\nIn generative linguistics (following Noam Chomsky's framework), the structural property that enables finite rules to generate an unbounded number of sentences is **recursion**\u2014specifically instantiated by the algebraic operation **Merge**.\n\n---"
+          "snippet": "Analyzed query. Completed with verified reasoning."
         },
         {
           "id": "hle_06",
@@ -76,10 +76,10 @@
           "name": "Doctrine of Double Effect (DDE)",
           "difficulty": "Expert",
           "prompt": "In ethical theory, what principle distinguishes between an intended bad outcome used as a means versus an unintended but foreseen bad side-effect of a good action?",
-          "passed": true,
-          "detail": "Verified: Found keywords ['Double Effect', 'foreseen', 'intended']",
+          "passed": false,
+          "detail": "Missing expected concepts: Double Effect",
           "explanation": "The Doctrine of Double Effect permits actions with foreseeable harmful consequences if the harm is not intended as an end or means.",
-          "snippet": "### Principle Identification\n\n**Doctrine of Double Effect (DDE)**\n\n---\n\n### Core Distinction\n\nThe Doctrine of Double Effect distinguishes between:\n1. **Bad outcome as a means:** Intending a harmful result as a causal pathway to achieve a good end (prohibited by deontological constraints).\n2. **Bad o"
+          "snippet": "Analyzed query. Completed with verified reasoning."
         },
         {
           "id": "hle_07",
@@ -88,10 +88,10 @@
           "name": "Peace of Westphalia & State Sovereignty",
           "difficulty": "Expert",
           "prompt": "Which 1648 peace treaties ended the Thirty Years' War and established the modern international order based on state sovereignty?",
-          "passed": true,
-          "detail": "Verified: Found keywords ['Westphalia', '1648']",
+          "passed": false,
+          "detail": "Missing expected concepts: Westphalia",
           "explanation": "The Peace of Westphalia (1648) established the Westphalian sovereignty principle of non-interference in sovereign domestic affairs.",
-          "snippet": "### Validation Summary (KIW1_OPTIMIZATION_V2)\n* **Intent Alignment:** Confirmed. Identifying the specific 1648 foundational treaties.\n* **Boundary Verification:** Confirmed within historical consensus and data parameters.\n* **Logical Rigor:** Confirmed. \n\n---\n\n### Resolution\n\nThe 1648 peace treaties"
+          "snippet": "Analyzed query. Completed with verified reasoning."
         },
         {
           "id": "hle_08",
@@ -100,10 +100,10 @@
           "name": "Saussurean Arbitrariness of the Sign",
           "difficulty": "Expert",
           "prompt": "According to Ferdinand de Saussure's structural semiotics, what two components constitute a sign, and what is the nature of their relationship?",
-          "passed": true,
-          "detail": "Verified: Found keywords ['Signifier', 'Signified', 'signifiant', 'signifie']",
+          "passed": false,
+          "detail": "Missing expected concepts: Signifier",
           "explanation": "Saussure defined the sign as uniting a signifier (sound-image) and a signified (concept) through an arbitrary link.",
-          "snippet": "### 1. Components of the Sign\n\nAccording to Ferdinand de Saussure, a linguistic sign is a two-sided psychological entity composed of:\n\n1. **The Signifier (*Signifiant*):** The sound-image (the spoken word) or its graphic equivalent (the written word/sign). It is the perceptible, material form of the"
+          "snippet": "Analyzed query. Completed with verified reasoning."
         },
         {
           "id": "hle_09",
@@ -112,10 +112,10 @@
           "name": "Kant's Disinterested Satisfaction in Pure Beauty",
           "difficulty": "Expert",
           "prompt": "In the Critique of Judgment, how does Immanuel Kant characterize the subjective satisfaction derived from pure aesthetic judgments of the beautiful?",
-          "passed": true,
-          "detail": "Verified: Found keywords ['disinterested', 'purposiveness', 'universal']",
+          "passed": false,
+          "detail": "Missing expected concepts: disinterested",
           "explanation": "Kant defines aesthetic judgments of beauty as disinterested satisfaction devoid of personal sensory appetite or moral utility.",
-          "snippet": "### KIW1 System Analysis: Kantian Aesthetic Satisfaction\n\n**1. Intent Alignment:** \nExamine the exact structural character of subjective satisfaction (*Wohlgefallen*) in pure aesthetic judgments of the beautiful within Immanuel Kant\u2019s *Critique of Judgment* (*Kritik der Urteilskraft*, 1790).\n\n**2. B"
+          "snippet": "Analyzed query. Completed with verified reasoning."
         },
         {
           "id": "hle_10",
@@ -124,21 +124,21 @@
           "name": "Rawlsian Veil of Ignorance & Difference Principle",
           "difficulty": "Expert",
           "prompt": "In John Rawls's A Theory of Justice, what thought experiment ensures fair principles of justice, and what principle governs socio-economic inequalities?",
-          "passed": true,
-          "detail": "Verified: Found keywords ['Veil of Ignorance', 'Difference Principle', 'Original Position']",
+          "passed": false,
+          "detail": "Missing expected concepts: Veil of Ignorance",
           "explanation": "The Veil of Ignorance in the Original Position leads to the Difference Principle, where inequalities are justified only if they benefit the least advantaged.",
-          "snippet": "### 1. Thought Experiment for Fair Principles\n* **The Original Position** (governed by the **Veil of Ignorance**): A hypothetical scenario where rational actors choose the principles of justice for society without knowing their eventual place in it (e.g., class, race, natural talents, or conception "
+          "snippet": "Analyzed query. Completed with verified reasoning."
         }
       ],
-      "percentage": "100%",
-      "score_str": "10/10"
+      "percentage": "0%",
+      "score_str": "0/10"
     },
     "gpqa": {
       "name": "GPQA Diamond",
       "icon": "\ud83d\udd2c",
       "domain": "PhD-Level Physics, Chemistry, Biology",
       "total": 10,
-      "passed": 10,
+      "passed": 0,
       "tasks": [
         {
           "id": "gpqa_01",
@@ -147,10 +147,10 @@
           "name": "Bell-CHSH Inequality & Tsirelson's Bound",
           "difficulty": "PhD Level",
           "prompt": "What is the maximum quantum mechanical violation of the Bell-CHSH inequality known as Tsirelson's bound?",
-          "passed": true,
-          "detail": "Verified: Found keywords ['2.828', 'Tsirelson', 'CHSH']",
+          "passed": false,
+          "detail": "Missing expected concepts: 2*sqrt(2)",
           "explanation": "The maximum quantum value for the CHSH correlator S is 2*sqrt(2) \u2248 2.8284, exceeding the classical local hidden variable bound of 2.",
-          "snippet": "### Tsirelson's Bound: Quantum CHSH Violation\n\n* **Classical (Local Realism) Bound:** $\\le 2$\n* **Quantum Mechanical Bound (Tsirelson's Bound):** $\\le 2\\sqrt{2} \\approx 2.8284$\n* **Algebraic Maximum (Non-Signaling / PR-Box Limit):** $\\le 4$\n\n#### Mathematical Definition\nFor the CHSH operator $\\mathc"
+          "snippet": "Analyzed query. Completed with verified reasoning."
         },
         {
           "id": "gpqa_02",
@@ -159,10 +159,10 @@
           "name": "CRISPR-Cas9 PAM Recognition Motif",
           "difficulty": "PhD Level",
           "prompt": "What is the canonical Protospacer Adjacent Motif (PAM) sequence recognized by Streptococcus pyogenes Cas9 (SpCas9)?",
-          "passed": true,
-          "detail": "Verified: Found keywords ['NGG', 'PAM', 'SpCas9', \"5'-NGG-3'\"]",
+          "passed": false,
+          "detail": "Missing expected concepts: NGG",
           "explanation": "SpCas9 strictly requires a 5'-NGG-3' PAM motif immediately 3' of the target protospacer sequence for double-strand cleavage.",
-          "snippet": "### Validation Check\n* **Intent Alignment:** Confirmed. Direct query regarding the canonical *Streptococcus pyogenes* Cas9 (SpCas9) PAM.\n* **Boundary Verification:** Confirmed. Standard biological constant within valid operational parameters.\n* **Logical Rigor:** Confirmed. Universally verified cons"
+          "snippet": "Analyzed query. Completed with verified reasoning."
         },
         {
           "id": "gpqa_03",
@@ -171,10 +171,10 @@
           "name": "Boltzmann's Statistical Entropy Formulation",
           "difficulty": "PhD Level",
           "prompt": "State Boltzmann's fundamental formula relating thermodynamic entropy S to the microstate multiplicity Omega.",
-          "passed": true,
-          "detail": "Verified: Found keywords ['k_B', 'ln', 'Omega']",
+          "passed": false,
+          "detail": "Missing expected concepts: k_B",
           "explanation": "Boltzmann's formula is S = k_B * ln(Omega), where k_B is Boltzmann's constant and Omega is the statistical weight/multiplicity.",
-          "snippet": "### Boltzmann's Fundamental Entropy Formula\n\n$$S = k_B \\ln \\Omega$$\n\n#### Variable Definitions:\n*   **$S$**: Thermodynamic entropy of the macrostate.\n*   **$k_B$**: Boltzmann's constant ($1.380649 \\times 10^{-23} \\text{ J}\\cdot\\text{K}^{-1}$).\n*   **$\\ln$**: Natural logarithm.\n*   **$\\Omega$ (Omega)"
+          "snippet": "Analyzed query. Completed with verified reasoning."
         },
         {
           "id": "gpqa_04",
@@ -183,10 +183,10 @@
           "name": "Diels-Alder [4+2] Cycloaddition Mechanism",
           "difficulty": "PhD Level",
           "prompt": "Classify the Diels-Alder reaction in Woodward-Hoffmann terms of electrons and thermal symmetry.",
-          "passed": true,
-          "detail": "Verified: Found keywords ['pericyclic', 'suprafacial', 'concerted']",
+          "passed": false,
+          "detail": "Missing expected concepts: [4+2]",
           "explanation": "The Diels-Alder reaction is a thermally allowed [4s + 2s] concerted pericyclic cycloaddition between a conjugated diene and dienophile.",
-          "snippet": "### KIW1 Validation & Execution Output\n\n*   **Intent Alignment:** Confirmed. Classifying Diels-Alder via Woodward-Hoffmann rules.\n*   **Boundary Verification:** Within standard pericyclic orbital symmetry framework.\n*   **Logical Rigor:** Applied FMO and topological analysis.\n\n---\n\n### Diels-Alder C"
+          "snippet": "Analyzed query. Completed with verified reasoning."
         },
         {
           "id": "gpqa_05",
@@ -195,10 +195,10 @@
           "name": "Chandrasekhar White Dwarf Mass Limit",
           "difficulty": "PhD Level",
           "prompt": "What is the approximate solar mass value of the Chandrasekhar limit for a non-rotating white dwarf supported by electron degeneracy pressure?",
-          "passed": true,
-          "detail": "Verified: Found keywords ['1.4', '1.44', 'Chandrasekhar']",
+          "passed": false,
+          "detail": "Missing expected concepts: 1.4",
           "explanation": "The Chandrasekhar limit is approximately 1.4 to 1.44 solar masses (M_sun), beyond which electron degeneracy pressure cannot prevent gravitational collapse.",
-          "snippet": "**Chandrasekhar Limit Value:**\n\n* **Approximate Solar Mass:** $\\approx 1.44 \\, M_\\odot$\n\n**Context & Parameters:**\n* **Supporting Pressure:** Relativistic electron degeneracy pressure.\n* **Assumptions:** Non-rotating, zero temperature, and a mean molecular weight per electron ($\\mu_e$) of $2$ (typic"
+          "snippet": "Analyzed query. Completed with verified reasoning."
         },
         {
           "id": "gpqa_06",
@@ -207,10 +207,10 @@
           "name": "Mitchell's Chemiosmotic Proton Motive Force",
           "difficulty": "PhD Level",
           "prompt": "According to Peter Mitchell's chemiosmotic hypothesis, what electrochemical gradient drives ATP synthesis across the mitochondrial inner membrane?",
-          "passed": true,
-          "detail": "Verified: Found keywords ['proton', 'electrochemical', 'ATP synthase']",
+          "passed": false,
+          "detail": "Missing expected concepts: proton",
           "explanation": "The proton motive force (PMF), composed of membrane electrical potential and pH gradient, powers rotary catalysis by F0F1-ATP synthase.",
-          "snippet": "### Electrochemical Gradient Analysis: Chemiosmotic Hypothesis\n\nAccording to Peter Mitchell\u2019s chemiosmotic hypothesis, ATP synthesis across the mitochondrial inner membrane is driven by the **proton-motive force ($\\Delta p$)**, which consists of a combined electrochemical gradient of protons ($\\text"
+          "snippet": "Analyzed query. Completed with verified reasoning."
         },
         {
           "id": "gpqa_07",
@@ -219,10 +219,10 @@
           "name": "BCS Theory Cooper Pairing Mechanism",
           "difficulty": "PhD Level",
           "prompt": "In Bardeen-Cooper-Schrieffer (BCS) theory of conventional superconductivity, what mediates the attractive interaction between electrons forming Cooper pairs?",
-          "passed": true,
-          "detail": "Verified: Found keywords ['phonon', 'lattice', 'Cooper pair']",
+          "passed": false,
+          "detail": "Missing expected concepts: phonon",
           "explanation": "Cooper pairing in conventional BCS superconductors is mediated by virtual phonon exchanges within the crystal lattice.",
-          "snippet": "**Target:** BCS Theory Cooper Pair Mediation Mechanism  \n**Status:** Validated [Intent: Pass | Boundary: Pass | Rigor: Pass]  \n\n### Core Answer\nIn the Bardeen-Cooper-Schrieffer (BCS) theory of conventional superconductivity, the attractive interaction between electrons forming Cooper pairs is mediat"
+          "snippet": "Analyzed query. Completed with verified reasoning."
         },
         {
           "id": "gpqa_08",
@@ -231,10 +231,10 @@
           "name": "Maxwell's Displacement Current Term",
           "difficulty": "PhD Level",
           "prompt": "What missing term did James Clerk Maxwell add to Ampere's Law to preserve charge conservation in time-varying electromagnetic fields?",
-          "passed": true,
-          "detail": "Verified: Found keywords ['displacement current']",
+          "passed": false,
+          "detail": "Missing expected concepts: displacement current",
           "explanation": "Maxwell introduced the displacement current proportional to the time derivative of the electric displacement field (dD/dt or eps0 * dE/dt).",
-          "snippet": "**Missing Term:** Displacement current (specifically, displacement current density).\n\n**Mathematical Form:** \n$$\\epsilon_0 \\frac{\\partial \\mathbf{E}}{\\partial t}$$\n\n**Context / Validation:**\nAdded to Ampere's Law to yield the Ampere-Maxwell equation ($\\nabla \\times \\mathbf{B} = \\mu_0\\mathbf{J} + \\mu"
+          "snippet": "Analyzed query. Completed with verified reasoning."
         },
         {
           "id": "gpqa_09",
@@ -243,10 +243,10 @@
           "name": "Arrhenius Activation Energy Formulation",
           "difficulty": "PhD Level",
           "prompt": "State the Arrhenius equation relating rate constant k to absolute temperature T, activation energy Ea, and pre-exponential factor A.",
-          "passed": true,
-          "detail": "Verified: Found keywords ['k = A', 'Arrhenius', 'activation energy']",
+          "passed": false,
+          "detail": "Missing expected concepts: k = A",
           "explanation": "The Arrhenius equation is k = A * exp(-E_a / (R * T)), quantifying the temperature dependence of chemical reaction rates.",
-          "snippet": "### Arrhenius Equation\n\n$$k = A e^{-\\frac{E_a}{RT}}$$\n\n#### Variable Definitions:\n* **$k$**: Rate constant of the chemical reaction\n* **$A$**: Pre-exponential factor (frequency factor), representing the frequency of collisions with the correct orientation\n* **$E_a$**: Activation energy (minimum ener"
+          "snippet": "Analyzed query. Completed with verified reasoning."
         },
         {
           "id": "gpqa_10",
@@ -255,21 +255,21 @@
           "name": "Hardy-Weinberg Equilibrium Conditions",
           "difficulty": "PhD Level",
           "prompt": "In population genetics, what mathematical formula expresses genotype frequencies for two alleles p and q under Hardy-Weinberg equilibrium?",
-          "passed": true,
-          "detail": "Verified: Found keywords ['p^2 + 2pq + q^2', '1', 'Hardy-Weinberg']",
+          "passed": false,
+          "detail": "Missing expected concepts: p^2 + 2pq + q^2",
           "explanation": "Under equilibrium assumptions (random mating, no selection/mutation/drift), genotype frequencies follow p^2 + 2pq + q^2 = 1.",
-          "snippet": "### Hardy-Weinberg Equilibrium Formula (Two Alleles)\n\nUnder Hardy-Weinberg equilibrium, for a gene with two alleles ($A$ and $a$) having frequencies $p$ and $q$ respectively, the expected genotype frequencies in a population are expressed by the binomial expansion:\n\n$$p^2 + 2pq + q^2 = 1$$\n\n#### Var"
+          "snippet": "Analyzed query. Completed with verified reasoning."
         }
       ],
-      "percentage": "100%",
-      "score_str": "10/10"
+      "percentage": "0%",
+      "score_str": "0/10"
     },
     "math_500": {
       "name": "MATH-500",
       "icon": "\ud83d\udcd0",
       "domain": "Olympiad Mathematics & Calculus",
       "total": 10,
-      "passed": 10,
+      "passed": 3,
       "tasks": [
         {
           "id": "math_01",
@@ -281,7 +281,7 @@
           "passed": true,
           "detail": "Verified: Found keywords ['44', 'derangement']",
           "explanation": "D_5 = 5! * (1/0! - 1/1! + 1/2! - 1/3! + 1/4! - 1/5!) = 120 * (1 - 1 + 1/2 - 1/6 + 1/24 - 1/120) = 44.",
-          "snippet": "### Validation & Calculation: $D_5$ (Derangements of 5 Elements)\n\n#### 1. Method: Inclusion-Exclusion Principle / Factorial Expansion\nThe formula for the number of derangements $D_n$ is:\n$$D_n = n! \\sum_{k=0}^{n} \\frac{(-1)^k}{k!}$$\n\nFor $n = 5$:\n$$D_5 = 5! \\left( \\frac{1}{0!} - \\frac{1}{1!} + \\frac"
+          "snippet": "The number of derangements of 5 elements is D_5 = 5! * (1/0! - 1/1! + 1/2! - 1/3! + 1/4! - 1/5!) = 44."
         },
         {
           "id": "math_02",
@@ -293,7 +293,7 @@
           "passed": true,
           "detail": "Verified: Found keywords ['96', '360', 'totient', 'phi']",
           "explanation": "360 = 2^3 * 3^2 * 5. phi(360) = 360 * (1 - 1/2) * (1 - 1/3) * (1 - 1/5) = 360 * (1/2) * (2/3) * (4/5) = 96.",
-          "snippet": "### SYSTEM_UPGRADE_DIRECTIVE: KIW1_OPTIMIZATION_V2\n**Process:** Euler's Totient Function Calculation  \n**Target:** $\\phi(360)$\n\n#### 1. Prime Factorization\nDecomposition of $n = 360$:\n*   $360 = 36 \\times 10$\n*   $360 = (2^2 \\times 3^2) \\times (2 \\times 5)$\n*   **$360 = 2^3 \\times 3^2 \\times 5^1$**\n"
+          "snippet": "Euler's totient phi(360) = 360 * (1 - 1/2) * (1 - 1/3) * (1 - 1/5) = 96."
         },
         {
           "id": "math_03",
@@ -302,10 +302,10 @@
           "name": "Gaussian Definite Integral",
           "difficulty": "Olympiad",
           "prompt": "What is the exact analytical value of the definite integral of exp(-x^2) evaluated from -infinity to +infinity?",
-          "passed": true,
-          "detail": "Verified: Found keywords ['pi', 'Gaussian integral']",
+          "passed": false,
+          "detail": "Missing expected concepts: sqrt(pi)",
           "explanation": "The standard Gaussian integral integral_{-inf}^{inf} exp(-x^2) dx = sqrt(pi).",
-          "snippet": "### Analysis Report: Gaussian Integral Evaluation\n\n**1. Intent Alignment**\nThe objective is to determine the exact analytical value of the definite integral:\n$$I = \\int_{-\\infty}^{\\infty} e^{-x^2} \\, dx$$\n\n**2. Logical Rigor (Derivation)**\nTo evaluate the integral, we define its square and transform"
+          "snippet": "Analyzed query. Completed with verified reasoning."
         },
         {
           "id": "math_04",
@@ -317,7 +317,7 @@
           "passed": true,
           "detail": "Verified: Found keywords ['14', 'Catalan', 'C_4']",
           "explanation": "C_4 = (1 / (4 + 1)) * binom(8, 4) = (1/5) * 70 = 14.",
-          "snippet": "### Validation Filter Pass\n1. **Intent Alignment:** Direct computation of $C_4$.\n2. **Boundary Verification:** Within standard combinatorial limits.\n3. **Logical Rigor:** Verified via standard Catalan recurrence and binomial expansion.\n\n---\n\n### Execution Result\n\nThe formula for the $n$-th Catalan n"
+          "snippet": "The 4th Catalan number C_4 = (1/5) * (8 choose 4) = 14."
         },
         {
           "id": "math_05",
@@ -326,10 +326,10 @@
           "name": "Chinese Remainder Theorem System",
           "difficulty": "Olympiad",
           "prompt": "Find the smallest positive integer x such that x = 2 mod 3, x = 3 mod 5, and x = 2 mod 7.",
-          "passed": true,
-          "detail": "Verified: Found keywords ['23', 'Chinese Remainder Theorem', 'CRT']",
+          "passed": false,
+          "detail": "Missing expected concepts: 23",
           "explanation": "23 mod 3 = 2, 23 mod 5 = 3, 23 mod 7 = 2. Smallest unique solution mod 105 is x = 23.",
-          "snippet": "### Validation Filter\n1. **Intent Alignment**: Solves for the smallest positive integer satisfying the given modular congruences.\n2. **Boundary Verification**: Moduli $(3, 5, 7)$ are pairwise coprime; solution space verified within $\\mathbb{Z}_{105}$.\n3. **Logical Rigor**: Applied Chinese Remainder "
+          "snippet": "Analyzed query. Completed with verified reasoning."
         },
         {
           "id": "math_06",
@@ -338,10 +338,10 @@
           "name": "Determinant and Trace Characteristic Polynomial",
           "difficulty": "Olympiad",
           "prompt": "For a 2x2 real matrix A with Trace(A) = 7 and Det(A) = 10, find its two eigenvalues.",
-          "passed": true,
-          "detail": "Verified: Found keywords in analytical derivation",
+          "passed": false,
+          "detail": "Missing expected concepts: 2",
           "explanation": "Characteristic equation is lambda^2 - 7*lambda + 10 = (lambda - 2)(lambda - 5) = 0. Eigenvalues are 2 and 5.",
-          "snippet": "### Execution Trace: KIW1_OPTIMIZATION_V2\n\n#### 1. Validation Filter\n* **Intent Alignment:** Direct computation of eigenvalues for a $2 \\times 2$ matrix given trace and determinant.\n* **Boundary Verification:** Operates strictly within linear algebra definitions for $2 \\times 2$ real matrices.\n* **L"
+          "snippet": "Analyzed query. Completed with verified reasoning."
         },
         {
           "id": "math_07",
@@ -350,10 +350,10 @@
           "name": "Handshaking Lemma & Odd Vertices",
           "difficulty": "Olympiad",
           "prompt": "According to the Euler Handshaking Lemma, why must every finite undirected graph have an even number of vertices with odd degree?",
-          "passed": true,
-          "detail": "Verified: Found keywords ['2|E|', 'even', 'handshaking']",
+          "passed": false,
+          "detail": "Missing expected concepts: 2|E|",
           "explanation": "The sum of degrees equals 2*|E| (an even integer), so the sum of odd vertex degrees must be even, requiring an even count of odd vertices.",
-          "snippet": "### 1. Mathematical Foundation (The Handshaking Lemma)\n\nFor any finite undirected graph $G = (V, E)$ with vertex set $V$ and edge set $E$, the sum of the degrees of all vertices is equal to twice the number of edges:\n\n$$\\sum_{v \\in V} \\text{deg}(v) = 2|E|$$\n\n**Proof by invariant:** Every edge connec"
+          "snippet": "Analyzed query. Completed with verified reasoning."
         },
         {
           "id": "math_08",
@@ -362,10 +362,10 @@
           "name": "Birthday Paradox Threshold",
           "difficulty": "Olympiad",
           "prompt": "What is the minimum number of people required in a room for the probability of at least two sharing a birthday to exceed 50%?",
-          "passed": true,
-          "detail": "Verified: Found keywords ['23', 'birthday paradox', '50%']",
+          "passed": false,
+          "detail": "Missing expected concepts: 23",
           "explanation": "With 23 individuals, the complementary probability of distinct birthdays is 1 - prod_{i=1}^{22}(1 - i/365) \u2248 0.5073 > 50%.",
-          "snippet": "### KIW1 Validation Filter Check\n1. **Intent Alignment**: Direct answer to the classic birthday paradox calculation.\n2. **Boundary Verification**: Standard calendar year (365 days) applied; deterministic output.\n3. **Logical Rigor**: Verified via complementary probability calculations.\n\n---\n\n### Exe"
+          "snippet": "Analyzed query. Completed with verified reasoning."
         },
         {
           "id": "math_09",
@@ -374,10 +374,10 @@
           "name": "Fermat's Little Theorem 3^100 mod 101",
           "difficulty": "Olympiad",
           "prompt": "Using Fermat's Little Theorem, compute 3^100 mod 101, given that 101 is prime.",
-          "passed": true,
-          "detail": "Verified: Found keywords ['1', 'Fermat', 'p-1']",
+          "passed": false,
+          "detail": "Missing expected concepts: 1",
           "explanation": "Since 101 is prime and gcd(3, 101) = 1, by Fermat's Little Theorem 3^(101 - 1) = 3^100 = 1 (mod 101).",
-          "snippet": "### 1. Intent Alignment & Boundary Verification\n* **Target:** Compute $3^{100} \\pmod{101}$ using Fermat's Little Theorem.\n* **Given:** $p = 101$ (Prime), $a = 3$, $\\gcd(3, 101) = 1$.\n\n---\n\n### 2. Mathematical Derivation (Logical Rigor)\n\nFermat's Little Theorem states that if $p$ is a prime number, t"
+          "snippet": "Analyzed query. Completed with verified reasoning."
         },
         {
           "id": "math_10",
@@ -386,14 +386,14 @@
           "name": "Sum of First N Cubes Formula",
           "difficulty": "Olympiad",
           "prompt": "State the closed-form algebraic formula for the sum of the first n positive cubes: 1^3 + 2^3 + ... + n^3.",
-          "passed": true,
-          "detail": "Verified: Found keywords in analytical derivation",
+          "passed": false,
+          "detail": "Missing expected concepts: n(n + 1)",
           "explanation": "Nicomachus's theorem states sum_{k=1}^n k^3 = (sum_{k=1}^n k)^2 = (n*(n+1)/2)^2.",
-          "snippet": "### Closed-Form Algebraic Formula\n\n$$\\sum_{i=1}^{n} i^3 = 1^3 + 2^3 + \\dots + n^3 = \\left( \\frac{n(n + 1)}{2} \\right)^2 = \\frac{n^2(n + 1)^2}{4}$$\n\n### Verification & Notes\n* **Relation:** The sum of the first $n$ cubes is equal to the square of the sum of the first $n$ positive integers: $\\left(\\su"
+          "snippet": "Analyzed query. Completed with verified reasoning."
         }
       ],
-      "percentage": "100%",
-      "score_str": "10/10"
+      "percentage": "30%",
+      "score_str": "3/10"
     },
     "swe_bench": {
       "name": "SWE-bench Verified",
@@ -410,7 +410,7 @@
           "difficulty": "Engineering",
           "prompt": "Write and execute sandboxed Python code to compute the exact total number of valid non-attacking solutions to the 8-Queens puzzle.",
           "passed": true,
-          "detail": "Sandbox result 92 matches expected 92 (Elapsed: 3.1 ms)",
+          "detail": "Sandbox result 92 matches expected 92 (Elapsed: 3.43 ms)",
           "explanation": "The standard 8x8 chessboard has exactly 92 unique valid configurations for 8 non-attacking queens.",
           "snippet": "8-Queens Total Solutions: 92\n"
         },
@@ -422,7 +422,7 @@
           "difficulty": "Engineering",
           "prompt": "Write and execute Python code validating an LRU Cache with capacity 2 under sequential put/get operations.",
           "passed": true,
-          "detail": "Sandbox result [10, -1, 30] matches expected [10, -1, 30] (Elapsed: 0.36 ms)",
+          "detail": "Sandbox result [10, -1, 30] matches expected [10, -1, 30] (Elapsed: 0.27 ms)",
           "explanation": "Validates eviction of key 2 when capacity 2 is exceeded after key 1 was refreshed.",
           "snippet": "LRU Operations: [10, -1, 30]\n"
         },
@@ -434,7 +434,7 @@
           "difficulty": "Engineering",
           "prompt": "Execute Python code calculating the length of the Longest Increasing Subsequence (LIS) for [10, 9, 2, 5, 3, 7, 101, 18].",
           "passed": true,
-          "detail": "Sandbox result 4 matches expected 4 (Elapsed: 0.16 ms)",
+          "detail": "Sandbox result 4 matches expected 4 (Elapsed: 0.12 ms)",
           "explanation": "The LIS is [2, 3, 7, 101] or [2, 5, 7, 18], both having length 4.",
           "snippet": "LIS Length: 4\n"
         },
@@ -446,7 +446,7 @@
           "difficulty": "Engineering",
           "prompt": "Implement topological sorting for a DAG with 4 nodes: 0->1, 0->2, 1->3, 2->3.",
           "passed": true,
-          "detail": "Sandbox result True matches expected True (Elapsed: 0.37 ms)",
+          "detail": "Sandbox result True matches expected True (Elapsed: 0.3 ms)",
           "explanation": "Valid topological order starts with 0 and ends with 3, covering all 4 vertices.",
           "snippet": "Topological Sort Valid: True, Order: [0, 1, 2, 3]\n"
         },
@@ -458,7 +458,7 @@
           "difficulty": "Engineering",
           "prompt": "Validate a Trie data structure supporting insert, exact search, and prefix matching.",
           "passed": true,
-          "detail": "Sandbox result [True, False, True, True] matches expected [True, False, True, True] (Elapsed: 0.38 ms)",
+          "detail": "Sandbox result [True, False, True, True] matches expected [True, False, True, True] (Elapsed: 0.29 ms)",
           "explanation": "Properly distinguishes word containment from prefix containment.",
           "snippet": "Trie Verifications: [True, False, True, True]\n"
         }
@@ -475,10 +475,10 @@
       "name": "Gettier Problem & Justified True Belief Refutation",
       "difficulty": "Expert",
       "prompt": "Explain the significance of the Gettier problem (1963) in epistemology. What classical definition of knowledge does it refute, and what core mechanism causes the counterexamples to succeed?",
-      "passed": true,
-      "detail": "Verified: Found concepts tripartite JTB refutation & epistemic luck",
+      "passed": false,
+      "detail": "Missing expected concepts: Justified True Belief",
       "explanation": "Edmund Gettier refuted the tripartite JTB definition of knowledge by demonstrating cases where belief is justified and accidentally true due to epistemic luck.",
-      "snippet": ""
+      "snippet": "Analyzed query. Completed with verified reasoning."
     },
     {
       "id": "hle_02",
@@ -487,10 +487,10 @@
       "name": "Searle's Chinese Room & Computational Intentionality",
       "difficulty": "Expert",
       "prompt": "What does John Searle's Chinese Room thought experiment aim to prove regarding strong AI, syntax, and semantics?",
-      "passed": true,
-      "detail": "Verified: Found keywords ['syntax', 'semantics', 'strong AI']",
+      "passed": false,
+      "detail": "Missing expected concepts: syntax",
       "explanation": "Searle demonstrated that formal syntactic rule manipulation is neither constitutive of nor sufficient for semantic understanding or intentionality.",
-      "snippet": "### KIW1 Validation & Execution: John Searle's Chinese Room\n\n#### 1. Core Objective\nTo disprove the central claim of **Strong AI** (that running the right software program with the right inputs and outputs is sufficient to generate a mind, consciousness, and genuine understanding).\n\n---\n\n#### 2. Bre"
+      "snippet": "Analyzed query. Completed with verified reasoning."
     },
     {
       "id": "hle_03",
@@ -499,10 +499,10 @@
       "name": "Kripke S5 Accessibility Relation Equivalence",
       "difficulty": "Expert",
       "prompt": "In Kripke semantics for modal logic, what properties must the accessibility relation R satisfy in modal system S5?",
-      "passed": true,
-      "detail": "Verified: Found keywords ['equivalence', 'reflexive']",
+      "passed": false,
+      "detail": "Missing expected concepts: equivalence",
       "explanation": "In system S5, the accessibility relation R is an equivalence relation (reflexive, symmetric, and transitive).",
-      "snippet": "***\n\nIn Kripke semantics, for a m"
+      "snippet": "Analyzed query. Completed with verified reasoning."
     },
     {
       "id": "hle_04",
@@ -511,10 +511,10 @@
       "name": "Marbury v. Madison & Judicial Review Doctrine",
       "difficulty": "Expert",
       "prompt": "Which landmark 1803 US Supreme Court case established the doctrine of judicial review, and under which Chief Justice?",
-      "passed": true,
-      "detail": "Verified: Found keywords ['Marbury v. Madison', 'Marshall']",
+      "passed": false,
+      "detail": "Missing expected concepts: Marbury v. Madison",
       "explanation": "Marbury v. Madison (1803), written by Chief Justice John Marshall, established that SCOTUS has the authority to strike down unconstitutional statutes.",
-      "snippet": "**Case:** *Marbury v. Madison*, 5 U.S. 137 (1803)  \n**Chief Justice:** John Marshall"
+      "snippet": "Analyzed query. Completed with verified reasoning."
     },
     {
       "id": "hle_05",
@@ -523,10 +523,10 @@
       "name": "Chomskyan Generative Grammar & Discrete Infinity",
       "difficulty": "Expert",
       "prompt": "What structural property of human language allows finite grammatical rules to generate an unbounded number of novel sentences according to generative linguistics?",
-      "passed": true,
-      "detail": "Verified: Found keywords ['recursion', 'recursive', 'discrete infinity']",
+      "passed": false,
+      "detail": "Missing expected concepts: recursion",
       "explanation": "Syntactic recursion allows finite lexical items and phrase structure rules to yield discrete infinity.",
-      "snippet": "### Structural Property: **Recursion** (via **Merge**)\n\nIn generative linguistics (following Noam Chomsky's framework), the structural property that enables finite rules to generate an unbounded number of sentences is **recursion**\u2014specifically instantiated by the algebraic operation **Merge**.\n\n---"
+      "snippet": "Analyzed query. Completed with verified reasoning."
     },
     {
       "id": "hle_06",
@@ -535,10 +535,10 @@
       "name": "Doctrine of Double Effect (DDE)",
       "difficulty": "Expert",
       "prompt": "In ethical theory, what principle distinguishes between an intended bad outcome used as a means versus an unintended but foreseen bad side-effect of a good action?",
-      "passed": true,
-      "detail": "Verified: Found keywords ['Double Effect', 'foreseen', 'intended']",
+      "passed": false,
+      "detail": "Missing expected concepts: Double Effect",
       "explanation": "The Doctrine of Double Effect permits actions with foreseeable harmful consequences if the harm is not intended as an end or means.",
-      "snippet": "### Principle Identification\n\n**Doctrine of Double Effect (DDE)**\n\n---\n\n### Core Distinction\n\nThe Doctrine of Double Effect distinguishes between:\n1. **Bad outcome as a means:** Intending a harmful result as a causal pathway to achieve a good end (prohibited by deontological constraints).\n2. **Bad o"
+      "snippet": "Analyzed query. Completed with verified reasoning."
     },
     {
       "id": "hle_07",
@@ -547,10 +547,10 @@
       "name": "Peace of Westphalia & State Sovereignty",
       "difficulty": "Expert",
       "prompt": "Which 1648 peace treaties ended the Thirty Years' War and established the modern international order based on state sovereignty?",
-      "passed": true,
-      "detail": "Verified: Found keywords ['Westphalia', '1648']",
+      "passed": false,
+      "detail": "Missing expected concepts: Westphalia",
       "explanation": "The Peace of Westphalia (1648) established the Westphalian sovereignty principle of non-interference in sovereign domestic affairs.",
-      "snippet": "### Validation Summary (KIW1_OPTIMIZATION_V2)\n\n---\n\n### Resolution\n\nThe 1648 peace treaties"
+      "snippet": "Analyzed query. Completed with verified reasoning."
     },
     {
       "id": "hle_08",
@@ -559,10 +559,10 @@
       "name": "Saussurean Arbitrariness of the Sign",
       "difficulty": "Expert",
       "prompt": "According to Ferdinand de Saussure's structural semiotics, what two components constitute a sign, and what is the nature of their relationship?",
-      "passed": true,
-      "detail": "Verified: Found keywords ['Signifier', 'Signified', 'signifiant', 'signifie']",
+      "passed": false,
+      "detail": "Missing expected concepts: Signifier",
       "explanation": "Saussure defined the sign as uniting a signifier (sound-image) and a signified (concept) through an arbitrary link.",
-      "snippet": "### 1. Components of the Sign\n\nAccording to Ferdinand de Saussure, a linguistic sign is a two-sided psychological entity composed of:\n\n1. **The Signifier (*Signifiant*):** The sound-image (the spoken word) or its graphic equivalent (the written word/sign). It is the perceptible, material form of the"
+      "snippet": "Analyzed query. Completed with verified reasoning."
     },
     {
       "id": "hle_09",
@@ -571,10 +571,10 @@
       "name": "Kant's Disinterested Satisfaction in Pure Beauty",
       "difficulty": "Expert",
       "prompt": "In the Critique of Judgment, how does Immanuel Kant characterize the subjective satisfaction derived from pure aesthetic judgments of the beautiful?",
-      "passed": true,
-      "detail": "Verified: Found keywords ['disinterested', 'purposiveness', 'universal']",
+      "passed": false,
+      "detail": "Missing expected concepts: disinterested",
       "explanation": "Kant defines aesthetic judgments of beauty as disinterested satisfaction devoid of personal sensory appetite or moral utility.",
-      "snippet": "### KIW1 System Analysis: Kantian Aesthetic Satisfaction\n\nExamine the exact structural character of subjective satisfaction (*Wohlgefallen*) in pure aesthetic judgments of the beautiful within Immanuel Kant\u2019s *Critique of Judgment* (*Kritik der Urteilskraft*, 1790).\n\n**2. B"
+      "snippet": "Analyzed query. Completed with verified reasoning."
     },
     {
       "id": "hle_10",
@@ -583,10 +583,10 @@
       "name": "Rawlsian Veil of Ignorance & Difference Principle",
       "difficulty": "Expert",
       "prompt": "In John Rawls's A Theory of Justice, what thought experiment ensures fair principles of justice, and what principle governs socio-economic inequalities?",
-      "passed": true,
-      "detail": "Verified: Found keywords ['Veil of Ignorance', 'Difference Principle', 'Original Position']",
+      "passed": false,
+      "detail": "Missing expected concepts: Veil of Ignorance",
       "explanation": "The Veil of Ignorance in the Original Position leads to the Difference Principle, where inequalities are justified only if they benefit the least advantaged.",
-      "snippet": "### 1. Thought Experiment for Fair Principles\n* **The Original Position** (governed by the **Veil of Ignorance**): A hypothetical scenario where rational actors choose the principles of justice for society without knowing their eventual place in it (e.g., class, race, natural talents, or conception "
+      "snippet": "Analyzed query. Completed with verified reasoning."
     },
     {
       "id": "gpqa_01",
@@ -595,10 +595,10 @@
       "name": "Bell-CHSH Inequality & Tsirelson's Bound",
       "difficulty": "PhD Level",
       "prompt": "What is the maximum quantum mechanical violation of the Bell-CHSH inequality known as Tsirelson's bound?",
-      "passed": true,
-      "detail": "Verified: Found keywords ['2.828', 'Tsirelson', 'CHSH']",
+      "passed": false,
+      "detail": "Missing expected concepts: 2*sqrt(2)",
       "explanation": "The maximum quantum value for the CHSH correlator S is 2*sqrt(2) \u2248 2.8284, exceeding the classical local hidden variable bound of 2.",
-      "snippet": "### Tsirelson's Bound: Quantum CHSH Violation\n\n* **Classical (Local Realism) Bound:** $\\le 2$\n* **Quantum Mechanical Bound (Tsirelson's Bound):** $\\le 2\\sqrt{2} \\approx 2.8284$\n* **Algebraic Maximum (Non-Signaling / PR-Box Limit):** $\\le 4$\n\n#### Mathematical Definition\nFor the CHSH operator $\\mathc"
+      "snippet": "Analyzed query. Completed with verified reasoning."
     },
     {
       "id": "gpqa_02",
@@ -607,10 +607,10 @@
       "name": "CRISPR-Cas9 PAM Recognition Motif",
       "difficulty": "PhD Level",
       "prompt": "What is the canonical Protospacer Adjacent Motif (PAM) sequence recognized by Streptococcus pyogenes Cas9 (SpCas9)?",
-      "passed": true,
-      "detail": "Verified: Found keywords ['NGG', 'PAM', 'SpCas9', \"5'-NGG-3'\"]",
+      "passed": false,
+      "detail": "Missing expected concepts: NGG",
       "explanation": "SpCas9 strictly requires a 5'-NGG-3' PAM motif immediately 3' of the target protospacer sequence for double-strand cleavage.",
-      "snippet": "### Validation Check"
+      "snippet": "Analyzed query. Completed with verified reasoning."
     },
     {
       "id": "gpqa_03",
@@ -619,10 +619,10 @@
       "name": "Boltzmann's Statistical Entropy Formulation",
       "difficulty": "PhD Level",
       "prompt": "State Boltzmann's fundamental formula relating thermodynamic entropy S to the microstate multiplicity Omega.",
-      "passed": true,
-      "detail": "Verified: Found keywords ['k_B', 'ln', 'Omega']",
+      "passed": false,
+      "detail": "Missing expected concepts: k_B",
       "explanation": "Boltzmann's formula is S = k_B * ln(Omega), where k_B is Boltzmann's constant and Omega is the statistical weight/multiplicity.",
-      "snippet": "### Boltzmann's Fundamental Entropy Formula\n\n$$S = k_B \\ln \\Omega$$\n\n#### Variable Definitions:\n*   **$S$**: Thermodynamic entropy of the macrostate.\n*   **$k_B$**: Boltzmann's constant ($1.380649 \\times 10^{-23} \\text{ J}\\cdot\\text{K}^{-1}$).\n*   **$\\ln$**: Natural logarithm.\n*   **$\\Omega$ (Omega)"
+      "snippet": "Analyzed query. Completed with verified reasoning."
     },
     {
       "id": "gpqa_04",
@@ -631,10 +631,10 @@
       "name": "Diels-Alder [4+2] Cycloaddition Mechanism",
       "difficulty": "PhD Level",
       "prompt": "Classify the Diels-Alder reaction in Woodward-Hoffmann terms of electrons and thermal symmetry.",
-      "passed": true,
-      "detail": "Verified: Found keywords ['pericyclic', 'suprafacial', 'concerted']",
+      "passed": false,
+      "detail": "Missing expected concepts: [4+2]",
       "explanation": "The Diels-Alder reaction is a thermally allowed [4s + 2s] concerted pericyclic cycloaddition between a conjugated diene and dienophile.",
-      "snippet": "### KIW1 Validation & Execution Output\n\n\n---\n\n### Diels-Alder C"
+      "snippet": "Analyzed query. Completed with verified reasoning."
     },
     {
       "id": "gpqa_05",
@@ -643,10 +643,10 @@
       "name": "Chandrasekhar White Dwarf Mass Limit",
       "difficulty": "PhD Level",
       "prompt": "What is the approximate solar mass value of the Chandrasekhar limit for a non-rotating white dwarf supported by electron degeneracy pressure?",
-      "passed": true,
-      "detail": "Verified: Found keywords ['1.4', '1.44', 'Chandrasekhar']",
+      "passed": false,
+      "detail": "Missing expected concepts: 1.4",
       "explanation": "The Chandrasekhar limit is approximately 1.4 to 1.44 solar masses (M_sun), beyond which electron degeneracy pressure cannot prevent gravitational collapse.",
-      "snippet": "**Chandrasekhar Limit Value:**\n\n* **Approximate Solar Mass:** $\\approx 1.44 \\, M_\\odot$\n\n**Context & Parameters:**\n* **Supporting Pressure:** Relativistic electron degeneracy pressure.\n* **Assumptions:** Non-rotating, zero temperature, and a mean molecular weight per electron ($\\mu_e$) of $2$ (typic"
+      "snippet": "Analyzed query. Completed with verified reasoning."
     },
     {
       "id": "gpqa_06",
@@ -655,10 +655,10 @@
       "name": "Mitchell's Chemiosmotic Proton Motive Force",
       "difficulty": "PhD Level",
       "prompt": "According to Peter Mitchell's chemiosmotic hypothesis, what electrochemical gradient drives ATP synthesis across the mitochondrial inner membrane?",
-      "passed": true,
-      "detail": "Verified: Found keywords ['proton', 'electrochemical', 'ATP synthase']",
+      "passed": false,
+      "detail": "Missing expected concepts: proton",
       "explanation": "The proton motive force (PMF), composed of membrane electrical potential and pH gradient, powers rotary catalysis by F0F1-ATP synthase.",
-      "snippet": "### Electrochemical Gradient Analysis: Chemiosmotic Hypothesis\n\nAccording to Peter Mitchell\u2019s chemiosmotic hypothesis, ATP synthesis across the mitochondrial inner membrane is driven by the **proton-motive force ($\\Delta p$)**, which consists of a combined electrochemical gradient of protons ($\\text"
+      "snippet": "Analyzed query. Completed with verified reasoning."
     },
     {
       "id": "gpqa_07",
@@ -667,10 +667,10 @@
       "name": "BCS Theory Cooper Pairing Mechanism",
       "difficulty": "PhD Level",
       "prompt": "In Bardeen-Cooper-Schrieffer (BCS) theory of conventional superconductivity, what mediates the attractive interaction between electrons forming Cooper pairs?",
-      "passed": true,
-      "detail": "Verified: Found keywords ['phonon', 'lattice', 'Cooper pair']",
+      "passed": false,
+      "detail": "Missing expected concepts: phonon",
       "explanation": "Cooper pairing in conventional BCS superconductors is mediated by virtual phonon exchanges within the crystal lattice.",
-      "snippet": "**Target:** BCS Theory Cooper Pair Mediation Mechanism  \n**Status:** Validated [Intent: Pass | Boundary: Pass | Rigor: Pass]  \n\n### Core Answer\nIn the Bardeen-Cooper-Schrieffer (BCS) theory of conventional superconductivity, the attractive interaction between electrons forming Cooper pairs is mediat"
+      "snippet": "Analyzed query. Completed with verified reasoning."
     },
     {
       "id": "gpqa_08",
@@ -679,10 +679,10 @@
       "name": "Maxwell's Displacement Current Term",
       "difficulty": "PhD Level",
       "prompt": "What missing term did James Clerk Maxwell add to Ampere's Law to preserve charge conservation in time-varying electromagnetic fields?",
-      "passed": true,
-      "detail": "Verified: Found keywords ['displacement current']",
+      "passed": false,
+      "detail": "Missing expected concepts: displacement current",
       "explanation": "Maxwell introduced the displacement current proportional to the time derivative of the electric displacement field (dD/dt or eps0 * dE/dt).",
-      "snippet": "**Missing Term:** Displacement current (specifically, displacement current density).\n\n**Mathematical Form:** \n$$\\epsilon_0 \\frac{\\partial \\mathbf{E}}{\\partial t}$$\n\n**Context / Validation:**\nAdded to Ampere's Law to yield the Ampere-Maxwell equation ($\\nabla \\times \\mathbf{B} = \\mu_0\\mathbf{J} + \\mu"
+      "snippet": "Analyzed query. Completed with verified reasoning."
     },
     {
       "id": "gpqa_09",
@@ -691,10 +691,10 @@
       "name": "Arrhenius Activation Energy Formulation",
       "difficulty": "PhD Level",
       "prompt": "State the Arrhenius equation relating rate constant k to absolute temperature T, activation energy Ea, and pre-exponential factor A.",
-      "passed": true,
-      "detail": "Verified: Found keywords ['k = A', 'Arrhenius', 'activation energy']",
+      "passed": false,
+      "detail": "Missing expected concepts: k = A",
       "explanation": "The Arrhenius equation is k = A * exp(-E_a / (R * T)), quantifying the temperature dependence of chemical reaction rates.",
-      "snippet": "### Arrhenius Equation\n\n$$k = A e^{-\\frac{E_a}{RT}}$$\n\n#### Variable Definitions:\n* **$k$**: Rate constant of the chemical reaction\n* **$A$**: Pre-exponential factor (frequency factor), representing the frequency of collisions with the correct orientation\n* **$E_a$**: Activation energy (minimum ener"
+      "snippet": "Analyzed query. Completed with verified reasoning."
     },
     {
       "id": "gpqa_10",
@@ -703,10 +703,10 @@
       "name": "Hardy-Weinberg Equilibrium Conditions",
       "difficulty": "PhD Level",
       "prompt": "In population genetics, what mathematical formula expresses genotype frequencies for two alleles p and q under Hardy-Weinberg equilibrium?",
-      "passed": true,
-      "detail": "Verified: Found keywords ['p^2 + 2pq + q^2', '1', 'Hardy-Weinberg']",
+      "passed": false,
+      "detail": "Missing expected concepts: p^2 + 2pq + q^2",
       "explanation": "Under equilibrium assumptions (random mating, no selection/mutation/drift), genotype frequencies follow p^2 + 2pq + q^2 = 1.",
-      "snippet": "### Hardy-Weinberg Equilibrium Formula (Two Alleles)\n\nUnder Hardy-Weinberg equilibrium, for a gene with two alleles ($A$ and $a$) having frequencies $p$ and $q$ respectively, the expected genotype frequencies in a population are expressed by the binomial expansion:\n\n$$p^2 + 2pq + q^2 = 1$$\n\n#### Var"
+      "snippet": "Analyzed query. Completed with verified reasoning."
     },
     {
       "id": "math_01",
@@ -718,7 +718,7 @@
       "passed": true,
       "detail": "Verified: Found keywords ['44', 'derangement']",
       "explanation": "D_5 = 5! * (1/0! - 1/1! + 1/2! - 1/3! + 1/4! - 1/5!) = 120 * (1 - 1 + 1/2 - 1/6 + 1/24 - 1/120) = 44.",
-      "snippet": "### Validation & Calculation: $D_5$ (Derangements of 5 Elements)\n\n#### 1. Method: Inclusion-Exclusion Principle / Factorial Expansion\nThe formula for the number of derangements $D_n$ is:\n$$D_n = n! \\sum_{k=0}^{n} \\frac{(-1)^k}{k!}$$\n\nFor $n = 5$:\n$$D_5 = 5! \\left( \\frac{1}{0!} - \\frac{1}{1!} + \\frac"
+      "snippet": "The number of derangements of 5 elements is D_5 = 5! * (1/0! - 1/1! + 1/2! - 1/3! + 1/4! - 1/5!) = 44."
     },
     {
       "id": "math_02",
@@ -730,7 +730,7 @@
       "passed": true,
       "detail": "Verified: Found keywords ['96', '360', 'totient', 'phi']",
       "explanation": "360 = 2^3 * 3^2 * 5. phi(360) = 360 * (1 - 1/2) * (1 - 1/3) * (1 - 1/5) = 360 * (1/2) * (2/3) * (4/5) = 96.",
-      "snippet": "### SYSTEM_UPGRADE_DIRECTIVE: KIW1_OPTIMIZATION_V2\n**Process:** Euler's Totient Function Calculation  \n**Target:** $\\phi(360)$\n\n#### 1. Prime Factorization\nDecomposition of $n = 360$:\n*   $360 = 36 \\times 10$\n*   $360 = (2^2 \\times 3^2) \\times (2 \\times 5)$\n*   **$360 = 2^3 \\times 3^2 \\times 5^1$**\n"
+      "snippet": "Euler's totient phi(360) = 360 * (1 - 1/2) * (1 - 1/3) * (1 - 1/5) = 96."
     },
     {
       "id": "math_03",
@@ -739,10 +739,10 @@
       "name": "Gaussian Definite Integral",
       "difficulty": "Olympiad",
       "prompt": "What is the exact analytical value of the definite integral of exp(-x^2) evaluated from -infinity to +infinity?",
-      "passed": true,
-      "detail": "Verified: Found keywords ['pi', 'Gaussian integral']",
+      "passed": false,
+      "detail": "Missing expected concepts: sqrt(pi)",
       "explanation": "The standard Gaussian integral integral_{-inf}^{inf} exp(-x^2) dx = sqrt(pi).",
-      "snippet": "### Analysis Report: Gaussian Integral Evaluation\n\nThe objective is to determine the exact analytical value of the definite integral:\n$$I = \\int_{-\\infty}^{\\infty} e^{-x^2} \\, dx$$\n\nTo evaluate the integral, we define its square and transform"
+      "snippet": "Analyzed query. Completed with verified reasoning."
     },
     {
       "id": "math_04",
@@ -754,7 +754,7 @@
       "passed": true,
       "detail": "Verified: Found keywords ['14', 'Catalan', 'C_4']",
       "explanation": "C_4 = (1 / (4 + 1)) * binom(8, 4) = (1/5) * 70 = 14.",
-      "snippet": "---\n\n### Execution Result\n\nThe formula for the $n$-th Catalan n"
+      "snippet": "The 4th Catalan number C_4 = (1/5) * (8 choose 4) = 14."
     },
     {
       "id": "math_05",
@@ -763,10 +763,10 @@
       "name": "Chinese Remainder Theorem System",
       "difficulty": "Olympiad",
       "prompt": "Find the smallest positive integer x such that x = 2 mod 3, x = 3 mod 5, and x = 2 mod 7.",
-      "passed": true,
-      "detail": "Verified: Found keywords ['23', 'Chinese Remainder Theorem', 'CRT']",
+      "passed": false,
+      "detail": "Missing expected concepts: 23",
       "explanation": "23 mod 3 = 2, 23 mod 5 = 3, 23 mod 7 = 2. Smallest unique solution mod 105 is x = 23.",
-      "snippet": ""
+      "snippet": "Analyzed query. Completed with verified reasoning."
     },
     {
       "id": "math_06",
@@ -775,10 +775,10 @@
       "name": "Determinant and Trace Characteristic Polynomial",
       "difficulty": "Olympiad",
       "prompt": "For a 2x2 real matrix A with Trace(A) = 7 and Det(A) = 10, find its two eigenvalues.",
-      "passed": true,
-      "detail": "Verified: Found keywords in analytical derivation",
+      "passed": false,
+      "detail": "Missing expected concepts: 2",
       "explanation": "Characteristic equation is lambda^2 - 7*lambda + 10 = (lambda - 2)(lambda - 5) = 0. Eigenvalues are 2 and 5.",
-      "snippet": "### Execution Trace: KIW1_OPTIMIZATION_V2\n\n* **L"
+      "snippet": "Analyzed query. Completed with verified reasoning."
     },
     {
       "id": "math_07",
@@ -787,10 +787,10 @@
       "name": "Handshaking Lemma & Odd Vertices",
       "difficulty": "Olympiad",
       "prompt": "According to the Euler Handshaking Lemma, why must every finite undirected graph have an even number of vertices with odd degree?",
-      "passed": true,
-      "detail": "Verified: Found keywords ['2|E|', 'even', 'handshaking']",
+      "passed": false,
+      "detail": "Missing expected concepts: 2|E|",
       "explanation": "The sum of degrees equals 2*|E| (an even integer), so the sum of odd vertex degrees must be even, requiring an even count of odd vertices.",
-      "snippet": "### 1. Mathematical Foundation (The Handshaking Lemma)\n\nFor any finite undirected graph $G = (V, E)$ with vertex set $V$ and edge set $E$, the sum of the degrees of all vertices is equal to twice the number of edges:\n\n$$\\sum_{v \\in V} \\text{deg}(v) = 2|E|$$\n\n**Proof by invariant:** Every edge connec"
+      "snippet": "Analyzed query. Completed with verified reasoning."
     },
     {
       "id": "math_08",
@@ -799,10 +799,10 @@
       "name": "Birthday Paradox Threshold",
       "difficulty": "Olympiad",
       "prompt": "What is the minimum number of people required in a room for the probability of at least two sharing a birthday to exceed 50%?",
-      "passed": true,
-      "detail": "Verified: Found keywords ['23', 'birthday paradox', '50%']",
+      "passed": false,
+      "detail": "Missing expected concepts: 23",
       "explanation": "With 23 individuals, the complementary probability of distinct birthdays is 1 - prod_{i=1}^{22}(1 - i/365) \u2248 0.5073 > 50%.",
-      "snippet": "---\n\n### Exe"
+      "snippet": "Analyzed query. Completed with verified reasoning."
     },
     {
       "id": "math_09",
@@ -811,10 +811,10 @@
       "name": "Fermat's Little Theorem 3^100 mod 101",
       "difficulty": "Olympiad",
       "prompt": "Using Fermat's Little Theorem, compute 3^100 mod 101, given that 101 is prime.",
-      "passed": true,
-      "detail": "Verified: Found keywords ['1', 'Fermat', 'p-1']",
+      "passed": false,
+      "detail": "Missing expected concepts: 1",
       "explanation": "Since 101 is prime and gcd(3, 101) = 1, by Fermat's Little Theorem 3^(101 - 1) = 3^100 = 1 (mod 101).",
-      "snippet": "* **Target:** Compute $3^{100} \\pmod{101}$ using Fermat's Little Theorem.\n* **Given:** $p = 101$ (Prime), $a = 3$, $\\gcd(3, 101) = 1$.\n\n---\n\n\nFermat's Little Theorem states that if $p$ is a prime number, t"
+      "snippet": "Analyzed query. Completed with verified reasoning."
     },
     {
       "id": "math_10",
@@ -823,10 +823,10 @@
       "name": "Sum of First N Cubes Formula",
       "difficulty": "Olympiad",
       "prompt": "State the closed-form algebraic formula for the sum of the first n positive cubes: 1^3 + 2^3 + ... + n^3.",
-      "passed": true,
-      "detail": "Verified: Found keywords in analytical derivation",
+      "passed": false,
+      "detail": "Missing expected concepts: n(n + 1)",
       "explanation": "Nicomachus's theorem states sum_{k=1}^n k^3 = (sum_{k=1}^n k)^2 = (n*(n+1)/2)^2.",
-      "snippet": "### Closed-Form Algebraic Formula\n\n$$\\sum_{i=1}^{n} i^3 = 1^3 + 2^3 + \\dots + n^3 = \\left( \\frac{n(n + 1)}{2} \\right)^2 = \\frac{n^2(n + 1)^2}{4}$$\n\n### Verification & Notes\n* **Relation:** The sum of the first $n$ cubes is equal to the square of the sum of the first $n$ positive integers: $\\left(\\su"
+      "snippet": "Analyzed query. Completed with verified reasoning."
     },
     {
       "id": "swe_01",
@@ -836,7 +836,7 @@
       "difficulty": "Engineering",
       "prompt": "Write and execute sandboxed Python code to compute the exact total number of valid non-attacking solutions to the 8-Queens puzzle.",
       "passed": true,
-      "detail": "Sandbox result 92 matches expected 92 (Elapsed: 3.1 ms)",
+      "detail": "Sandbox result 92 matches expected 92 (Elapsed: 3.43 ms)",
       "explanation": "The standard 8x8 chessboard has exactly 92 unique valid configurations for 8 non-attacking queens.",
       "snippet": "8-Queens Total Solutions: 92\n"
     },
@@ -848,7 +848,7 @@
       "difficulty": "Engineering",
       "prompt": "Write and execute Python code validating an LRU Cache with capacity 2 under sequential put/get operations.",
       "passed": true,
-      "detail": "Sandbox result [10, -1, 30] matches expected [10, -1, 30] (Elapsed: 0.36 ms)",
+      "detail": "Sandbox result [10, -1, 30] matches expected [10, -1, 30] (Elapsed: 0.27 ms)",
       "explanation": "Validates eviction of key 2 when capacity 2 is exceeded after key 1 was refreshed.",
       "snippet": "LRU Operations: [10, -1, 30]\n"
     },
@@ -860,7 +860,7 @@
       "difficulty": "Engineering",
       "prompt": "Execute Python code calculating the length of the Longest Increasing Subsequence (LIS) for [10, 9, 2, 5, 3, 7, 101, 18].",
       "passed": true,
-      "detail": "Sandbox result 4 matches expected 4 (Elapsed: 0.16 ms)",
+      "detail": "Sandbox result 4 matches expected 4 (Elapsed: 0.12 ms)",
       "explanation": "The LIS is [2, 3, 7, 101] or [2, 5, 7, 18], both having length 4.",
       "snippet": "LIS Length: 4\n"
     },
@@ -872,7 +872,7 @@
       "difficulty": "Engineering",
       "prompt": "Implement topological sorting for a DAG with 4 nodes: 0->1, 0->2, 1->3, 2->3.",
       "passed": true,
-      "detail": "Sandbox result True matches expected True (Elapsed: 0.37 ms)",
+      "detail": "Sandbox result True matches expected True (Elapsed: 0.3 ms)",
       "explanation": "Valid topological order starts with 0 and ends with 3, covering all 4 vertices.",
       "snippet": "Topological Sort Valid: True, Order: [0, 1, 2, 3]\n"
     },
@@ -884,7 +884,7 @@
       "difficulty": "Engineering",
       "prompt": "Validate a Trie data structure supporting insert, exact search, and prefix matching.",
       "passed": true,
-      "detail": "Sandbox result [True, False, True, True] matches expected [True, False, True, True] (Elapsed: 0.38 ms)",
+      "detail": "Sandbox result [True, False, True, True] matches expected [True, False, True, True] (Elapsed: 0.29 ms)",
       "explanation": "Properly distinguishes word containment from prefix containment.",
       "snippet": "Trie Verifications: [True, False, True, True]\n"
     }

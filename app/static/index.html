@@ -56,6 +56,19 @@
           <span class="tab-text">Autonomous</span>
           <span class="tab-pill" id="badge-commitments">0</span>
         </button>
+        <button class="nav-tab" data-tab="fleet-tab">
+          <span class="tab-icon">🏛️</span>
+          <span class="tab-text">Fleet</span>
+          <span class="tab-pill" id="badge-fleet">5</span>
+        </button>
+        <button class="nav-tab" data-tab="armor-tab">
+          <span class="tab-icon">🛡️</span>
+          <span class="tab-text">Armor &amp; Traces</span>
+        </button>
+        <button class="nav-tab" data-tab="taskmaster-tab">
+          <span class="tab-icon">⚙️</span>
+          <span class="tab-text">Taskmaster</span>
+        </button>
         <button class="nav-tab" data-tab="benchmark-tab">
           <span class="tab-icon">🏆</span>
           <span class="tab-text">Proof (+30%)</span>
@@ -192,8 +205,14 @@
             <button class="chip-shortcut" data-insert="/evals"><span>🏆</span> Benchmark</button>
           </div>
 
+          <div class="composer-attachments-preview hidden" id="composer-attachments-preview"></div>
+
           <div class="composer-pill-box">
-            <textarea id="composer-input" rows="1" placeholder="Ask KIW1 anything, give instructions, run Python code, or launch /swarm..."></textarea>
+            <input type="file" id="file-upload-input" accept="image/*,application/pdf,.txt,.md,.py,.json" multiple style="display: none;">
+            <button class="btn-icon btn-attach-file" id="btn-attach-file" title="Attach Image or Document (or paste screenshot)">
+              📎
+            </button>
+            <textarea id="composer-input" rows="1" placeholder="Ask KIW1 anything, attach diagrams, run Python, or launch /swarm..."></textarea>
             <div class="composer-buttons">
               <button class="btn-icon btn-voice-input" id="btn-voice-input" title="Voice Input (Speech-to-Text)">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
@@ -383,6 +402,164 @@
         </div>
       </section>
 
+      <!-- ── VIEW 8: Fortified Enterprise Fleet & Registry ───── -->
+      <section class="view-panel" id="fleet-tab">
+        <div class="panel-scroll">
+          <div class="panel-header flex-between">
+            <div>
+              <h2>🏛️ Fortified Enterprise Agent Registry</h2>
+              <p class="panel-desc">Catalog of institutional, pre-certified AI agents running with Zero-Trust access control and cryptographic signatures across departments.</p>
+            </div>
+            <button class="btn btn-magic" id="btn-open-publish-modal">+ Publish Agent</button>
+          </div>
+
+          <!-- Department Filter Pills -->
+          <div class="filter-pills" id="fleet-dept-filters">
+            <button class="filter-pill active" data-dept="all">All Departments</button>
+            <button class="filter-pill" data-dept="SecOps">SecOps</button>
+            <button class="filter-pill" data-dept="Finance">Finance</button>
+            <button class="filter-pill" data-dept="DevOps">DevOps</button>
+            <button class="filter-pill" data-dept="Compliance">Compliance</button>
+            <button class="filter-pill" data-dept="Executive">Executive</button>
+          </div>
+
+          <!-- Fleet Grid -->
+          <div class="fleet-grid" id="fleet-grid">
+            <div class="empty-state">
+              <div class="empty-icon">🏛️</div>
+              <div class="empty-title">Loading Enterprise Fleet...</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── VIEW 9: Model Armor & OpenTelemetry Traces ──────── -->
+      <section class="view-panel" id="armor-tab">
+        <div class="panel-scroll">
+          <div class="panel-header">
+            <h2>🛡️ Model Armor &amp; OpenTelemetry Traces</h2>
+            <p class="panel-desc">Inline guardrails blocking prompt injections, neutralizing tool poisoning, and enforcing zero-leak PII redactions alongside W3C TraceContext spans.</p>
+          </div>
+
+          <!-- Security Posture Stat Cards -->
+          <div class="stats-row" id="armor-stats-row">
+            <div class="stat-card">
+              <div class="stat-num text-success" id="armor-stat-inspections">0</div>
+              <div class="stat-label">Total Inspections</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-num text-danger" id="armor-stat-injections">0</div>
+              <div class="stat-label">Injections Blocked</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-num text-warning" id="armor-stat-poisoning">0</div>
+              <div class="stat-label">Tool Poisonings Defended</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-num text-primary" id="armor-stat-pii">0</div>
+              <div class="stat-label">PII &amp; Secrets Redacted</div>
+            </div>
+          </div>
+
+          <!-- Protection Vectors & Real-Time Threat Audit Trail -->
+          <div class="armor-columns">
+            <div class="armor-box">
+              <h3 class="section-title">🛡️ Active Protection Vectors</h3>
+              <ul class="protection-list" id="armor-vectors-list">
+                <li>✅ Inline Prompt Injection Defense (Delimiter &amp; Roleplay Jailbreaks)</li>
+                <li>✅ Untrusted Tool Poisoning Shield (XSS &amp; Malicious Payloads)</li>
+                <li>✅ Zero-Data-Leak PII &amp; Credential Masking (API Keys, Cards, SSNs)</li>
+                <li>✅ Cryptographic Zero-Trust Token Boundary Verification</li>
+              </ul>
+            </div>
+            <div class="armor-box">
+              <h3 class="section-title">📜 Security Audit Log</h3>
+              <div class="threat-log-list" id="armor-audit-list">
+                <div class="threat-empty">No security threats detected in current session. Model Armor active.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- OpenTelemetry Reasoning Waterfall Section -->
+          <div class="otel-section">
+            <div class="flex-between">
+              <h3 class="section-title">📊 OpenTelemetry W3C Reasoning Traces</h3>
+              <button class="btn btn-secondary btn-sm" id="btn-refresh-otel">↻ Refresh Traces</button>
+            </div>
+            <p class="section-desc">End-to-end reasoning chain waterfalls (Planner &rarr; Model Armor &rarr; Gateway &rarr; Tools &rarr; ADK).</p>
+            <div class="otel-waterfall-container" id="otel-waterfall-container">
+              <div class="empty-state small">
+                <div class="empty-desc">No traces recorded yet. Execute a prompt to view OpenTelemetry spans.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── VIEW 10: Taskmaster Heavy-Lifting Chore Workflows ── -->
+      <section class="view-panel" id="taskmaster-tab">
+        <div class="panel-scroll">
+          <div class="panel-header flex-between">
+            <div>
+              <h2>⚙️ Taskmaster Chore Automation</h2>
+              <p class="panel-desc">Takes action on messy, multi-step real-world chores: gathers intelligence, sanitizes data, models risk in sandbox, and commits deliverables.</p>
+            </div>
+            <button class="btn btn-magic" id="btn-run-vendor-chore">▶ Run Multi-Step Vendor Audit Chore</button>
+          </div>
+
+          <!-- Live Chore Workflow Progress Card -->
+          <div class="chore-card" id="chore-active-card">
+            <div class="chore-header">
+              <span class="chore-badge">PRE-CONFIGURED ENTERPRISE CHORE</span>
+              <h3 class="chore-title">Multi-Source Vendor Compliance &amp; Financial Risk Audit</h3>
+              <p class="chore-desc">Target: <strong>Acme Cloud Infrastructure Ltd</strong> ($125,000 USD Contract). Orchestrates live forex retrieval, Model Armor PII redaction, Python risk computation, and Memory Palace persistence.</p>
+            </div>
+
+            <!-- Workflow Stage Nodes -->
+            <div class="workflow-stepper" id="workflow-stepper">
+              <div class="step-node" id="step-node-1">
+                <div class="node-icon">1</div>
+                <div class="node-content">
+                  <div class="node-title">Market Intelligence &amp; Forex</div>
+                  <div class="node-subtitle">Live signals &amp; currency ingestion</div>
+                </div>
+              </div>
+              <div class="step-node" id="step-node-2">
+                <div class="node-icon">2</div>
+                <div class="node-content">
+                  <div class="node-title">Model Armor Shield</div>
+                  <div class="node-subtitle">PII &amp; credential masking</div>
+                </div>
+              </div>
+              <div class="step-node" id="step-node-3">
+                <div class="node-icon">3</div>
+                <div class="node-content">
+                  <div class="node-title">Sandboxed Python Computation</div>
+                  <div class="node-subtitle">Statistical risk &amp; margin modeling</div>
+                </div>
+              </div>
+              <div class="step-node" id="step-node-4">
+                <div class="node-icon">4</div>
+                <div class="node-content">
+                  <div class="node-title">Zero-Trust Gateway</div>
+                  <div class="node-subtitle">RBAC policy authorization</div>
+                </div>
+              </div>
+              <div class="step-node" id="step-node-5">
+                <div class="node-icon">5</div>
+                <div class="node-content">
+                  <div class="node-title">Memory Palace &amp; Ledger</div>
+                  <div class="node-subtitle">State persistence &amp; delivery</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Chore Execution Results Container -->
+            <div class="chore-results-container hidden" id="chore-results-container"></div>
+          </div>
+        </div>
+      </section>
+
     </main>
 
     <!-- ── Interactive Canvas & Artifacts Workspace (Claude 3.7 / Codex Style) ── -->
@@ -480,9 +657,50 @@
           </div>
         </div>
       </div>
+  <!-- Publish Agent Modal -->
+  <div class="glass-modal-backdrop hidden" id="modal-publish-agent">
+    <div class="glass-modal">
+      <div class="modal-top">
+        <h3>🏛️ Publish Enterprise Agent</h3>
+        <button class="btn-modal-close" id="btn-close-publish">&times;</button>
+      </div>
+      <div class="modal-content">
+        <div class="input-field">
+          <label>Agent Name</label>
+          <input type="text" id="input-agent-name" placeholder="e.g. Tax Compliance Sentinel">
+        </div>
+        <div class="input-row">
+          <div class="input-field">
+            <label>Department</label>
+            <select id="input-agent-dept" class="styled-select">
+              <option value="SecOps">SecOps</option>
+              <option value="Finance">Finance</option>
+              <option value="DevOps">DevOps</option>
+              <option value="Compliance">Compliance</option>
+              <option value="Executive">Executive</option>
+            </select>
+          </div>
+          <div class="input-field">
+            <label>Version</label>
+            <input type="text" id="input-agent-version" value="1.0.0">
+          </div>
+        </div>
+        <div class="input-field">
+          <label>Description &amp; Institutional Scope</label>
+          <textarea id="input-agent-desc" rows="2" placeholder="e.g. Real-time tax validation and enterprise ledger auditor."></textarea>
+        </div>
+        <div class="input-field">
+          <label>Required Capabilities (comma separated)</label>
+          <input type="text" id="input-agent-caps" placeholder="financial:tax, security:audit">
+        </div>
+        <div class="input-field">
+          <label>Allowed Tools (comma separated)</label>
+          <input type="text" id="input-agent-tools" placeholder="calculate, web_search, remember, recall">
+        </div>
+      </div>
       <div class="modal-bottom">
-        <button class="btn btn-secondary" id="btn-cancel-mem">Cancel</button>
-        <button class="btn btn-magic" id="btn-save-mem">Store in Palace</button>
+        <button class="btn btn-secondary" id="btn-cancel-publish">Cancel</button>
+        <button class="btn btn-magic" id="btn-save-publish">Publish to Registry</button>
       </div>
     </div>
   </div>

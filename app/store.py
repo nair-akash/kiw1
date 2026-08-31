@@ -115,49 +115,67 @@ class DurableStore:
             "tools": tools,
             "ts": now,
         }
+        self._local_data["fingerprints"].append(record)
+        self._save_local_data()
         if self.is_cloud():
-            self.get_user_ref().collection("fingerprints").add(record)
-        else:
-            self._local_data["fingerprints"].append(record)
-            self._save_local_data()
+            try:
+                self.get_user_ref().collection("fingerprints").add(record)
+            except Exception:
+                pass
         return fp
 
     def get_recent_fingerprints(self, fp: str, cutoff_iso: str) -> List[Dict[str, Any]]:
+        if "fingerprints" in self._local_data:
+            return [
+                item for item in self._local_data["fingerprints"]
+                if item.get("fp") == fp and item.get("ts", "") >= cutoff_iso
+            ]
         if self.is_cloud():
-            docs = (
-                self.get_user_ref()
-                .collection("fingerprints")
-                .where("fp", "==", fp)
-                .where("ts", ">=", cutoff_iso)
-                .stream()
-            )
-            return [d.to_dict() for d in docs]
-        return [
-            item for item in self._local_data["fingerprints"]
-            if item.get("fp") == fp and item.get("ts", "") >= cutoff_iso
-        ]
+            try:
+                docs = (
+                    self.get_user_ref()
+                    .collection("fingerprints")
+                    .where("fp", "==", fp)
+                    .stream()
+                )
+                return [d.to_dict() for d in docs if d.to_dict().get("ts", "") >= cutoff_iso]
+            except Exception:
+                pass
+        return []
 
     # Skill Registry Operations
     def save_skill(self, skill_data: Dict[str, Any]) -> str:
         name = skill_data["name"]
+        self._local_data["skills"][name] = skill_data
+        self._save_local_data()
         if self.is_cloud():
-            self.get_user_ref().collection("skills").document(name).set(skill_data)
-        else:
-            self._local_data["skills"][name] = skill_data
-            self._save_local_data()
+            try:
+                self.get_user_ref().collection("skills").document(name).set(skill_data)
+            except Exception:
+                pass
         return name
 
     def get_skill(self, name: str) -> Optional[Dict[str, Any]]:
+        if name in self._local_data.get("skills", {}):
+            return self._local_data["skills"][name]
         if self.is_cloud():
-            doc = self.get_user_ref().collection("skills").document(name).get()
-            return doc.to_dict() if doc.exists else None
-        return self._local_data["skills"].get(name)
+            try:
+                doc = self.get_user_ref().collection("skills").document(name).get()
+                return doc.to_dict() if doc.exists else None
+            except Exception:
+                pass
+        return None
 
     def list_skills(self) -> List[Dict[str, Any]]:
+        if "skills" in self._local_data:
+            return list(self._local_data["skills"].values())
         if self.is_cloud():
-            docs = self.get_user_ref().collection("skills").stream()
-            return [d.to_dict() for d in docs]
-        return list(self._local_data["skills"].values())
+            try:
+                docs = self.get_user_ref().collection("skills").stream()
+                return [d.to_dict() for d in docs]
+            except Exception:
+                pass
+        return []
 
     # Correction Ledger Operations
     def add_correction(self, correction_data: Dict[str, Any]) -> str:
@@ -247,50 +265,79 @@ class DurableStore:
             commitment_data["status"] = "active"
 
         if self.is_cloud():
-            self.get_user_ref().collection("commitments").document(cid).set(commitment_data)
-        else:
-            if "commitments" not in self._local_data:
-                self._local_data["commitments"] = {}
-            self._local_data["commitments"][cid] = commitment_data
-            self._save_local_data()
+            try:
+                self.get_user_ref().collection("commitments").document(cid).set(commitment_data)
+            except Exception:
+                pass
+        if "commitments" not in self._local_data:
+            self._local_data["commitments"] = {}
+        self._local_data["commitments"][cid] = commitment_data
+        self._save_local_data()
         return cid
 
     def get_commitment(self, cid: str) -> Optional[Dict[str, Any]]:
+        if "commitments" in self._local_data and cid in self._local_data["commitments"]:
+            return self._local_data["commitments"][cid]
         if self.is_cloud():
-            doc = self.get_user_ref().collection("commitments").document(cid).get()
-            return doc.to_dict() if doc.exists else None
-        return self._local_data.get("commitments", {}).get(cid)
+            try:
+                doc = self.get_user_ref().collection("commitments").document(cid).get()
+                if doc.exists:
+                    d = doc.to_dict()
+                    if "commitments" not in self._local_data:
+                        self._local_data["commitments"] = {}
+                    self._local_data["commitments"][cid] = d
+                    return d
+            except Exception:
+                pass
+        return None
 
     def list_commitments(self, active_only: bool = False) -> List[Dict[str, Any]]:
-        if self.is_cloud():
-            query = self.get_user_ref().collection("commitments")
-            if active_only:
-                query = query.where("enabled", "==", True)
-            docs = query.stream()
-            return [d.to_dict() for d in docs]
         commitments = list(self._local_data.get("commitments", {}).values())
+        if self.is_cloud() and not commitments:
+            try:
+                docs = self.get_user_ref().collection("commitments").stream()
+                commitments = [d.to_dict() for d in docs]
+                if "commitments" not in self._local_data:
+                    self._local_data["commitments"] = {}
+                for c in commitments:
+                    if "id" in c:
+                        self._local_data["commitments"][c["id"]] = c
+            except Exception:
+                pass
+
+        # Normalize status if disabled_reason is present
+        for c in commitments:
+            if c.get("disabled_reason") or c.get("enabled") is False:
+                c["status"] = "suspended"
+                c["enabled"] = False
+
         if active_only:
             return [c for c in commitments if c.get("enabled", True) and c.get("status") == "active"]
         return commitments
 
     def update_commitment(self, cid: str, updates: Dict[str, Any]):
+        if "commitments" in self._local_data and cid in self._local_data["commitments"]:
+            self._local_data["commitments"][cid].update(updates)
+            self._save_local_data()
         if self.is_cloud():
-            self.get_user_ref().collection("commitments").document(cid).update(updates)
-        else:
-            if "commitments" in self._local_data and cid in self._local_data["commitments"]:
-                self._local_data["commitments"][cid].update(updates)
-                self._save_local_data()
+            try:
+                self.get_user_ref().collection("commitments").document(cid).update(updates)
+            except Exception:
+                pass
 
     def delete_commitment(self, cid: str) -> bool:
+        deleted = False
+        if "commitments" in self._local_data and cid in self._local_data["commitments"]:
+            del self._local_data["commitments"][cid]
+            self._save_local_data()
+            deleted = True
         if self.is_cloud():
-            self.get_user_ref().collection("commitments").document(cid).delete()
-            return True
-        else:
-            if "commitments" in self._local_data and cid in self._local_data["commitments"]:
-                del self._local_data["commitments"][cid]
-                self._save_local_data()
-                return True
-        return False
+            try:
+                self.get_user_ref().collection("commitments").document(cid).delete()
+                deleted = True
+            except Exception:
+                pass
+        return deleted
 
     # Delivery Ledger Operations
     def add_delivery(self, delivery_data: Dict[str, Any]) -> str:
@@ -322,19 +369,32 @@ class DurableStore:
             "result": result_data,
             "executed_at": datetime.now(timezone.utc).isoformat(),
         }
+        if "idempotency" not in self._local_data:
+            self._local_data["idempotency"] = {}
+        self._local_data["idempotency"][idempotency_key] = entry
+        self._save_local_data()
+
         if self.is_cloud():
-            self.get_user_ref().collection("idempotency").document(idempotency_key).set(entry)
-        else:
-            if "idempotency" not in self._local_data:
-                self._local_data["idempotency"] = {}
-            self._local_data["idempotency"][idempotency_key] = entry
-            self._save_local_data()
+            try:
+                self.get_user_ref().collection("idempotency").document(idempotency_key).set(entry)
+            except Exception:
+                pass
 
     def get_execution_idempotency(self, idempotency_key: str) -> Optional[Dict[str, Any]]:
+        if "idempotency" in self._local_data and idempotency_key in self._local_data["idempotency"]:
+            return self._local_data["idempotency"][idempotency_key]
         if self.is_cloud():
-            doc = self.get_user_ref().collection("idempotency").document(idempotency_key).get()
-            return doc.to_dict() if doc.exists else None
-        return self._local_data.get("idempotency", {}).get(idempotency_key)
+            try:
+                doc = self.get_user_ref().collection("idempotency").document(idempotency_key).get()
+                if doc.exists:
+                    d = doc.to_dict()
+                    if "idempotency" not in self._local_data:
+                        self._local_data["idempotency"] = {}
+                    self._local_data["idempotency"][idempotency_key] = d
+                    return d
+            except Exception:
+                pass
+        return None
 
     def reset_for_benchmark(self):
         """Clears memory, forged skills, commitments, and corrections for cold benchmark testing."""
@@ -346,5 +406,18 @@ class DurableStore:
         self._local_data["deliveries"] = {}
         self._local_data["idempotency"] = {}
         self._save_local_data()
+
+        if self.is_cloud() and self._firestore_client:
+            try:
+                for col_name in ["fingerprints", "skills", "commitments", "deliveries", "idempotency", "corrections", "memory", "memories"]:
+                    col_ref = self.get_user_ref().collection(col_name)
+                    docs = list(col_ref.stream())
+                    if docs:
+                        batch = self._firestore_client.batch()
+                        for d in docs:
+                            batch.delete(d.reference)
+                        batch.commit()
+            except Exception:
+                pass
 
 store = DurableStore()

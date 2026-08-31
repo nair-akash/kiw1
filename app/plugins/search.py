@@ -79,6 +79,117 @@ class ResearchSearchPlugin(BasePlugin):
             "summary": f"Current estimated weather in {loc_clean.title()}: 15°C, Partly Cloudy, 75% humidity.",
         }
 
+    def get_forex_rate(self, query: str) -> Optional[Dict[str, Any]]:
+        """Fetches live real-time currency conversion rates."""
+        import re
+        q = query.lower()
+        curr_map = {
+            "omani": "OMR", "omr": "OMR", "rial": "OMR", "riyal": "OMR", "omani rial": "OMR", "omani riyal": "OMR",
+            "indian": "INR", "inr": "INR", "rupee": "INR", "rupees": "INR",
+            "usd": "USD", "dollar": "USD", "dollars": "USD", "us dollar": "USD",
+            "euro": "EUR", "eur": "EUR", "euros": "EUR",
+            "gbp": "GBP", "pound": "GBP", "pounds": "GBP", "sterling": "GBP",
+            "aed": "AED", "dirham": "AED", "dirhams": "AED", "uae": "AED", "dubai": "AED",
+            "sar": "SAR", "saudi": "SAR", "saudi riyal": "SAR",
+            "kwd": "KWD", "kuwaiti": "KWD", "kuwaiti dinar": "KWD",
+            "bhd": "BHD", "bahraini": "BHD", "qar": "QAR", "qatari": "QAR",
+            "jpy": "JPY", "yen": "JPY",
+            "aud": "AUD", "australian dollar": "AUD",
+            "cad": "CAD", "canadian dollar": "CAD",
+            "nzd": "NZD", "new zealand dollar": "NZD", "kiwi": "NZD",
+            "sgd": "SGD", "singapore dollar": "SGD",
+            "chf": "CHF", "swiss franc": "CHF",
+        }
+
+        # Check for currency mentions
+        found = []
+        for k, v in curr_map.items():
+            if re.search(rf"\b{k}\b", q):
+                if v not in found:
+                    found.append(v)
+
+        if len(found) >= 2:
+            base, target = found[0], found[1]
+            try:
+                url = f"https://open.er-api.com/v6/latest/{base}"
+                req = urllib.request.Request(url, headers={"User-Agent": "KIW1-Agent/1.0"})
+                with urllib.request.urlopen(req, timeout=5) as resp:
+                    data = json.loads(resp.read().decode("utf-8"))
+                    rates = data.get("rates", {})
+                    rate = rates.get(target)
+                    updated = data.get("time_last_update_utc", "Live")
+                    if rate:
+                        return {
+                            "base": base,
+                            "target": target,
+                            "rate": rate,
+                            "updated": updated,
+                            "summary": f"Live Real-Time Forex Rate: 1 {base} = {rate:,.4f} {target} (Live Feed Updated: {updated}).",
+                        }
+            except Exception:
+                pass
+        elif len(found) == 1 and ("rate" in q or "exchange" in q or "price" in q or "to" in q):
+            # Default comparison with USD / INR
+            base = found[0]
+            target = "INR" if base != "INR" else "USD"
+            try:
+                url = f"https://open.er-api.com/v6/latest/{base}"
+                req = urllib.request.Request(url, headers={"User-Agent": "KIW1-Agent/1.0"})
+                with urllib.request.urlopen(req, timeout=5) as resp:
+                    data = json.loads(resp.read().decode("utf-8"))
+                    rates = data.get("rates", {})
+                    rate = rates.get(target)
+                    updated = data.get("time_last_update_utc", "Live")
+                    if rate:
+                        return {
+                            "base": base,
+                            "target": target,
+                            "rate": rate,
+                            "updated": updated,
+                            "summary": f"Live Real-Time Forex Rate: 1 {base} = {rate:,.4f} {target} (Live Feed Updated: {updated}).",
+                        }
+            except Exception:
+                pass
+        return None
+
+    def _search_duckduckgo(self, query: str, max_results: int = 5) -> List[Dict[str, Any]]:
+        """Scrapes live, real-time web search results from DuckDuckGo HTML."""
+        import re
+        from html import unescape
+        try:
+            url = "https://html.duckduckgo.com/html/?q=" + urllib.parse.quote(query)
+            req = urllib.request.Request(
+                url,
+                headers={
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                }
+            )
+            with urllib.request.urlopen(req, timeout=6) as resp:
+                html = resp.read().decode("utf-8", errors="ignore")
+
+            results = []
+            blocks = re.findall(r'<a class="result__snippet[^"]*"[^>]*href="([^"]*)"[^>]*>(.*?)</a>', html, re.DOTALL)
+            for link, snip in blocks[:max_results]:
+                clean_snippet = unescape(re.sub(r"<[^>]+>", "", snip)).strip()
+                if clean_snippet:
+                    clean_url = unescape(link).strip()
+                    if "uddg=" in clean_url:
+                        try:
+                            clean_url = urllib.parse.unquote(clean_url.split("uddg=")[1].split("&")[0])
+                        except Exception:
+                            pass
+                    results.append({
+                        "title": f"Live Web Result for {query}",
+                        "url": clean_url,
+                        "snippet": clean_snippet,
+                        "source": "live_web_search",
+                        "attribution_id": f"attr_web_{self._query_hash(clean_snippet[:20])}",
+                    })
+            return results
+        except Exception:
+            return []
+
     def web_search(self, query: str, max_results: int = 5) -> Dict[str, Any]:
         """Performs structured live search with deterministic caching."""
         qh = self._query_hash(query)
@@ -86,9 +197,21 @@ class ResearchSearchPlugin(BasePlugin):
             return {"query": query, "cached": True, "results": self._cache[qh]}
 
         results = []
-
-        # Check if query is weather related
         q_lower = query.lower()
+
+        # 1. Check if query is currency / forex related
+        if any(w in q_lower for w in ["riyal", "rial", "rupee", "rupees", "dollar", "inr", "omr", "usd", "aed", "eur", "gbp", "exchange rate", "currency", "forex", "against"]):
+            forex_info = self.get_forex_rate(query)
+            if forex_info:
+                results.append({
+                    "title": f"Live Foreign Exchange: 1 {forex_info['base']} to {forex_info['target']}",
+                    "url": f"https://open.er-api.com/v6/latest/{forex_info['base']}",
+                    "snippet": forex_info["summary"],
+                    "source": "live_forex_feed",
+                    "attribution_id": f"attr_forex_{qh}",
+                })
+
+        # 2. Check if query is weather related
         if "weather" in q_lower or "forecast" in q_lower or "temperature" in q_lower:
             loc = query.replace("weather", "").replace("forecast", "").replace("in", "").replace("for", "").replace("what is the", "").replace("check", "").strip() or "Auckland"
             weather_info = self.get_weather(loc)
@@ -100,27 +223,33 @@ class ResearchSearchPlugin(BasePlugin):
                 "attribution_id": f"attr_weather_{qh}",
             })
 
-        # Try Wikipedia API for live encyclopedic & current knowledge
-        try:
-            wiki_query = urllib.parse.quote(query.split("in ")[-1] if "in " in query else query)
-            wiki_url = f"https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch={wiki_query}&format=json&utf8="
-            req = urllib.request.Request(wiki_url, headers={"User-Agent": "KIW1-Agent/1.0"})
-            with urllib.request.urlopen(req, timeout=4) as resp:
-                data = json.loads(resp.read().decode("utf-8"))
-                search_hits = data.get("query", {}).get("search", [])
-                for hit in search_hits[:3]:
-                    snippet_clean = hit.get("snippet", "").replace("<span class=\"searchmatch\">", "").replace("</span>", "")
-                    results.append({
-                        "title": hit.get("title", "Wikipedia Search Result"),
-                        "url": f"https://en.wikipedia.org/wiki/{urllib.parse.quote(hit.get('title', ''))}",
-                        "snippet": snippet_clean,
-                        "source": "wikipedia_verified",
-                        "attribution_id": f"attr_wiki_{hit.get('pageid', qh)}",
-                    })
-        except Exception:
-            pass
+        # 3. Live Web Search across open internet (DuckDuckGo engine)
+        live_hits = self._search_duckduckgo(query, max_results=max_results)
+        if live_hits:
+            results.extend(live_hits)
 
-        # If no live results were found, provide high-quality structured reference
+        # 4. Fallback / supplementary Wikipedia API for encyclopedic context
+        if len(results) < max_results:
+            try:
+                wiki_query = urllib.parse.quote(query.split("in ")[-1] if "in " in query else query)
+                wiki_url = f"https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch={wiki_query}&format=json&utf8="
+                req = urllib.request.Request(wiki_url, headers={"User-Agent": "KIW1-Agent/1.0"})
+                with urllib.request.urlopen(req, timeout=4) as resp:
+                    data = json.loads(resp.read().decode("utf-8"))
+                    search_hits = data.get("query", {}).get("search", [])
+                    for hit in search_hits[:2]:
+                        snippet_clean = hit.get("snippet", "").replace("<span class=\"searchmatch\">", "").replace("</span>", "")
+                        results.append({
+                            "title": hit.get("title", "Wikipedia Search Result"),
+                            "url": f"https://en.wikipedia.org/wiki/{urllib.parse.quote(hit.get('title', ''))}",
+                            "snippet": snippet_clean,
+                            "source": "wikipedia_verified",
+                            "attribution_id": f"attr_wiki_{hit.get('pageid', qh)}",
+                        })
+            except Exception:
+                pass
+
+        # 5. Fallback structured reference if completely offline
         if not results:
             results.append({
                 "title": f"Research Intelligence: {query.title()}",

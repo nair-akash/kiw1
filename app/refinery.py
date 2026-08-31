@@ -27,6 +27,12 @@ class PromptRefinery:
     AMBIGUOUS_PRONOUNS = {"it", "them", "that", "this", "those", "these", "him", "her"}
     VAGUE_VERBS = {"fix", "do", "make", "clean", "look", "check", "handle", "manage", "improve", "update"}
     VAGUE_TARGETS = {"stuff", "things", "everything", "something", "problem", "issue", "bug", "files"}
+    CONVERSATIONAL_GREETINGS = {
+        "hi", "hello", "hey", "howdy", "greetings", "good morning", "good afternoon", "good evening",
+        "yo", "sup", "help", "who are you", "what can you do", "what are you", "how are you", "test",
+        "ping", "status", "who are you?", "what can you do?", "how are you?", "hey there", "hello there",
+        "hi there", "start", "welcome"
+    }
 
     def classify_ambiguity(self, prompt: str) -> tuple[bool, List[str]]:
         """Determines if a prompt is ambiguous using pure Python heuristics."""
@@ -34,23 +40,29 @@ class PromptRefinery:
         cleaned = prompt.strip().lower()
         words = re.findall(r"\b[a-z0-9_-]+\b", cleaned)
 
-        # 1. Very short prompts (< 3 words)
-        if len(words) < 3:
+        # Check conversational bypass for greetings / self-introduction questions
+        is_greeting = (
+            cleaned in self.CONVERSATIONAL_GREETINGS
+            or any(cleaned.startswith(g) and len(words) <= 4 for g in ["hi", "hello", "hey", "howdy", "good morning", "good afternoon", "good evening", "who are you", "how are you", "what can you do"])
+        )
+
+        # 1. Very short prompts (< 3 words) that are not recognized greetings
+        if len(words) < 3 and not is_greeting:
             reasons.append("Prompt is very short and lacks context.")
 
         # 2. Unresolved pronouns at key positions
         found_pronouns = [w for w in words if w in self.AMBIGUOUS_PRONOUNS]
-        if found_pronouns and len(words) <= 6:
+        if found_pronouns and len(words) <= 6 and not is_greeting:
             reasons.append(f"Contains unresolved pronouns: {', '.join(set(found_pronouns))}.")
 
         # 3. Vague verbs with no specified concrete entity
-        if words and words[0] in self.VAGUE_VERBS:
+        if words and words[0] in self.VAGUE_VERBS and not is_greeting:
             if len(words) <= 4:
                 reasons.append(f"Starts with vague action '{words[0]}' without specific target or scope.")
 
         # 4. Vague targets
         found_targets = [w for w in words if w in self.VAGUE_TARGETS]
-        if found_targets:
+        if found_targets and not is_greeting:
             reasons.append(f"Refers to non-specific target: {', '.join(set(found_targets))}.")
 
         # 5. Missing success criteria / scope in open-ended statements

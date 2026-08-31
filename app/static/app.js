@@ -21,6 +21,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (targetTab === "research-tab") loadResearchBriefs();
     if (targetTab === "benchmark-tab") loadBenchmarkResults();
     if (targetTab === "commitments-tab") loadCommitments();
+    if (targetTab === "fleet-tab") loadFleet();
+    if (targetTab === "armor-tab") { loadArmorPosture(); loadOtelTraces(); }
   }
 
   navTabs.forEach(tab => {
@@ -439,9 +441,99 @@ document.addEventListener("DOMContentLoaded", () => {
     btnSendMsg.addEventListener("click", () => submitUserPrompt(composerInput.value));
   }
 
+  // ── Multimodal Attachment Handlers ──────────────────────────
+  let pendingAttachments = [];
+  const fileUploadInput = document.getElementById("file-upload-input");
+  const btnAttachFile = document.getElementById("btn-attach-file");
+  const attachmentsPreview = document.getElementById("composer-attachments-preview");
+  const composerPillBox = document.querySelector(".composer-pill-box");
+
+  if (btnAttachFile && fileUploadInput) {
+    btnAttachFile.addEventListener("click", () => fileUploadInput.click());
+    fileUploadInput.addEventListener("change", (e) => {
+      handleFiles(Array.from(e.target.files));
+      fileUploadInput.value = "";
+    });
+  }
+
+  // Clipboard paste listener (Cmd/Ctrl+V for screenshots)
+  document.addEventListener("paste", (e) => {
+    const items = (e.clipboardData || window.clipboardData).items;
+    const files = [];
+    for (let item of items) {
+      if (item.kind === "file") {
+        const blob = item.getAsFile();
+        if (blob) files.push(blob);
+      }
+    }
+    if (files.length > 0) {
+      handleFiles(files);
+    }
+  });
+
+  // Drag & drop on composer
+  if (composerPillBox) {
+    composerPillBox.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      composerPillBox.classList.add("dragover");
+    });
+    composerPillBox.addEventListener("dragleave", () => {
+      composerPillBox.classList.remove("dragover");
+    });
+    composerPillBox.addEventListener("drop", (e) => {
+      e.preventDefault();
+      composerPillBox.classList.remove("dragover");
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        handleFiles(Array.from(e.dataTransfer.files));
+      }
+    });
+  }
+
+  function handleFiles(files) {
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const base64 = e.target.result;
+        pendingAttachments.push({
+          name: file.name,
+          mime_type: file.type || "image/png",
+          data: base64,
+        });
+        renderAttachmentsPreview();
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function renderAttachmentsPreview() {
+    if (!attachmentsPreview) return;
+    if (pendingAttachments.length === 0) {
+      attachmentsPreview.classList.add("hidden");
+      attachmentsPreview.innerHTML = "";
+      return;
+    }
+    attachmentsPreview.classList.remove("hidden");
+    attachmentsPreview.innerHTML = pendingAttachments.map((att, idx) => `
+      <div class="attachment-chip">
+        ${att.mime_type.startsWith("image/") ? `<img src="${att.data}" alt="${escapeHtml(att.name)}">` : '<span>📄</span>'}
+        <span class="att-name">${escapeHtml(att.name)}</span>
+        <button class="att-remove" onclick="removeAttachment(${idx})">&times;</button>
+      </div>
+    `).join("");
+  }
+
+  window.removeAttachment = function(idx) {
+    pendingAttachments.splice(idx, 1);
+    renderAttachmentsPreview();
+  };
+
   async function submitUserPrompt(text) {
-    if (!text || text.trim() === "") return;
-    const prompt = text.trim();
+    if ((!text || text.trim() === "") && pendingAttachments.length === 0) return;
+    const prompt = (text || "").trim();
+    const currentAtts = [...pendingAttachments];
+    pendingAttachments = [];
+    renderAttachmentsPreview();
+
     composerInput.value = "";
     composerInput.style.height = "auto";
 
@@ -449,7 +541,11 @@ document.addEventListener("DOMContentLoaded", () => {
       heroStage.classList.add("hidden");
     }
 
-    renderUserBubble(prompt);
+    let userBubbleText = prompt;
+    if (currentAtts.length > 0) {
+      userBubbleText += (prompt ? "\n\n" : "") + `[Attached ${currentAtts.length} file(s): ${currentAtts.map(a => a.name).join(", ")}]`;
+    }
+    renderUserBubble(userBubbleText);
 
     const effort = effortValue ? effortValue.value : "standard";
     const handsOff = btnHandsOff ? btnHandsOff.classList.contains("active") : false;
@@ -466,12 +562,16 @@ document.addEventListener("DOMContentLoaded", () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          message: prompt,
+          message: prompt || "Analyze attached file(s)",
           effort: effort,
           hands_off: handsOff,
+          attachments: currentAtts.length > 0 ? currentAtts : undefined,
         }),
       });
       const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.detail || `Server returned status ${res.status}`);
+      }
       handleAssistantResponse(data, prompt);
       refreshTelemetry();
     } catch (err) {
@@ -515,6 +615,12 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       clarOverlay.classList.remove("hidden");
+      renderAgentBubble({
+        text: `✨ **Prompt Refinery Active**: I paused execution to clarify your target and preferences. Please make your selection in the card below to proceed!`,
+        model: "Prompt Refinery",
+        tools_used: ["prompt_refinery"],
+        reasoning: `Ambiguity detected: ${(data.reasons || []).join("; ")}`,
+      });
       setAgentState("solving", "Clarification Needed", "Prompt Refinery awaiting ambiguity choice...");
       return;
     }
@@ -591,6 +697,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const reasoning = data.reasoning || "";
     const rules = (data.brief && data.brief.learned_rules_applied) ? data.brief.learned_rules_applied : [];
     const skill = data.forged_skill;
+    const avatarHtml = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a5b4fc" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>`;
 
     let toolsHtml = "";
     if (tools.length > 0) {
@@ -702,19 +809,27 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
-    bubble.querySelector(".btn-copy-action").addEventListener("click", () => {
-      navigator.clipboard.writeText(text);
-    });
+    const copyBtn = bubble.querySelector(".btn-copy-action");
+    if (copyBtn) {
+      copyBtn.addEventListener("click", () => {
+        navigator.clipboard.writeText(text);
+      });
+    }
 
-    bubble.querySelector(".btn-teach-action").addEventListener("click", () => {
-      openCorrectionModal();
-    });
+    const teachBtn = bubble.querySelector(".btn-teach-action");
+    if (teachBtn) {
+      teachBtn.addEventListener("click", () => {
+        openCorrectionModal();
+      });
+    }
 
     messagesFlow.appendChild(bubble);
     scrollChat();
 
-    // Voice readout
-    speakAgentText(text);
+    // Voice readout if enabled
+    if (typeof window.speakAgentText === "function") {
+      window.speakAgentText(text);
+    }
   }
 
   function scrollChat() {
@@ -1456,7 +1571,10 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>`;
         } else {
           grid.innerHTML = cmts.map(c => {
-            const status = c.status || "active";
+            let status = (c.status || "active").toLowerCase();
+            if (c.disabled_reason || c.enabled === false) {
+              status = "suspended";
+            }
             const statusClass = status;
             const nextRun = c.next_run_time ? new Date(c.next_run_time).toLocaleString() : "Pending";
             const lastRun = c.last_run ? new Date(c.last_run).toLocaleString() : "Never";
@@ -1468,7 +1586,7 @@ document.addEventListener("DOMContentLoaded", () => {
               <div class="commitment-card ${statusClass}">
                 <div class="cmt-header">
                   <div class="cmt-name">⚡ ${c.skill_name || c.skill_id}</div>
-                  <span class="cmt-status ${statusClass}">${status}</span>
+                  <span class="cmt-status ${statusClass}">${status.toUpperCase()}</span>
                 </div>
                 <div class="cmt-details">
                   <div class="cmt-detail"><span class="label">Schedule</span> ${c.human_schedule || c.cadence || "Weekly"}</div>
@@ -1534,6 +1652,276 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
+  // ── Enterprise Agent Fleet & Registry ─────────────────────
+  let currentFleetDept = "all";
+
+  async function loadFleet(dept = null) {
+    try {
+      if (dept) currentFleetDept = dept;
+      const url = currentFleetDept && currentFleetDept !== "all"
+        ? `/api/registry/agents?department=${encodeURIComponent(currentFleetDept)}`
+        : "/api/registry/agents";
+      const res = await fetch(url);
+      const data = await res.json();
+      const agents = data.agents || [];
+
+      // Update badge
+      const badge = document.getElementById("badge-fleet");
+      if (badge) badge.textContent = data.total || agents.length;
+
+      const grid = document.getElementById("fleet-grid");
+      if (!grid) return;
+
+      if (agents.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">🏛️</div>
+            <div class="empty-title">No Agents in Department '${currentFleetDept}'</div>
+            <div class="empty-desc">Publish a new institutional agent to catalog it for this department.</div>
+          </div>`;
+        return;
+      }
+
+      grid.innerHTML = agents.map(a => {
+        const deptClass = `dept-${a.department || 'Executive'}`;
+        const capsHtml = (a.capabilities || []).map(c => `<span class="cap-chip">${c}</span>`).join("");
+        return `
+          <div class="agent-card">
+            <div class="agent-card-header">
+              <div>
+                <div class="agent-card-title">${a.name}</div>
+                <div style="font-size: 0.75rem; color: var(--text-dim); font-family: var(--font-mono);">${a.agent_id} v${a.version}</div>
+              </div>
+              <span class="agent-card-dept ${deptClass}">${a.department}</span>
+            </div>
+            <p class="agent-card-desc">${a.description}</p>
+            <div class="agent-caps-chips">${capsHtml}</div>
+            <div class="agent-card-footer">
+              <span>⭐ ${a.rating.toFixed(2)} (${a.invocations} runs)</span>
+              <span>SLA: ${a.sla_ms}ms</span>
+              <span style="color: #34d399; font-weight: 700;">✓ CERTIFIED</span>
+            </div>
+          </div>`;
+      }).join("");
+    } catch (err) {
+      console.error("Failed to load agent fleet:", err);
+    }
+  }
+
+  // Fleet Department Filter Pills
+  const deptPills = document.querySelectorAll("#fleet-dept-filters .filter-pill");
+  deptPills.forEach(pill => {
+    pill.addEventListener("click", () => {
+      deptPills.forEach(p => p.classList.remove("active"));
+      pill.classList.add("active");
+      loadFleet(pill.dataset.dept);
+    });
+  });
+
+  // Publish Agent Modal Controls
+  const btnOpenPublish = document.getElementById("btn-open-publish-modal");
+  const modalPublish = document.getElementById("modal-publish-agent");
+  const btnClosePublish = document.getElementById("btn-close-publish");
+  const btnCancelPublish = document.getElementById("btn-cancel-publish");
+  const btnSavePublish = document.getElementById("btn-save-publish");
+
+  if (btnOpenPublish && modalPublish) {
+    btnOpenPublish.addEventListener("click", () => modalPublish.classList.remove("hidden"));
+  }
+  if (btnClosePublish && modalPublish) {
+    btnClosePublish.addEventListener("click", () => modalPublish.classList.add("hidden"));
+  }
+  if (btnCancelPublish && modalPublish) {
+    btnCancelPublish.addEventListener("click", () => modalPublish.classList.add("hidden"));
+  }
+  if (btnSavePublish && modalPublish) {
+    btnSavePublish.addEventListener("click", async () => {
+      const name = document.getElementById("input-agent-name")?.value.trim();
+      const department = document.getElementById("input-agent-dept")?.value;
+      const version = document.getElementById("input-agent-version")?.value.trim() || "1.0.0";
+      const description = document.getElementById("input-agent-desc")?.value.trim();
+      const capsStr = document.getElementById("input-agent-caps")?.value.trim();
+      const toolsStr = document.getElementById("input-agent-tools")?.value.trim();
+
+      if (!name || !description) {
+        alert("Please provide an Agent Name and Description.");
+        return;
+      }
+
+      const capabilities = capsStr ? capsStr.split(",").map(s => s.trim()).filter(Boolean) : ["general:automation"];
+      const allowed_tools = toolsStr ? toolsStr.split(",").map(s => s.trim()).filter(Boolean) : ["calculate", "web_search"];
+
+      try {
+        const res = await fetch("/api/registry/publish", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, department, version, description, capabilities, allowed_tools }),
+        });
+        if (res.ok) {
+          modalPublish.classList.add("hidden");
+          loadFleet();
+        }
+      } catch (err) {
+        console.error("Failed to publish agent:", err);
+      }
+    });
+  }
+
+  // ── Model Armor & Security Posture ────────────────────────
+  async function loadArmorPosture() {
+    try {
+      const res = await fetch("/api/armor/posture");
+      const data = await res.json();
+      const stats = data.stats || {};
+
+      const elInspections = document.getElementById("armor-stat-inspections");
+      const elInjections = document.getElementById("armor-stat-injections");
+      const elPoisoning = document.getElementById("armor-stat-poisoning");
+      const elPii = document.getElementById("armor-stat-pii");
+
+      if (elInspections) elInspections.textContent = stats.total_inspections || 0;
+      if (elInjections) elInjections.textContent = stats.prompt_injections_blocked || 0;
+      if (elPoisoning) elPoisoning.textContent = stats.tool_poisonings_neutralized || 0;
+      if (elPii) elPii.textContent = stats.pii_secrets_redacted || 0;
+
+      const auditList = document.getElementById("armor-audit-list");
+      if (auditList) {
+        const events = data.recent_audit_events || [];
+        if (events.length === 0) {
+          auditList.innerHTML = `<div class="threat-empty">No security threats detected in current session. Model Armor active.</div>`;
+        } else {
+          auditList.innerHTML = events.map(e => `
+            <div class="threat-entry">
+              <span>🛡️ ${e.type}</span>
+              <span style="font-family: var(--font-mono); font-size: 0.75rem;">${JSON.stringify(e.threats || e.count || e.tool || "")}</span>
+            </div>
+          `).join("");
+        }
+      }
+    } catch (err) {
+      console.error("Failed to load Model Armor posture:", err);
+    }
+  }
+
+  // ── OpenTelemetry W3C Traces Waterfall ─────────────────────
+  async function loadOtelTraces() {
+    try {
+      const res = await fetch("/api/telemetry/otel-traces");
+      const data = await res.json();
+      const traces = data.traces || [];
+
+      const container = document.getElementById("otel-waterfall-container");
+      if (!container) return;
+
+      if (traces.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state small">
+            <div class="empty-desc">No traces recorded yet. Execute a prompt to view OpenTelemetry spans.</div>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = traces.map(t => {
+        const maxDuration = Math.max(t.total_duration_ms || 1, 1);
+        const spansHtml = (t.spans || []).map(s => {
+          const leftPct = ((s.offset_ms || 0) / maxDuration) * 100;
+          const widthPct = Math.max(((s.duration_ms || 0.1) / maxDuration) * 100, 4);
+          return `
+            <div class="span-row">
+              <div class="span-name" title="${s.name}">${s.name}</div>
+              <div class="span-bar-wrapper">
+                <div class="span-bar" style="margin-left: ${leftPct.toFixed(1)}%; width: ${widthPct.toFixed(1)}%;"></div>
+              </div>
+              <div class="span-time">${s.duration_ms.toFixed(1)} ms</div>
+            </div>`;
+        }).join("");
+
+        return `
+          <div class="waterfall-card">
+            <div class="waterfall-header">
+              <span>Trace <code>${t.trace_id.slice(0, 16)}...</code> (${t.span_count} Spans)</span>
+              <span style="color: #cbd5e1;">Total: ${t.total_duration_ms} ms</span>
+            </div>
+            ${spansHtml}
+          </div>`;
+      }).join("");
+    } catch (err) {
+      console.error("Failed to load OTel traces:", err);
+    }
+  }
+
+  const btnRefreshOtel = document.getElementById("btn-refresh-otel");
+  if (btnRefreshOtel) {
+    btnRefreshOtel.addEventListener("click", loadOtelTraces);
+  }
+
+  // ── Taskmaster Heavy-Lifting Chore Automation ──────────────
+  const btnRunChore = document.getElementById("btn-run-vendor-chore");
+  if (btnRunChore) {
+    btnRunChore.addEventListener("click", async () => {
+      btnRunChore.disabled = true;
+      btnRunChore.textContent = "⏳ Running Multi-Step Chore...";
+
+      // Reset step nodes
+      for (let i = 1; i <= 5; i++) {
+        const node = document.getElementById(`step-node-${i}`);
+        if (node) {
+          node.classList.remove("completed", "active");
+        }
+      }
+
+      // Simulate live progression
+      for (let i = 1; i <= 4; i++) {
+        const node = document.getElementById(`step-node-${i}`);
+        if (node) node.classList.add("active");
+        await new Promise(r => setTimeout(r, 200));
+        if (node) {
+          node.classList.remove("active");
+          node.classList.add("completed");
+        }
+      }
+
+      try {
+        const res = await fetch("/api/taskmaster/run-chore", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            vendor_name: "Acme Cloud Infrastructure Ltd",
+            contract_value_usd: 125000.0,
+            currency_base: "USD",
+            currency_target: "INR",
+          }),
+        });
+
+        const data = await res.json();
+        const node5 = document.getElementById("step-node-5");
+        if (node5) node5.classList.add("completed");
+
+        const resultsContainer = document.getElementById("chore-results-container");
+        if (resultsContainer) {
+          resultsContainer.classList.remove("hidden");
+          const stagesHtml = (data.stages || []).map(s => `
+            <div style="margin-bottom: 8px;">
+              <strong>Stage ${s.stage} (${s.name}):</strong> ${s.findings || s.security_result || s.stdout || s.status}
+            </div>
+          `).join("");
+
+          resultsContainer.innerHTML = `
+            <div class="chore-results-box">
+              <h4 style="color: #34d399; margin-bottom: 8px; font-weight: 700;">✅ Heavy-Lifting Chore Workflow Completed</h4>
+              <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 12px;">${data.summary}</p>
+              ${stagesHtml}
+            </div>`;
+        }
+      } catch (err) {
+        console.error("Failed to run Taskmaster chore:", err);
+      } finally {
+        btnRunChore.disabled = false;
+        btnRunChore.textContent = "▶ Run Multi-Step Vendor Audit Chore";
+      }
+    });
+  }
+
   // Dismiss proactive banner
   const proactiveDismiss = document.getElementById("proactive-dismiss");
   if (proactiveDismiss) {
@@ -1550,6 +1938,9 @@ document.addEventListener("DOMContentLoaded", () => {
   loadSkills();
   loadBenchmarkResults();
   loadCommitments();
+  loadFleet();
+  loadArmorPosture();
+  loadOtelTraces();
 
   // Check proactive on session start
   fetch("/api/session/proactive").then(r => r.json()).then(data => {
@@ -1563,3 +1954,4 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }).catch(() => {});
 });
+

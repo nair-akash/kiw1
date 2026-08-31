@@ -38,6 +38,7 @@ class ChatRequest(BaseModel):
     effort: Optional[str] = "standard"
     hands_off: Optional[bool] = False
     clarification_answers: Optional[Dict[str, str]] = None
+    attachments: Optional[List[Dict[str, Any]]] = None
 
 class ClarifyRequest(BaseModel):
     original_prompt: str
@@ -78,6 +79,7 @@ async def chat_endpoint(req: ChatRequest):
             clarification_answers=req.clarification_answers,
             effort=req.effort,
             hands_off=req.hands_off or False,
+            attachments=req.attachments,
         )
         return result
     except Exception as e:
@@ -155,8 +157,10 @@ async def trigger_overnight_research():
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/research/reports")
+@app.get("/api/research/brief")
 async def get_research_reports():
     return {
+        "status": "ready",
         "reports": store.list_research_reports(),
     }
 
@@ -271,10 +275,146 @@ async def get_frontier_evals():
     from evals.frontier_benchmarks import frontier_runner
     return await frontier_runner.run_full_suite()
 
-@app.post("/api/evals/frontier/run")
-async def run_frontier_evals():
-    from evals.frontier_benchmarks import frontier_runner
-    return await frontier_runner.run_full_suite()
+# Enterprise Agent Registry Endpoints
+class PublishAgentRequest(BaseModel):
+    name: str
+    department: str
+    description: str
+    capabilities: List[str]
+    allowed_tools: List[str]
+    author: Optional[str] = "Enterprise Developer"
+    version: Optional[str] = "1.0.0"
+    metadata: Optional[Dict[str, Any]] = None
+
+@app.get("/api/registry/agents")
+async def get_registry_agents(department: Optional[str] = None, status: Optional[str] = None):
+    from app.registry import agent_registry
+    return {
+        "agents": agent_registry.list_agents(department=department, status=status),
+        "total": len(agent_registry.list_agents()),
+    }
+
+@app.get("/api/registry/agents/{aid}")
+async def get_registry_agent(aid: str):
+    from app.registry import agent_registry
+    agent = agent_registry.get_agent(aid)
+    if not agent:
+        raise HTTPException(status_code=404, detail=f"Agent '{aid}' not found")
+    return agent
+
+@app.post("/api/registry/publish")
+async def publish_agent_endpoint(req: PublishAgentRequest):
+    from app.registry import agent_registry
+    agent = agent_registry.publish_agent(
+        name=req.name,
+        department=req.department,
+        description=req.description,
+        capabilities=req.capabilities,
+        allowed_tools=req.allowed_tools,
+        author=req.author or "Enterprise Developer",
+        version=req.version or "1.0.0",
+        metadata=req.metadata,
+    )
+    return {"success": True, "agent": agent}
+
+# Model Armor Security Endpoints
+class ArmorInspectRequest(BaseModel):
+    text: str
+
+@app.get("/api/armor/posture")
+async def get_armor_posture():
+    from app.armor import model_armor
+    return model_armor.get_security_posture()
+
+@app.post("/api/armor/inspect")
+async def inspect_with_armor(req: ArmorInspectRequest):
+    from app.armor import model_armor
+    is_safe, sanitized, threats = model_armor.inspect_input(req.text)
+    redacted, pii_count = model_armor.redact_pii_and_secrets(sanitized)
+    return {
+        "is_safe": is_safe,
+        "threats": threats,
+        "pii_redactions_applied": pii_count,
+        "sanitized_output": redacted,
+    }
+
+# Zero-Trust Gateway Endpoints
+@app.get("/api/gateway/audit")
+async def get_gateway_audit(limit: int = 50):
+    from app.gateway import agent_gateway
+    return {
+        "audit_trail": agent_gateway.get_audit_trail(limit=limit),
+        "total": len(agent_gateway.get_audit_trail(limit=1000)),
+    }
+
+# Agent Runtime Endpoints
+class CreateRuntimeJobRequest(BaseModel):
+    agent_id: str
+    title: str
+    department: str
+    steps: List[Dict[str, Any]]
+    metadata: Optional[Dict[str, Any]] = None
+
+@app.get("/api/runtime/jobs")
+async def get_runtime_jobs(limit: int = 20):
+    from app.runtime import agent_runtime
+    return {
+        "jobs": agent_runtime.list_jobs(limit=limit),
+        "total": len(agent_runtime.list_jobs()),
+    }
+
+@app.post("/api/runtime/jobs/create")
+async def create_runtime_job(req: CreateRuntimeJobRequest):
+    from app.runtime import agent_runtime
+    job = agent_runtime.create_job(
+        agent_id=req.agent_id,
+        title=req.title,
+        department=req.department,
+        steps=req.steps,
+        metadata=req.metadata,
+    )
+    return {"success": True, "job": agent_runtime.get_job(job.job_id)}
+
+@app.post("/api/runtime/jobs/{jid}/run")
+async def run_runtime_job(jid: str):
+    from app.runtime import agent_runtime
+    res = await agent_runtime.execute_job(jid)
+    return res
+
+# OpenTelemetry Endpoints
+@app.get("/api/telemetry/otel-traces")
+async def get_otel_traces(limit: int = 15):
+    from app.otel import otel_service
+    return {
+        "traces": otel_service.list_recent_traces(limit=limit),
+        "total": len(otel_service.list_recent_traces(limit=100)),
+    }
+
+@app.get("/api/telemetry/otel-traces/{tid}")
+async def get_otel_trace(tid: str):
+    from app.otel import otel_service
+    waterfall = otel_service.export_trace_waterfall(tid)
+    if not waterfall.get("spans"):
+        raise HTTPException(status_code=404, detail="Trace not found")
+    return waterfall
+
+# Taskmaster Heavy-Lifting Chore Automation
+class TaskmasterChoreRequest(BaseModel):
+    vendor_name: Optional[str] = "Acme Cloud Infrastructure Ltd"
+    contract_value_usd: Optional[float] = 125000.0
+    currency_base: Optional[str] = "USD"
+    currency_target: Optional[str] = "INR"
+
+@app.post("/api/taskmaster/run-chore")
+async def run_taskmaster_chore(req: TaskmasterChoreRequest):
+    from app.taskmaster import taskmaster
+    res = await taskmaster.execute_vendor_compliance_chore(
+        vendor_name=req.vendor_name or "Acme Cloud Infrastructure Ltd",
+        contract_value_usd=req.contract_value_usd or 125000.0,
+        currency_base=req.currency_base or "USD",
+        currency_target=req.currency_target or "INR",
+    )
+    return res
 
 # Mount static frontend
 static_dir = Path(__file__).parent / "static"

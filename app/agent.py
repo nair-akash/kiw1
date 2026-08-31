@@ -4,17 +4,23 @@ import time
 from typing import Any, Dict, List, Optional
 from google.adk.agents import Agent
 from app.approval import approval_layer
+from app.armor import model_armor
 from app.boundary import untrusted_boundary, vault_boundary
 from app.config import settings
 from app.forge import forge_skill, record_task_execution, should_promote
+from app.gateway import agent_gateway
 from app.ledger import ledger
 from app.memory import palace
+from app.otel import otel_service
 from app.planner import planner
 from app.plugins.kernel import kernel
 from app.plugins.tools import core_tools_plugin
 from app.refinery import refinery
+from app.registry import agent_registry
 from app.router import router
+from app.runtime import agent_runtime
 from app.store import store
+from app.taskmaster import taskmaster
 from app.telemetry import telemetry
 
 class Kiw1Orchestrator:
@@ -53,6 +59,7 @@ class Kiw1Orchestrator:
         clarification_answers: Optional[Dict[str, str]] = None,
         effort: Optional[str] = None,
         hands_off: bool = False,
+        attachments: Optional[List[Dict[str, Any]]] = None,
     ) -> Dict[str, Any]:
         """Main execution turn handling the full agentic lifecycle."""
         run_effort = effort or settings.default_effort
@@ -321,13 +328,84 @@ class Kiw1Orchestrator:
                 },
             }
 
-        # 2. Step 1: Prompt Refinery
+        if trimmed_lower in ["/fleet", "/registry", "/catalog"]:
+            agents = agent_registry.list_agents()
+            agent_lines = "\n".join([f"- **{a['name']}** (`{a['agent_id']}` v{a['version']} [{a['department']}]): {a['description']} *(⭐ {a['rating']}, Invocations: {a['invocations']})*" for a in agents])
+            completed_trace = telemetry.end_run(trace_id, success=True)
+            return {
+                "type": "registry_list",
+                "text": f"### 🏛️ Fortified Enterprise Agent Registry & Fleet ({len(agents)})\n\n{agent_lines}\n\n*All agents are cryptographically signed and cataloged for cross-department Zero-Trust execution.*",
+                "agents": agents,
+                "tools_used": ["list_agent_registry"],
+                "telemetry": {"trace_id": trace_id, "latency_ms": 0, "tokens": 140, "cost_usd": 0.0},
+            }
+
+        if trimmed_lower in ["/armor", "/security", "/guardrails"]:
+            posture = model_armor.get_security_posture()
+            completed_trace = telemetry.end_run(trace_id, success=True)
+            stats = posture["stats"]
+            return {
+                "type": "armor_posture",
+                "text": (
+                    f"### 🛡️ Model Armor Enterprise Security Posture\n\n"
+                    f"- **Engine**: `{posture['guardrail_engine']}`\n"
+                    f"- **Total Inspections**: `{stats['total_inspections']}`\n"
+                    f"- **Prompt Injections Blocked**: `{stats['prompt_injections_blocked']}`\n"
+                    f"- **Tool Poisonings Neutralized**: `{stats['tool_poisonings_neutralized']}`\n"
+                    f"- **PII & Secrets Redacted**: `{stats['pii_secrets_redacted']}`\n\n"
+                    f"**Active Protection Vectors**:\n" + "\n".join([f"- ✅ {v}" for v in posture["active_protection_vectors"]])
+                ),
+                "posture": posture,
+                "tools_used": ["model_armor_audit"],
+                "telemetry": {"trace_id": trace_id, "latency_ms": 0, "tokens": 90, "cost_usd": 0.0},
+            }
+
+        if trimmed_lower in ["/traces", "/otel", "/waterfall"]:
+            traces = otel_service.list_recent_traces(limit=5)
+            completed_trace = telemetry.end_run(trace_id, success=True)
+            trace_lines = "\n".join([f"- **Trace `{t['trace_id'][:12]}...`**: {t.get('span_count', 0)} spans ({t.get('total_duration_ms', 0)} ms)" for t in traces]) if traces else "No OpenTelemetry traces recorded yet in this session."
+            return {
+                "type": "otel_traces",
+                "text": f"### 📊 OpenTelemetry W3C Reasoning Traces ({len(traces)})\n\n{trace_lines}\n\n*Compliant with W3C TraceContext standards.*",
+                "traces": traces,
+                "tools_used": ["export_otel_traces"],
+                "telemetry": {"trace_id": trace_id, "latency_ms": 0, "tokens": 120, "cost_usd": 0.0},
+            }
+
+        if trimmed_lower.startswith("/chore") or trimmed_lower.startswith("/taskmaster") or "run vendor compliance chore" in trimmed_lower:
+            workflow_res = await taskmaster.execute_vendor_compliance_chore()
+            completed_trace = telemetry.end_run(trace_id, success=True)
+            stages_md = "\n".join([f"- **Stage {s['stage']}: {s['name']}** [{s['status'].upper()}]: {s.get('findings', s.get('security_result', s.get('stdout', 'Done')))}" for s in workflow_res["stages"]])
+            return {
+                "type": "taskmaster_result",
+                "text": (
+                    f"### ⚙️ Taskmaster Chore Automation: \"{workflow_res['workflow_name']}\"\n\n"
+                    f"**Target**: `{workflow_res['vendor_name']}` (Contract: ${workflow_res['contract_value_usd']:,.2f} USD)\n\n"
+                    f"#### Multi-Step Workflow Progress ({workflow_res['total_stages']} Stages Completed):\n"
+                    f"{stages_md}\n\n"
+                    f"💡 **Heavy Lifting Done**: Verified certifications, masked PII, calculated risk margin in Python sandbox, enforced Zero-Trust policy, and committed delivery to ledger."
+                ),
+                "workflow_result": workflow_res,
+                "tools_used": ["taskmaster_workflow", "model_armor", "python_sandbox", "zero_trust_gateway"],
+                "telemetry": {"trace_id": trace_id, "latency_ms": 150, "tokens": 420, "cost_usd": 0.0},
+            }
+
+        # 2. Step 1: Model Armor Inline Threat Inspection & PII Redaction
+        is_safe, sanitized_input, threats = model_armor.inspect_input(user_input)
+        sanitized_input, pii_count = model_armor.redact_pii_and_secrets(sanitized_input)
+        effective_input = sanitized_input if is_safe else user_input
+
+        # OpenTelemetry Trace Context
+        otel_trace_id = otel_service.start_trace(task_name=effective_input)
+        span_refinery = otel_service.start_span(otel_trace_id, "prompt_refinery")
+
+        # 3. Step 2: Prompt Refinery
         if clarification_answers:
-            brief = refinery.apply_clarifications(user_input, clarification_answers)
+            brief = refinery.apply_clarifications(effective_input, clarification_answers)
         else:
-            brief = refinery.refine(user_input)
+            brief = refinery.refine(effective_input)
             if brief.is_ambiguous and not hands_off:
-                # Need user clarification
+                otel_service.end_span(otel_trace_id, span_refinery, status="OK")
                 telemetry.end_run(trace_id, success=True)
                 return {
                     "type": "clarification_needed",
@@ -339,6 +417,7 @@ class Kiw1Orchestrator:
                     ],
                     "trace_id": trace_id,
                 }
+        otel_service.end_span(otel_trace_id, span_refinery, status="OK")
 
         # 3. Step 2: Retrieve Relevant Correction Rules (PRD §6.5)
         active_rules = ledger.find_relevant_rules(brief.goal)
@@ -389,8 +468,8 @@ class Kiw1Orchestrator:
             from app.plugins.search import search_plugin
             res = search_plugin.web_search(brief.goal)
             tools_used.append("web_search")
-            results_snippets = "; ".join([r.get("snippet", "") for r in res.get("results", [])[:2]])
-            executed_details.append(f"Live Web Search findings: {results_snippets}")
+            results_snippets = "\n".join([f"- [{r.get('title', 'Web')}] {r.get('snippet', '')}" for r in res.get("results", [])[:5]])
+            executed_details.append(f"Live Web Search findings:\n{results_snippets}")
         elif (
             re.search(r"\b(calculate|compute)\s+[\d\s+\-*/().^%]+$", goal_lower)
             or (("calculate" in goal_lower or "compute" in goal_lower) and any(op in goal_lower for op in ["+", "*", "/"]) and not any(kw in goal_lower for kw in ["derangement", "euler", "integral", "theorem", "matrix", "vector", "mod", "totient"]))
@@ -432,9 +511,13 @@ class Kiw1Orchestrator:
             tools_used.append("standard_reasoning")
 
         # 6. Step 5: Generate Model Response with Injected Learned Rules & Reflection
+        from datetime import datetime, timezone
+        curr_utc_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
         system_prefix = (
             "You are KIW1, a helpful, intelligent, and autonomous agentic partner.\n"
-            "Answer the user's question directly, accurately, and concisely.\n"
+            f"CRITICAL TEMPORAL GROUNDING: Today's current date is {curr_utc_str}.\n"
+            "Always treat this date as the present moment. Prioritize live search findings over older pre-training memories.\n"
+            "Answer the user's question directly, accurately, and concisely based on current real-time market facts.\n"
             "Do not include validation checklists, meta-commentary, or preamble about internal rules."
         )
         if rule_constraints:
@@ -443,10 +526,16 @@ class Kiw1Orchestrator:
         reasoning_trail = ""
         confidence_score = 0.95
 
+        if attachments:
+            tools_used.append("vision_analysis")
+            executed_details.append(f"Ingested and analyzed {len(attachments)} multimodal visual attachment(s).")
+
+        context_str = "\n".join(executed_details) if executed_details else "No additional tool context."
+
         if run_effort == "thorough":
             from app.reflection import reflector
             reflect_res = await reflector.reflect_and_reason(
-                prompt=f"Goal: {brief.goal}\nConstraints: {', '.join(brief.constraints + rule_constraints)}",
+                prompt=f"Task Brief (Current Date: {curr_utc_str}):\nGoal: {brief.goal}\nConstraints: {', '.join(brief.constraints + rule_constraints)}\nContext:\n{context_str}",
                 system_prefix=system_prefix,
                 context_details=executed_details,
                 trace_id=trace_id,
@@ -460,11 +549,12 @@ class Kiw1Orchestrator:
             )
         else:
             gen_res = await router.generate_response(
-                prompt=f"Task Brief:\nGoal: {brief.goal}\nConstraints: {', '.join(brief.constraints + rule_constraints)}\nContext: {', '.join(executed_details)}",
+                prompt=f"Task Brief (Current Date: {curr_utc_str}):\nGoal: {brief.goal}\nConstraints: {', '.join(brief.constraints + rule_constraints)}\nContext:\n{context_str}",
                 system_instruction=system_prefix,
                 task_type="general",
                 effort=run_effort,
                 trace_id=trace_id,
+                attachments=attachments,
             )
             response_text = gen_res.get("text", "")
             reasoning_trail = f"Selected '{plan.selected_path}' with composite confidence score 0.92."

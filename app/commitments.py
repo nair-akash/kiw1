@@ -83,7 +83,7 @@ class AutonomousCommitmentManager:
             "id": cid,
             "skill_id": skill_id,
             "skill_name": skill_name,
-            "intent_template": skill.get("intent_template", skill_name) if skill else skill_name,
+            "intent_template": (skill.get("intent_template") or skill.get("description") or skill_name) if skill else skill_name,
             "tools": skill.get("tools", ["standard_reasoning"]) if skill else ["standard_reasoning"],
             "cadence": cadence,
             "cron_expression": cron_expr,
@@ -151,7 +151,7 @@ class AutonomousCommitmentManager:
         max_run_budget_usd = 0.05
 
         # 3. Risk Assessment & High-Risk Unattended Gating (PRD §6.7 & §12b)
-        task_intent = commitment.get("intent_template", commitment.get("skill_name", "Autonomous Task"))
+        task_intent = commitment.get("intent_template") or commitment.get("skill_name", "Autonomous Task")
         tools = commitment.get("tools", [])
 
         # Check risk level for every action
@@ -164,9 +164,9 @@ class AutonomousCommitmentManager:
                 high_risk_reason = risk_reason
                 break
 
-        # Check intent text for irreversible or financial actions
-        intent_lower = task_intent.lower()
-        if any(w in intent_lower for w in ["delete all", "drop table", "wire funds", "pay invoice", "execute shell", "rm -rf", "delete database", "drop database"]):
+        # Check intent text and skill identifiers for irreversible or financial actions
+        intent_lower = f"{task_intent} {commitment.get('skill_name', '')} {commitment.get('skill_id', '')}".lower()
+        if any(w in intent_lower for w in ["wipe", "delete all", "drop table", "wire funds", "pay invoice", "execute shell", "rm -rf", "delete database", "drop database", "drop all", "delete all database"]):
             is_high_risk = True
             high_risk_reason = high_risk_reason or "Irreversible destructive or financial transaction detected in unattended commitment"
 
