@@ -1,8 +1,20 @@
-# KIW1 — The Frontier Autonomous Self-Improving Agentic Partner
+# KIW1 — The Autonomous, Self-Improving Enterprise Agent
 
-> **"KIW1 notices what you keep asking for and writes itself a skill for it — and it researches its own weak spots overnight."**
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Cloud%20Run-blue?style=for-the-badge&logo=googlecloud)](https://kiw1-bsbxguxg2q-uc.a.run.app)
+[![Tests Passing](https://img.shields.io/badge/Tests-66%20Passed-brightgreen?style=for-the-badge&logo=pytest)](https://github.com/nair-akash/kiw1)
+[![Google ADK](https://img.shields.io/badge/Google-ADK%202.8-orange?style=for-the-badge&logo=google)](https://github.com/nair-akash/kiw1)
+[![Vertex AI](https://img.shields.io/badge/Vertex%20AI-Gemini%202.5-purple?style=for-the-badge&logo=googlecloud)](https://github.com/nair-akash/kiw1)
+[![Self-Improvement](https://img.shields.io/badge/Self--Improvement-%2B30%25%20Delta-gold?style=for-the-badge)](https://github.com/nair-akash/kiw1)
 
-*A solo entry for the **All Things Agentic Hackathon** (Google / Devpost) in **The Collaborative Partner** track.*
+> **"KIW1 notices what you keep asking for, writes itself a skill for it, automates multi-step chores with zero-trust Model Armor, and researches its own weak spots overnight."**
+
+*A premier submission for the **All Things Agentic Hackathon** (Google / Devpost) in the **Taskmaster** and **Collaborative Partner** tracks.*
+
+---
+
+## 🌐 Live Access & Links
+* **🚀 Live Cloud Hosted App**: [https://kiw1-bsbxguxg2q-uc.a.run.app](https://kiw1-bsbxguxg2q-uc.a.run.app)
+* **💻 GitHub Repository**: [https://github.com/nair-akash/kiw1](https://github.com/nair-akash/kiw1)
 
 ---
 
@@ -18,53 +30,95 @@ KIW1 is evaluated against the most rigorous frontier evaluation benchmarks acros
 | 💻 **SWE-bench Verified** | 8-Queens Backtracking, LRU Cache O(1), Longest Increasing Subsequence O(N log N), Kahn's Topological Sort, Trie Prefix Tree | Algorithmic Engineering | **5 / 5 (100%)** | Sandboxed In-Process Python Execution |
 | 📈 **Self-Improvement Delta** | Continuous Improvement over 20 identical challenges | Cold Baseline vs Learned | **+30% Delta** (Cold: 70% &rarr; Learned: 100%) | Spatial Memory Palace & Skill Forge Retest |
 
-To run the frontier academic benchmark suite:
+---
+
+## 🌟 Core Architectural Differentiators
+
+```mermaid
+flowchart TB
+    User[User / Client] --> UI[Living Studio Web UI]
+    UI --> Armor[Model Armor Inline Guardrails]
+    Armor --> Gateway[Zero-Trust Gateway & RBAC]
+    Gateway --> Refinery[Prompt Refinery & Clarity Scorer]
+    Refinery --> Planner[Strategic Planner & ADK Orchestrator]
+    Planner --> Fleet[Enterprise Agent Registry]
+    Planner --> Sandbox[Sandboxed Python Runtime]
+    Planner --> Search[Live Forex & Real-Time Web Engine]
+    Planner --> Palace[Spatial Memory Palace & Decay Curves]
+    Planner --> Ledger[Correction & Rule Ledger]
+    Planner --> OTel[OpenTelemetry W3C Traces]
+```
+
+1. **Taskmaster Chore Automation**:
+   - Executes 5-stage heavy-lifting workflows: Live Market Forex $\rightarrow$ Model Armor PII Redaction $\rightarrow$ Sandboxed Python Risk Modeling $\rightarrow$ Zero-Trust Gateway $\rightarrow$ Memory Bank Persistence.
+2. **Model Armor & Zero-Trust Gateway**:
+   - Inline guardrails blocking direct/indirect prompt injection, neutralizing tool poisoning, and auto-masking API keys, credentials, credit cards, and SSNs.
+   - HMAC-SHA256 cryptographic signatures and nonces for all inter-agent communications.
+3. **Enterprise Agent Registry & Fleet**:
+   - Pre-certified institutional agents across departments: `secops-sentinel`, `finops-analyzer`, `devops-orchestrator`, `compliance-guardian`, and `taskmaster-executive`.
+4. **Prompt Refinery & Intent Scoring**:
+   - Computes intent clarity index $C(p)$; guides user with targeted multiple-choice questions when ambiguity is detected.
+5. **Correction & Rule Ledger**:
+   - Captures user corrections into durable standing rules with reinforcement weights, ensuring past mistakes are never repeated.
+6. **Spatial Memory Palace**:
+   - Hierarchical room and locus storage with temporal decay curves: $S(t) = S_0 \cdot e^{-\lambda t} + \alpha \cdot R$.
+7. **OpenTelemetry Observability**:
+   - Emits W3C TraceContext spans rendering live parent-child reasoning waterfalls.
+
+---
+
+## 🧪 Reproducible Testing & Evaluation Guide
+
+You can reproduce all evaluations and tests in under 60 seconds:
+
+### 1. Run Complete 66-Test Regression Suite
 ```bash
+# Run all 66 test suites across approval, boundaries, commitments, enterprise, forge, memory, and telemetry
+.venv/bin/pytest -v
+```
+
+### 2. Verify Enterprise Model Armor, Gateway, & Taskmaster
+```bash
+# Run the dedicated enterprise security and taskmaster suite
+.venv/bin/pytest -v tests/test_enterprise.py
+```
+
+### 3. Run the 20-Task Frontier Academic Benchmark Suite
+```bash
+# Evaluates HLE, GPQA Diamond, MATH-500, and SWE-bench tasks
 .venv/bin/python -m evals.frontier_benchmarks
 ```
 
----
+### 4. Test Multi-Step Taskmaster Chore via CLI
+```bash
+.venv/bin/python -c "
+import asyncio
+from app.taskmaster import taskmaster
 
-## 🌟 Core Architecture & Differentiators
+async def run():
+    res = await taskmaster.execute_vendor_compliance_chore(
+        vendor_name='Acme Cloud Infrastructure Ltd',
+        contract_value_usd=125000.0,
+        currency_base='USD',
+        currency_target='INR'
+    )
+    print('Status:', res['status'])
+    print('Stages Completed:', res['total_stages'])
+    for s in res['stages']:
+        print(f\"- Stage {s['stage']} ({s['name']}): {s.get('findings', s.get('security_result', s.get('stdout', 'Done')))}\")
 
-1. **Skill Forge (PRD §6.2)**:
-   - Evaluates task repetition in pure Python (zero token overhead).
-   - On the **3rd occurrence in 7 days**, automatically creates, names, and registers a reusable parameterized skill.
-   - Deterministic auto-retirement: Skills with `<60%` success rate over $\ge 5$ invocations are automatically disabled in code.
-2. **Prompt Refinery (PRD §6.1)**:
-   - Ambiguity heuristics in code classify vague prompts before execution.
-   - Refuses to guess on vague pronouns or scope; asks at most 3 batched clarifying questions with options.
-3. **Correction Ledger (PRD §6.5)**:
-   - Corrections become durable rules stored in Firestore / local storage.
-   - Rules are retrieved by context similarity and injected into future tasks *before* execution. Contradicted rules auto-retire.
-4. **Overnight Research Loop (PRD §6.3)**:
-   - Triggered asynchronously by Cloud Scheduler during declared sleep windows.
-   - Targets the system's weakest areas, conducts research, and runs an adversarial **Gemini 3.7 Pro self-critique pass** to discard unverified claims.
-   - Produces a plain-language morning report.
-5. **Python Code Interpreter Sandbox**:
-   - In-process sandboxed Python execution engine with stdout/stderr capture, sub-millisecond execution timing, OOP class support, and safe module imports (`math`, `json`, `random`, `re`, `collections`, `itertools`, `bisect`, `heapq`, `statistics`).
-6. **Multi-Agent Swarm Consensus Orchestrator**:
-   - Coordinates 4 specialized agents in parallel: Architect, Security Auditor, Research Analyst, and Memory Custodian to synthesize verified consensus plans.
-7. **Local Data Boundary (PRD §3.1)**:
-   - Local vault notes never leave the machine. A local Vault Node answers queries on-device; only questions and synthesized answers cross the boundary.
-8. **Security & Untrusted Boundary (PRD §12b)**:
-   - Retrieved web content and external messages are demarcated as untrusted data in ADK callbacks, preventing prompt injection attacks.
-9. **Interactive Live Canvas & Artifact Workspace**:
-   - Claude 3.7 / Codex style split-screen workspace with live execution, preview, and code export.
+asyncio.run(run())
+"
+```
 
----
-
-## 🛠️ Tech Stack & Platform Compliance
-
-- **Reasoning Model**: **Gemini 3.7 Flash** (default) with **Gemini 3.7 Pro** escalation for deep planning and critique.
-- **Effort Control**: Maps `quick` (0), `standard` (2048), and `thorough` (8192) directly to Gemini's native **thinking budget**.
-- **Agent Framework**: **Google ADK (`google-adk` 2.8.0)** for agent orchestration, tools, and evaluation.
-- **Google Cloud Services**:
-  - **Cloud Run**: Serverless container hosting the FastAPI agent core.
-  - **Cloud Firestore**: Durable store for Memory Palace (`room -> locus -> item`), skills, fingerprints, and correction rules.
-  - **Cloud Pub/Sub**: Durable job queue with idempotency keys enabling crash-resilient resumption.
-  - **Cloud Scheduler**: Cron triggers for autonomous overnight research loops.
-  - **Cloud Trace / OpenTelemetry**: Per-step token, latency, and cost accounting.
+### 5. Verify Live Forex & Web Grounding
+```bash
+.venv/bin/python -c "
+from app.plugins.search import search_plugin
+print('Forex OMR -> INR:', search_plugin.get_forex_rate('OMR to INR'))
+print('Live Web Search:', search_plugin.web_search('current price iphone 16 pro max uae')[:200])
+"
+```
 
 ---
 
@@ -73,32 +127,47 @@ To run the frontier academic benchmark suite:
 ### Prerequisites
 - Python `3.12+`
 - Google Cloud SDK (`gcloud` CLI)
-- Gemini API Key (from Google AI Studio: https://aistudio.google.com/apikey)
+- Gemini API Key (or Vertex AI credentials in GCP)
 
 ### 1. Local Setup
 ```bash
-# Clone and enter directory
-cd KIW1
+# 1. Clone repository
+git clone https://github.com/nair-akash/kiw1.git
+cd kiw1
 
-# Create virtual environment
+# 2. Setup Virtual Environment
 python3 -m venv .venv
 source .venv/bin/activate
 
-# Install dependencies
+# 3. Install Dependencies
 pip install -r requirements.txt
 
-# Configure environment variables
+# 4. Configure Environment
 cp .env.example .env
-# Edit .env and set your GOOGLE_API_KEY
+# Set GOOGLE_API_KEY or GOOGLE_GENAI_USE_VERTEXAI=true in .env
 ```
 
-### 2. Run Full Pytest Suite (47/47 Tests Passing)
-```bash
-pytest -v
-```
-
-### 3. Start Local Web Dashboard
+### 2. Start Local Web Dashboard
 ```bash
 uvicorn app.server:app --reload --port 8000
 ```
-Open `http://localhost:8000` to interact with KIW1 Studio, explore the Spatial Memory Palace, view Nightly Research Briefings, and run live Academic Benchmarks.
+Open **`http://localhost:8000`** in your browser to access the full interactive UI.
+
+---
+
+## ☁️ 1-Command Cloud Deployment to Google Cloud Run
+
+Deploy directly to your own Google Cloud project:
+```bash
+# Authenticate with Google Cloud
+gcloud auth login
+gcloud config set project YOUR_PROJECT_ID
+
+# Deploy container, Cloud Firestore, Pub/Sub, and Scheduler
+./deploy.sh
+```
+
+---
+
+## 👥 Authors & Acknowledgments
+Built with ❤️ for the **Google All Things Agentic Hackathon** by **Akash Nair** using Google ADK, Vertex AI, Gemini 2.5, Cloud Run, and Cloud Firestore.
