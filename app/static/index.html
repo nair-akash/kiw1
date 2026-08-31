@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KIW1 — Autonomous Self-Improving Agentic Harness</title>
+  <title>KIW1 — Autonomous Self-Improving Agentic Studio</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/style.css">
   <link rel="stylesheet" href="/static/orb-lite.css">
 </head>
@@ -15,52 +15,80 @@
     <!-- Sidebar Navigation -->
     <aside class="sidebar">
       <div class="brand">
-        <div class="logo-badge">KIW1</div>
+        <div class="logo-wrapper">
+          <div class="logo-badge">KIW1</div>
+          <span class="status-pulse-dot" title="Core Online"></span>
+        </div>
         <div class="brand-text">
-          <div class="brand-name">KIW1 Harness</div>
-          <div class="brand-sub">Gemini 3.7 &bull; ADK &bull; Cloud Run</div>
+          <div class="brand-name">KIW1 Studio</div>
+          <div class="brand-sub">Self-Improving Agent &bull; ADK</div>
         </div>
       </div>
 
+      <!-- Quick Action: New Thread -->
+      <div class="sidebar-action-wrap">
+        <button class="btn-new-chat" id="btn-new-chat">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+          New Session
+        </button>
+      </div>
+
+      <!-- Main Navigation Menu -->
       <nav class="nav-menu">
+        <div class="nav-section-label">WORKSPACE</div>
         <button class="nav-item active" data-tab="chat-tab" id="nav-chat">
-          <span class="nav-icon">💬</span> Chat &amp; Planner
+          <span class="nav-icon">💬</span>
+          <span class="nav-label">Chat &amp; Planner</span>
         </button>
         <button class="nav-item" data-tab="skills-tab" id="nav-skills">
-          <span class="nav-icon">⚡</span> Skill Registry <span class="badge" id="skills-badge">0</span>
+          <span class="nav-icon">⚡</span>
+          <span class="nav-label">Skill Registry</span>
+          <span class="badge" id="skills-badge">0</span>
         </button>
         <button class="nav-item" data-tab="ledger-tab" id="nav-ledger">
-          <span class="nav-icon">📖</span> Correction Ledger <span class="badge" id="ledger-badge">0</span>
+          <span class="nav-icon">📖</span>
+          <span class="nav-label">Correction Ledger</span>
+          <span class="badge" id="ledger-badge">0</span>
         </button>
         <button class="nav-item" data-tab="palace-tab" id="nav-palace">
-          <span class="nav-icon">🏛️</span> Memory Palace
+          <span class="nav-icon">🏛️</span>
+          <span class="nav-label">Memory Palace</span>
+          <span class="badge" id="palace-badge">0</span>
         </button>
+
+        <div class="nav-section-label">EVALUATION &amp; INTEL</div>
         <button class="nav-item" data-tab="research-tab" id="nav-research">
-          <span class="nav-icon">🌙</span> Overnight Research
+          <span class="nav-icon">🌙</span>
+          <span class="nav-label">Overnight Research</span>
         </button>
         <button class="nav-item" data-tab="evals-tab" id="nav-evals">
-          <span class="nav-icon">📊</span> Evals Benchmark
+          <span class="nav-icon">📊</span>
+          <span class="nav-label">Evals Benchmark</span>
+          <span class="badge badge-accent">20 Tasks</span>
         </button>
       </nav>
 
       <!-- Live Telemetry Widget in Sidebar -->
       <div class="telemetry-box">
-        <div class="telemetry-header">Live Telemetry</div>
-        <div class="telemetry-row">
-          <span>Latency</span>
-          <span class="mono-val" id="stat-latency">0 ms</span>
+        <div class="telemetry-header">
+          <span>Agent Telemetry</span>
+          <span class="telemetry-live-tag">LIVE</span>
         </div>
         <div class="telemetry-row">
-          <span>Tokens</span>
+          <span class="text-secondary">Latency</span>
+          <span class="mono-val" id="stat-latency">-- ms</span>
+        </div>
+        <div class="telemetry-row">
+          <span class="text-secondary">Tokens</span>
           <span class="mono-val" id="stat-tokens">0</span>
         </div>
         <div class="telemetry-row">
-          <span>Cost (USD)</span>
+          <span class="text-secondary">Session Cost</span>
           <span class="mono-val text-green" id="stat-cost">$0.000000</span>
         </div>
         <div class="telemetry-row">
-          <span>Effort Mode</span>
-          <span class="mono-val" id="stat-effort">Standard</span>
+          <span class="text-secondary">Effort Mode</span>
+          <span class="mono-val text-accent" id="stat-effort">STANDARD</span>
         </div>
       </div>
     </aside>
@@ -69,13 +97,18 @@
     <main class="main-content">
       <!-- Top Header Bar -->
       <header class="top-bar">
-        <div class="title-section">
-          <h1 id="page-title">Chat &amp; Orchestrator</h1>
-          <p class="tagline">"Notices what you keep asking for, writes itself a skill, and researches weak spots overnight."</p>
+        <div class="header-left">
+          <div class="view-indicator">
+            <h1 id="page-title">Chat &amp; Strategic Orchestrator</h1>
+            <div class="model-badge">
+              <span class="model-dot"></span>
+              <span id="header-model-name">Gemini 3.7 &bull; Flash</span>
+            </div>
+          </div>
         </div>
 
-        <!-- Real-Time Agent State Orb Widget (Location 1: size 64 chat-avatar scale) -->
-        <div class="agent-status-widget" id="agent-status-widget">
+        <!-- Real-Time Agent State Orb Widget (Location 1: chat-avatar scale) -->
+        <div class="agent-status-widget" id="agent-status-widget" title="Live Agent State">
           <div class="orb-avatar-wrapper" id="main-orb-container"></div>
           <div class="status-info">
             <div class="status-state-label" id="agent-state-label">Idle / Ready</div>
@@ -83,34 +116,59 @@
           </div>
         </div>
 
+        <!-- Controls Section -->
         <div class="controls-section">
-          <div class="control-group">
-            <label for="effort-select">Effort:</label>
-            <select id="effort-select" class="select-input">
-              <option value="quick">Quick (0 Thinking)</option>
-              <option value="standard" selected>Standard (2k Thinking)</option>
-              <option value="thorough">Thorough (8k Pro Thinking)</option>
-            </select>
+          <div class="control-pill-group">
+            <button class="effort-pill active" data-effort="standard" id="pill-effort-standard">Standard</button>
+            <button class="effort-pill" data-effort="quick" id="pill-effort-quick">Fast</button>
+            <button class="effort-pill" data-effort="thorough" id="pill-effort-thorough">Thorough</button>
+            <input type="hidden" id="effort-select" value="standard">
           </div>
-          <div class="control-group">
-            <label class="toggle-label">
-              <input type="checkbox" id="hands-off-toggle">
-              <span>Hands-Off Mode</span>
-            </label>
-          </div>
+
+          <label class="hands-off-switch" title="Autonomous tool approval without step confirmation">
+            <input type="checkbox" id="hands-off-toggle">
+            <span class="switch-slider"></span>
+            <span class="switch-label">Hands-Off</span>
+          </label>
         </div>
       </header>
 
       <!-- TAB 1: Chat & Execution Orchestration -->
       <section class="tab-pane active" id="chat-tab">
         <div class="chat-container">
+          <!-- Chat Messages Scroll Area -->
           <div class="chat-messages" id="chat-messages">
-            <div class="message system-message">
-              <div class="msg-author">KIW1 Kernel</div>
-              <div class="msg-body">
-                System initialized. ADK Root Agent ready with <strong>Prompt Refinery</strong>, 
-                <strong>Strategic Planner</strong>, <strong>Correction Ledger</strong>, and <strong>Skill Forge</strong> active.
-                Type <code>/skill</code> to view registered capabilities.
+            <!-- Welcome Hero Screen -->
+            <div class="welcome-hero" id="welcome-hero">
+              <div class="hero-logo-box">
+                <div class="hero-logo-badge">KIW1</div>
+              </div>
+              <h2 class="hero-title">Welcome to KIW1 Studio</h2>
+              <p class="hero-desc">
+                An autonomous self-improving agentic harness. It notices repeated tasks, writes durable skills, applies spatial memory palaces, and conducts overnight research.
+              </p>
+
+              <div class="quick-starter-grid">
+                <div class="starter-card" data-prompt="Run the 20-task self-improvement benchmark and summarize results">
+                  <div class="starter-icon">📊</div>
+                  <div class="starter-title">Run Benchmark</div>
+                  <div class="starter-sub">Test cold baseline vs learned performance</div>
+                </div>
+                <div class="starter-card" data-prompt="Recall what our confidential project codename is from memory">
+                  <div class="starter-icon">🏛️</div>
+                  <div class="starter-title">Spatial Memory</div>
+                  <div class="starter-sub">Query loci in the memory palace</div>
+                </div>
+                <div class="starter-card" data-prompt="Can you fix the invoice formatting according to our rules?">
+                  <div class="starter-icon">📖</div>
+                  <div class="starter-title">Correction Rules</div>
+                  <div class="starter-sub">Test correction ledger GST formatting</div>
+                </div>
+                <div class="starter-card" data-prompt="Fix it now please">
+                  <div class="starter-icon">⚡</div>
+                  <div class="starter-title">Prompt Refinery</div>
+                  <div class="starter-sub">Test ambiguity interrogation cards</div>
+                </div>
               </div>
             </div>
           </div>
@@ -118,33 +176,54 @@
           <!-- Clarification Modal / Inline Interrogation -->
           <div class="clarification-panel hidden" id="clarification-panel">
             <div class="clarification-header">
-              <span class="badge warning">Prompt Refinery Interrogation</span>
-              <p id="clarification-prompt-text"></p>
+              <div class="clar-title-row">
+                <span class="badge warning">Prompt Refinery Interrogation</span>
+                <span class="text-secondary text-sm">Ambiguity Detected in Prompt</span>
+              </div>
+              <p id="clarification-prompt-text" class="clar-prompt-quote"></p>
             </div>
             <div class="clarification-body" id="clarification-questions"></div>
             <div class="clarification-actions">
-              <button class="btn btn-primary" id="btn-submit-clarification">Submit Clarification</button>
-              <button class="btn btn-secondary" id="btn-cancel-clarification">Cancel</button>
+              <button class="btn btn-primary" id="btn-submit-clarification">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+                Confirm &amp; Execute
+              </button>
+              <button class="btn btn-secondary" id="btn-cancel-clarification">Dismiss</button>
             </div>
           </div>
 
-          <!-- Chat Input -->
-          <div class="chat-input-bar">
-            <input type="text" id="chat-input" placeholder="Type a request, instruction, or /skill..." autocomplete="off">
-            <button class="btn btn-primary" id="btn-send">Send</button>
+          <!-- Quick Command Shortcuts Bar -->
+          <div class="shortcuts-bar">
+            <button class="shortcut-chip" data-insert="/skills"><code>/skills</code></button>
+            <button class="shortcut-chip" data-insert="/remember "><code>/remember</code></button>
+            <button class="shortcut-chip" data-insert="/recall "><code>/recall</code></button>
+            <button class="shortcut-chip" data-insert="/evals"><code>/evals</code></button>
+            <button class="shortcut-chip" data-insert="/research"><code>/research</code></button>
+          </div>
+
+          <!-- Floating Modern Chat Input Box -->
+          <div class="chat-input-container">
+            <div class="chat-input-wrapper">
+              <textarea id="chat-input" rows="1" placeholder="Type a prompt, instruction, or /command... (Shift+Enter for new line)" autocomplete="off"></textarea>
+              <button class="btn-send" id="btn-send" title="Send message (Enter)">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+              </button>
+            </div>
           </div>
         </div>
       </section>
 
-      <!-- TAB 2: Skill Registry -->
+      <!-- TAB 2: Skill Registry & Forge -->
       <section class="tab-pane" id="skills-tab">
         <div class="tab-header">
           <div class="tab-title-row">
-            <h2>Skill Registry &amp; Forge</h2>
+            <div>
+              <h2>Skill Registry &amp; Autonomous Forge</h2>
+              <p class="tab-desc">Autonomous skill promotion when task patterns occur &ge;3 times in 7 days. Managed with auto-retirement.</p>
+            </div>
             <!-- Inline size 20 orb (Location 2) -->
             <div class="inline-orb-wrapper hidden" id="skills-orb-container" title="Skill Forge Active"></div>
           </div>
-          <p>Skills automatically forged after 3 occurrences in 7 days. Managed with deterministic auto-retirement bookkeeping.</p>
         </div>
         <div class="cards-grid" id="skills-list"></div>
       </section>
@@ -152,18 +231,24 @@
       <!-- TAB 3: Correction Ledger -->
       <section class="tab-pane" id="ledger-tab">
         <div class="tab-header">
-          <h2>Correction Ledger</h2>
-          <p>Every correction becomes a durable rule retrieved before acting on future tasks. Contradicted rules auto-retire.</p>
+          <div class="tab-title-row">
+            <div>
+              <h2>Correction Ledger</h2>
+              <p class="tab-desc">Every user correction becomes a durable rule retrieved before future task execution. Contradicted rules auto-retire.</p>
+            </div>
+            <button class="btn btn-secondary" id="btn-add-correction-modal">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+              Add Manual Rule
+            </button>
+          </div>
         </div>
-        <div class="ledger-actions">
-          <button class="btn btn-secondary" id="btn-add-correction-modal">+ Add Manual Correction</button>
-        </div>
+
         <div class="table-container">
           <table class="data-table">
             <thead>
               <tr>
                 <th>Rule ID</th>
-                <th>Situation</th>
+                <th>Situation / Context</th>
                 <th>Learned Rule</th>
                 <th>Weight</th>
                 <th>Status</th>
@@ -177,8 +262,16 @@
       <!-- TAB 4: Memory Palace -->
       <section class="tab-pane" id="palace-tab">
         <div class="tab-header">
-          <h2>Spatial Memory Palace</h2>
-          <p>Deterministic <code>Room &rarr; Locus &rarr; Item</code> spatial hierarchy with decay scoring and provenance tagging.</p>
+          <div class="tab-title-row">
+            <div>
+              <h2>Spatial Memory Palace</h2>
+              <p class="tab-desc">Deterministic <code>Room &rarr; Locus &rarr; Item</code> hierarchy with decay scoring and provenance tracking.</p>
+            </div>
+            <button class="btn btn-secondary" id="btn-add-memory-modal">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+              Store Memory
+            </button>
+          </div>
         </div>
         <div class="palace-tree-view" id="palace-tree"></div>
       </section>
@@ -187,12 +280,19 @@
       <section class="tab-pane" id="research-tab">
         <div class="tab-header">
           <div class="tab-title-row">
-            <h2>Overnight Research &amp; Self-Critique</h2>
-            <!-- Inline size 20 orb (Location 2) -->
-            <div class="inline-orb-wrapper hidden" id="research-orb-container" title="Research Subsystem Active"></div>
+            <div>
+              <h2>Overnight Research &amp; Self-Critique</h2>
+              <p class="tab-desc">Autonomous weak-spot targeting, multi-source synthesis, adversarial critique pass, and executive morning reports.</p>
+            </div>
+            <div class="tab-actions-right">
+              <!-- Inline size 20 orb (Location 2) -->
+              <div class="inline-orb-wrapper hidden" id="research-orb-container" title="Research Subsystem Active"></div>
+              <button class="btn btn-primary" id="btn-trigger-research">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                Run Research Cycle Now
+              </button>
+            </div>
           </div>
-          <p>Autonomous overnight weak-spot targeting, research, adversarial Pro critique pass, and morning reports.</p>
-          <button class="btn btn-primary" id="btn-trigger-research">Run Research Cycle Now</button>
         </div>
         <div class="reports-container" id="research-reports"></div>
       </section>
@@ -200,32 +300,45 @@
       <!-- TAB 6: Evals Benchmark -->
       <section class="tab-pane" id="evals-tab">
         <div class="tab-header">
-          <h2>The 20-Task Proof of Self-Improvement</h2>
-          <p>Cold Baseline vs Learned Run on identical 20-task benchmark. The only falsifiable claim.</p>
-          <button class="btn btn-primary" id="btn-run-evals">Re-run 20-Task Benchmark</button>
+          <div class="tab-title-row">
+            <div>
+              <h2>The 20-Task Proof of Self-Improvement</h2>
+              <p class="tab-desc">Cold Baseline vs Learned Run on identical 20-task suite. Deterministic, falsifiable self-improvement benchmark.</p>
+            </div>
+            <button class="btn btn-primary" id="btn-run-evals">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3l14 9-14 9V3z"/></svg>
+              Re-run Live Benchmark
+            </button>
+          </div>
         </div>
+
         <div class="evals-summary-cards" id="evals-summary">
           <div class="summary-card">
-            <div class="card-label">Cold Baseline</div>
-            <div class="card-value text-red" id="eval-cold-score">15 / 20 (75%)</div>
+            <div class="card-label">Cold Baseline Score</div>
+            <div class="card-value text-red" id="eval-cold-score">13 / 20 (65%)</div>
+            <div class="card-hint">Empty memory, 0 rules, 0 skills</div>
           </div>
           <div class="summary-card">
-            <div class="card-label">Learned Score</div>
-            <div class="card-value text-green" id="eval-learned-score">20 / 20 (100%)</div>
+            <div class="card-label">Learned Run Score</div>
+            <div class="card-value text-green" id="eval-learned-score">19 / 20 (95%)</div>
+            <div class="card-hint">Identical prompts post-learning</div>
           </div>
-          <div class="summary-card">
+          <div class="summary-card highlight-card">
             <div class="card-label">Improvement Delta</div>
-            <div class="card-value text-blue" id="eval-delta">+5 (+25%)</div>
+            <div class="card-value text-accent" id="eval-delta">+6 (+30%)</div>
+            <div class="card-hint">Falsifiable self-improvement delta</div>
           </div>
         </div>
+
         <div class="table-container">
           <table class="data-table">
             <thead>
               <tr>
                 <th>Task ID</th>
-                <th>Description</th>
+                <th>Task Description</th>
                 <th>Cold Status</th>
                 <th>Learned Status</th>
+                <th>Verification Detail</th>
               </tr>
             </thead>
             <tbody id="evals-table-body"></tbody>
@@ -233,6 +346,64 @@
         </div>
       </section>
     </main>
+  </div>
+
+  <!-- Quick Manual Correction Modal -->
+  <div class="modal-backdrop hidden" id="correction-modal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Add Learned Correction Rule</h3>
+        <button class="modal-close" id="btn-close-correction-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Situation / Context Pattern</label>
+          <input type="text" id="modal-corr-situation" placeholder="e.g. formatting invoices for clients">
+        </div>
+        <div class="form-group">
+          <label>Incorrect / Avoided Action</label>
+          <input type="text" id="modal-corr-wrong" placeholder="e.g. using plain text table">
+        </div>
+        <div class="form-group">
+          <label>Correct Directive / Rule</label>
+          <input type="text" id="modal-corr-rule" placeholder="e.g. always format as structured markdown with GST breakdown">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btn-cancel-correction-modal">Cancel</button>
+        <button class="btn btn-primary" id="btn-save-correction-modal">Save to Ledger</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Manual Memory Modal -->
+  <div class="modal-backdrop hidden" id="memory-modal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Store Spatial Memory</h3>
+        <button class="modal-close" id="btn-close-memory-modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Fact / Knowledge Item</label>
+          <textarea id="modal-mem-fact" rows="3" placeholder="e.g. Our client Acme Corp is located in Auckland, New Zealand."></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Room (Optional)</label>
+            <input type="text" id="modal-mem-room" placeholder="e.g. clients">
+          </div>
+          <div class="form-group">
+            <label>Locus (Optional)</label>
+            <input type="text" id="modal-mem-locus" placeholder="e.g. acme_corp">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="btn-cancel-memory-modal">Cancel</button>
+        <button class="btn btn-primary" id="btn-save-memory-modal">Store in Palace</button>
+      </div>
+    </div>
   </div>
 
   <script type="module" src="/static/app.js"></script>

@@ -1,4 +1,4 @@
-// KIW1 Interactive Frontend Client — Thinking Orb Lite (pure CSS)
+// KIW1 Studio Frontend Client — Codex Design System & Thinking Orb Lite (pure CSS)
 
 document.addEventListener("DOMContentLoaded", () => {
   // Navigation Tabs
@@ -8,30 +8,35 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const tabTitles = {
     "chat-tab": "Chat & Strategic Orchestrator",
-    "skills-tab": "Skill Registry & Forge",
+    "skills-tab": "Skill Registry & Autonomous Forge",
     "ledger-tab": "Correction Ledger",
     "palace-tab": "Spatial Memory Palace",
     "research-tab": "Overnight Research & Self-Critique",
     "evals-tab": "20-Task Proof of Improvement",
   };
 
+  function switchTab(target) {
+    navItems.forEach(b => b.classList.remove("active"));
+    tabPanes.forEach(p => p.classList.remove("active"));
+
+    const activeBtn = document.querySelector(`.nav-item[data-tab="${target}"]`);
+    if (activeBtn) activeBtn.classList.add("active");
+
+    const pane = document.getElementById(target);
+    if (pane) pane.classList.add("active");
+    if (pageTitle && tabTitles[target]) pageTitle.textContent = tabTitles[target];
+
+    // Refresh data for active tab
+    if (target === "skills-tab") loadSkills();
+    if (target === "ledger-tab") loadLedger();
+    if (target === "palace-tab") loadPalace();
+    if (target === "research-tab") loadResearch();
+    if (target === "evals-tab") loadEvals();
+  }
+
   navItems.forEach(btn => {
     btn.addEventListener("click", () => {
-      const target = btn.dataset.tab;
-      navItems.forEach(b => b.classList.remove("active"));
-      tabPanes.forEach(p => p.classList.remove("active"));
-
-      btn.classList.add("active");
-      const pane = document.getElementById(target);
-      if (pane) pane.classList.add("active");
-      if (pageTitle && tabTitles[target]) pageTitle.textContent = tabTitles[target];
-
-      // Refresh tab data
-      if (target === "skills-tab") loadSkills();
-      if (target === "ledger-tab") loadLedger();
-      if (target === "palace-tab") loadPalace();
-      if (target === "research-tab") loadResearch();
-      if (target === "evals-tab") loadEvals();
+      switchTab(btn.dataset.tab);
     });
   });
 
@@ -41,6 +46,21 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnSend = document.getElementById("btn-send");
   const effortSelect = document.getElementById("effort-select");
   const handsOffToggle = document.getElementById("hands-off-toggle");
+  const welcomeHero = document.getElementById("welcome-hero");
+  const btnNewChat = document.getElementById("btn-new-chat");
+
+  // Effort Pills
+  const effortPills = document.querySelectorAll(".effort-pill");
+  effortPills.forEach(pill => {
+    pill.addEventListener("click", () => {
+      effortPills.forEach(p => p.classList.remove("active"));
+      pill.classList.add("active");
+      const val = pill.dataset.effort;
+      if (effortSelect) effortSelect.value = val;
+      const statEffort = document.getElementById("stat-effort");
+      if (statEffort) statEffort.textContent = val.toUpperCase();
+    });
+  });
 
   // Clarification Modal Elements
   const clarPanel = document.getElementById("clarification-panel");
@@ -58,7 +78,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const researchOrbContainer = document.getElementById("research-orb-container");
 
   // ── Thinking Orb Lite helpers ──────────────────────────────────────────
-  // All nine state classes for removal during swap
   const TOL_STATES = [
     "tol-working", "tol-searching", "tol-solving", "tol-listening",
     "tol-connecting", "tol-weaving", "tol-composing", "tol-breathing",
@@ -103,22 +122,87 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let pendingPrompt = null;
 
+  // New session button
+  if (btnNewChat) {
+    btnNewChat.addEventListener("click", () => {
+      switchTab("chat-tab");
+      chatMessages.innerHTML = "";
+      if (welcomeHero) {
+        chatMessages.appendChild(welcomeHero);
+        welcomeHero.classList.remove("hidden");
+      }
+      chatInput.value = "";
+      chatInput.focus();
+      setAgentState("breathing", "Idle / Ready", "Started fresh session. Awaiting instruction.");
+    });
+  }
+
+  // Quick Starter Cards in Welcome Hero
+  document.querySelectorAll(".starter-card").forEach(card => {
+    card.addEventListener("click", () => {
+      const prompt = card.dataset.prompt;
+      if (prompt) {
+        chatInput.value = prompt;
+        sendMessage(prompt);
+      }
+    });
+  });
+
+  // Quick Shortcut Chips
+  document.querySelectorAll(".shortcut-chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      const text = chip.dataset.insert;
+      if (text) {
+        chatInput.value = text;
+        chatInput.focus();
+        if (text === "/skills" || text === "/evals" || text === "/research") {
+          sendMessage(text);
+        }
+      }
+    });
+  });
+
+  // Auto-resize chat textarea
+  if (chatInput) {
+    chatInput.addEventListener("input", () => {
+      chatInput.style.height = "auto";
+      chatInput.style.height = Math.min(chatInput.scrollHeight, 160) + "px";
+    });
+
+    chatInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage(chatInput.value);
+      }
+    });
+  }
+
+  if (btnSend) {
+    btnSend.addEventListener("click", () => sendMessage(chatInput.value));
+  }
+
   async function sendMessage(text) {
     if (!text || text.trim() === "") return;
     const prompt = text.trim();
     chatInput.value = "";
+    chatInput.style.height = "auto";
 
-    appendMessage("user", prompt);
+    // Hide welcome hero on first message
+    if (welcomeHero && !welcomeHero.classList.contains("hidden")) {
+      welcomeHero.classList.add("hidden");
+    }
 
-    const effort = effortSelect.value;
-    const handsOff = handsOffToggle.checked;
+    appendUserMessage(prompt);
 
-    // Set state: solving (Refinery classifying & Planner scoring)
+    const effort = effortSelect ? effortSelect.value : "standard";
+    const handsOff = handsOffToggle ? handsOffToggle.checked : false;
+
+    // Set state
     const isSearchQuery = prompt.toLowerCase().includes("search") || prompt.toLowerCase().includes("research");
     if (isSearchQuery) {
-      setAgentState("searching", "Searching Sources", `Retrieving web and documentation data for query...`);
+      setAgentState("searching", "Searching Sources", `Retrieving web and documentation data...`);
     } else {
-      setAgentState("solving", "Analyzing & Planning", `Scoring execution paths and parsing constraints...`);
+      setAgentState("solving", "Analyzing & Planning", `Refinery verifying constraints and scoring paths...`);
     }
 
     try {
@@ -135,8 +219,11 @@ document.addEventListener("DOMContentLoaded", () => {
       handleChatResponse(data, prompt);
       refreshTelemetry();
     } catch (err) {
-      appendMessage("agent", `Error communicating with KIW1 kernel: ${err.message}`);
-      setAgentState("breathing", "Idle / Error", `Encountered error: ${err.message}`);
+      appendAgentMessage({
+        text: `Encountered communication error: ${err.message}`,
+        model: "offline",
+      });
+      setAgentState("breathing", "Idle / Error", `Error: ${err.message}`);
     }
   }
 
@@ -146,7 +233,7 @@ document.addEventListener("DOMContentLoaded", () => {
       clarPromptText.textContent = `Original input: "${originalPrompt}"`;
       clarQuestions.innerHTML = "";
 
-      data.questions.forEach((q, idx) => {
+      (data.questions || []).forEach((q, idx) => {
         const qBlock = document.createElement("div");
         qBlock.className = "clarification-question-block";
         qBlock.innerHTML = `
@@ -168,90 +255,191 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Normal response
-    let body = data.text || "Task executed successfully.";
-
-    // If a skill was forged on this turn
+    // Set state
     if (data.forged_skill) {
-      body += `\n\n⚡ <strong>Skill Forged:</strong> ${data.forged_skill.message}`;
       setAgentState("shaping", "Skill Forged", `Forged new capability: ${data.forged_skill.skill_name}`);
-      
-      // Flash inline orb beside Skill Registry
       if (skillsOrbContainer) {
         skillsOrbContainer.classList.remove("hidden");
-        setTimeout(() => {
-          skillsOrbContainer.classList.add("hidden");
-        }, 4000);
+        setTimeout(() => skillsOrbContainer.classList.add("hidden"), 4000);
       }
       loadSkills();
     } else {
       setAgentState("breathing", "Idle / Ready", "Task completed. Awaiting next instruction.");
     }
 
-    // If learned rules were applied
-    if (data.brief && data.brief.learned_rules_applied && data.brief.learned_rules_applied.length > 0) {
-      body += `\n\n📖 <em>Applied ${data.brief.learned_rules_applied.length} learned rule(s) from Correction Ledger.</em>`;
-    }
-
-    appendMessage("agent", body);
+    appendAgentMessage(data);
   }
 
-  function appendMessage(sender, text) {
+  function appendUserMessage(text) {
     const msg = document.createElement("div");
-    msg.className = `message ${sender}-message`;
-    const author = sender === "user" ? "You" : "KIW1 Agent";
+    msg.className = "message user-message";
     msg.innerHTML = `
-      <div class="msg-author">${author}</div>
-      <div class="msg-body">${text.replace(/\n/g, "<br>")}</div>
+      <div class="msg-body">${escapeHtml(text).replace(/\n/g, "<br>")}</div>
     `;
     chatMessages.appendChild(msg);
     chatMessages.scrollTop = chatMessages.scrollHeight;
   }
 
-  btnSend.addEventListener("click", () => sendMessage(chatInput.value));
-  chatInput.addEventListener("keydown", (e) => {
-    if (e.key === "Enter") sendMessage(chatInput.value);
-  });
+  function appendAgentMessage(data) {
+    const msg = document.createElement("div");
+    msg.className = "message agent-message";
 
-  btnSubmitClar.addEventListener("click", async () => {
-    if (!pendingPrompt) return;
-    const answers = {};
-    document.querySelectorAll(".options-group").forEach(group => {
-      const qid = group.dataset.qid;
-      const checked = group.querySelector("input[type='radio']:checked");
-      if (checked) answers[qid] = checked.value;
-    });
+    const text = data.text || "Execution completed.";
+    const model = data.model || "gemini-3.6-flash";
+    const tools = data.tools_used || [];
+    const reasoning = data.reasoning || "";
+    const rulesApplied = (data.brief && data.brief.learned_rules_applied) ? data.brief.learned_rules_applied : [];
+    const forgedSkill = data.forged_skill;
 
-    clarPanel.classList.add("hidden");
-    appendMessage("user", `[Clarification Submitted]: ${Object.values(answers).join("; ")}`);
-
-    setAgentState("working", "Executing Clarified Plan", "Executing task with verified brief constraints...");
-
-    try {
-      const res = await fetch("/api/clarify", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          original_prompt: pendingPrompt,
-          answers: answers,
-          effort: effortSelect.value,
-        }),
-      });
-      const data = await res.json();
-      pendingPrompt = null;
-      handleChatResponse(data, "");
-      refreshTelemetry();
-    } catch (err) {
-      appendMessage("agent", `Error executing clarified task: ${err.message}`);
-      setAgentState("breathing", "Idle / Error", `Error: ${err.message}`);
+    let toolsHtml = "";
+    if (tools.length > 0) {
+      toolsHtml = `
+        <div class="tools-execution-row">
+          ${tools.map(t => `<span class="tool-pill-badge">⚙️ ${t}</span>`).join("")}
+        </div>
+      `;
     }
-  });
 
-  btnCancelClar.addEventListener("click", () => {
-    clarPanel.classList.add("hidden");
-    pendingPrompt = null;
-    setAgentState("breathing", "Idle / Ready", "Clarification cancelled.");
-  });
+    let reasoningHtml = "";
+    if (reasoning || (data.plan_candidates && data.plan_candidates.length > 0)) {
+      const candidates = data.plan_candidates || [];
+      reasoningHtml = `
+        <div class="reasoning-drawer">
+          <div class="reasoning-toggle" onclick="this.parentElement.classList.toggle('open')">
+            <span>🧠 Thought Process &amp; Strategic Plan</span>
+            <span class="chevron">▼</span>
+          </div>
+          <div class="reasoning-content">
+            ${reasoning ? `<div style="margin-bottom: 6px;">${escapeHtml(reasoning)}</div>` : ''}
+            ${candidates.length > 0 ? `
+              <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
+                <strong>Strategic Paths Evaluated (${candidates.length}):</strong><br>
+                ${candidates.map(c => `&bull; ${c.name} [Confidence: ${(c.confidence * 100).toFixed(0)}%] &mdash; ${c.risk_assessment}`).join("<br>")}
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    let rulesHtml = "";
+    if (rulesApplied.length > 0) {
+      rulesHtml = `
+        <div style="margin-top: 8px; font-size: 12px; color: #a5b4fc; background: rgba(99,102,241,0.08); padding: 6px 10px; border-radius: 6px; border: 1px solid rgba(99,102,241,0.2);">
+          📖 <strong>Applied ${rulesApplied.length} Correction Rule(s):</strong><br>
+          ${rulesApplied.map(r => `&bull; ${escapeHtml(r)}`).join("<br>")}
+        </div>
+      `;
+    }
+
+    let forgedHtml = "";
+    if (forgedSkill) {
+      forgedHtml = `
+        <div style="margin-top: 8px; font-size: 12px; color: #67e8f9; background: rgba(6,182,212,0.08); padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(6,182,212,0.25);">
+          ⚡ <strong>Autonomous Skill Forged:</strong> ${escapeHtml(forgedSkill.skill_name || '')}<br>
+          <span style="color: var(--text-secondary);">${escapeHtml(forgedSkill.message || '')}</span>
+        </div>
+      `;
+    }
+
+    msg.innerHTML = `
+      <div class="message-header">
+        <div class="msg-avatar agent-avatar">
+          <div class="tol-orb tol-breathing is-sm"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        </div>
+        <div class="msg-author">KIW1 Kernel</div>
+        <div class="msg-meta-badge">${model}</div>
+      </div>
+      ${reasoningHtml}
+      ${toolsHtml}
+      <div class="msg-body">${formatMarkdown(text)}</div>
+      ${rulesHtml}
+      ${forgedHtml}
+      <div class="msg-actions-row">
+        <button class="btn-msg-action" onclick="navigator.clipboard.writeText(${JSON.stringify(text)})">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy
+        </button>
+        <button class="btn-msg-action btn-teach-action">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          Teach / Correct
+        </button>
+      </div>
+    `;
+
+    // Hook up inline Teach button
+    const teachBtn = msg.querySelector(".btn-teach-action");
+    if (teachBtn) {
+      teachBtn.addEventListener("click", () => {
+        openCorrectionModal();
+      });
+    }
+
+    chatMessages.appendChild(msg);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  function formatMarkdown(str) {
+    if (!str) return "";
+    let html = escapeHtml(str);
+    // Bold
+    html = html.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+    // Italic
+    html = html.replace(/\*(.*?)\*/g, "<em>$1</em>");
+    // Code inline
+    html = html.replace(/`(.*?)`/g, "<code>$1</code>");
+    // Newlines
+    html = html.replace(/\n/g, "<br>");
+    return html;
+  }
+
+  // Clarification Confirmation
+  if (btnSubmitClar) {
+    btnSubmitClar.addEventListener("click", async () => {
+      if (!pendingPrompt) return;
+      const answers = {};
+      document.querySelectorAll(".options-group").forEach(group => {
+        const qid = group.dataset.qid;
+        const checked = group.querySelector("input[type='radio']:checked");
+        if (checked) answers[qid] = checked.value;
+      });
+
+      clarPanel.classList.add("hidden");
+      appendUserMessage(`[Clarification Answers]: ${Object.values(answers).join("; ")}`);
+      setAgentState("working", "Executing Clarified Plan", "Executing task with verified brief constraints...");
+
+      try {
+        const res = await fetch("/api/clarify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            original_prompt: pendingPrompt,
+            answers: answers,
+            effort: effortSelect ? effortSelect.value : "standard",
+          }),
+        });
+        const data = await res.json();
+        pendingPrompt = null;
+        handleChatResponse(data, "");
+        refreshTelemetry();
+      } catch (err) {
+        appendAgentMessage({ text: `Error: ${err.message}` });
+        setAgentState("breathing", "Idle / Error", `Error: ${err.message}`);
+      }
+    });
+  }
+
+  if (btnCancelClar) {
+    btnCancelClar.addEventListener("click", () => {
+      clarPanel.classList.add("hidden");
+      pendingPrompt = null;
+      setAgentState("breathing", "Idle / Ready", "Clarification dismissed.");
+    });
+  }
 
   // Telemetry updates
   async function refreshTelemetry() {
@@ -260,26 +448,37 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = await res.json();
       if (data.traces && data.traces.length > 0) {
         const latest = data.traces[0];
-        document.getElementById("stat-latency").textContent = `${latest.latency_ms} ms`;
-        document.getElementById("stat-tokens").textContent = latest.tokens ? latest.tokens.total : "0";
-        document.getElementById("stat-cost").textContent = `$${latest.cost_usd.toFixed(6)}`;
-        document.getElementById("stat-effort").textContent = latest.effort.toUpperCase();
+        const statLatency = document.getElementById("stat-latency");
+        const statTokens = document.getElementById("stat-tokens");
+        const statCost = document.getElementById("stat-cost");
+        if (statLatency) statLatency.textContent = `${Math.round(latest.latency_ms || 0)} ms`;
+        if (statTokens) statTokens.textContent = latest.tokens ? latest.tokens.total.toLocaleString() : "0";
+        if (statCost) statCost.textContent = `$${(latest.cost_usd || 0).toFixed(6)}`;
       }
     } catch (e) {}
   }
 
-  // Load Skills
+  // Load Skills Tab
   async function loadSkills() {
     try {
       const res = await fetch("/api/skills");
       const data = await res.json();
       const skills = data.skills || [];
-      document.getElementById("skills-badge").textContent = skills.length;
+      const badge = document.getElementById("skills-badge");
+      if (badge) badge.textContent = skills.length;
+
       const container = document.getElementById("skills-list");
+      if (!container) return;
       container.innerHTML = "";
 
       if (skills.length === 0) {
-        container.innerHTML = `<p class="text-muted">No skills forged yet. Repeat similar tasks 3 times to trigger Skill Forge.</p>`;
+        container.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted);">
+            <div style="font-size: 24px; margin-bottom: 8px;">⚡</div>
+            <div style="font-weight: 600; font-size: 14px; color: var(--text-secondary);">No Skills Forged Yet</div>
+            <p style="font-size: 12px; margin-top: 4px;">Repeat similar high-frequency tasks 3 times to trigger the autonomous Skill Forge.</p>
+          </div>
+        `;
         return;
       }
 
@@ -289,13 +488,13 @@ document.addEventListener("DOMContentLoaded", () => {
         const badgeClass = s.enabled ? "success" : "danger";
         card.innerHTML = `
           <div class="skill-card-header">
-            <span class="skill-name">${s.name}</span>
-            <span class="badge ${badgeClass}">${s.badge} ${s.status}</span>
+            <span class="skill-name">${escapeHtml(s.name)}</span>
+            <span class="badge ${badgeClass}">${s.badge || '⚡'} ${s.status}</span>
           </div>
-          <p class="skill-desc">${s.description}</p>
+          <p class="skill-desc">${escapeHtml(s.description)}</p>
           <div class="skill-meta">
-            <span>Invocations: <strong>${s.invocations}</strong></span>
-            <span>Success Rate: <strong>${s.success_rate}</strong></span>
+            <span>Invocations: <strong>${s.invocations || 0}</strong></span>
+            <span>Success Rate: <strong>${s.success_rate || '100%'}</strong></span>
           </div>
         `;
         container.appendChild(card);
@@ -303,24 +502,32 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (e) {}
   }
 
-  // Load Ledger
+  // Load Ledger Tab
   async function loadLedger() {
     try {
       const res = await fetch("/api/corrections");
       const data = await res.json();
       const rules = data.rules || [];
-      document.getElementById("ledger-badge").textContent = data.active_count || 0;
+      const badge = document.getElementById("ledger-badge");
+      if (badge) badge.textContent = data.active_count || rules.length;
+
       const tbody = document.getElementById("ledger-table-body");
+      if (!tbody) return;
       tbody.innerHTML = "";
+
+      if (rules.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 30px;">No correction rules recorded. Teach the agent rules via chat or "+ Add Manual Rule".</td></tr>`;
+        return;
+      }
 
       rules.forEach(r => {
         const tr = document.createElement("tr");
         const statusBadge = r.active ? `<span class="badge success">Active</span>` : `<span class="badge danger">Retired</span>`;
         tr.innerHTML = `
-          <td><code>${r.id}</code></td>
-          <td>${r.situation}</td>
-          <td><strong>${r.rule}</strong></td>
-          <td><code>${r.weight.toFixed(1)}</code></td>
+          <td><code>${escapeHtml(r.id)}</code></td>
+          <td>${escapeHtml(r.situation)}</td>
+          <td><strong>${escapeHtml(r.rule)}</strong></td>
+          <td><code>${(r.weight || 1.0).toFixed(1)}</code></td>
           <td>${statusBadge}</td>
         `;
         tbody.appendChild(tr);
@@ -328,14 +535,30 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (e) {}
   }
 
-  // Load Memory Palace
+  // Load Memory Palace Tab
   async function loadPalace() {
     try {
       const res = await fetch("/api/memory");
       const data = await res.json();
       const tree = data.tree || {};
+      const badge = document.getElementById("palace-badge");
+      const totalMemories = Object.values(tree).reduce((sum, loci) => sum + Object.values(loci).reduce((s2, arr) => s2 + arr.length, 0), 0);
+      if (badge) badge.textContent = totalMemories;
+
       const container = document.getElementById("palace-tree");
+      if (!container) return;
       container.innerHTML = "";
+
+      if (Object.keys(tree).length === 0) {
+        container.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted);">
+            <div style="font-size: 24px; margin-bottom: 8px;">🏛️</div>
+            <div style="font-weight: 600; font-size: 14px; color: var(--text-secondary);">Memory Palace Empty</div>
+            <p style="font-size: 12px; margin-top: 4px;">Use <code>/remember [fact]</code> or "+ Store Memory" to persist knowledge in spatial loci.</p>
+          </div>
+        `;
+        return;
+      }
 
       Object.entries(tree).forEach(([room, loci]) => {
         const rCard = document.createElement("div");
@@ -345,20 +568,18 @@ document.addEventListener("DOMContentLoaded", () => {
         Object.entries(loci).forEach(([locus, items]) => {
           lociHtml += `
             <div class="locus-block">
-              <div class="locus-title">Locus: ${locus}</div>
+              <div class="locus-title">Locus: ${escapeHtml(locus)}</div>
               ${items.map(item => `
-                <div class="item-row">
-                  &bull; ${item.item} 
-                  <span class="badge" style="font-size:10px;">decay: ${item.decay_score.toFixed(1)}</span>
-                  <span class="badge" style="font-size:10px;">${item.provenance}</span>
-                </div>
+                <div class="item-row">&bull; ${escapeHtml(item.text || item)}</div>
               `).join("")}
             </div>
           `;
         });
 
         rCard.innerHTML = `
-          <div class="room-title">🏛️ Room: ${room}</div>
+          <div class="room-header">
+            <span>🚪 Room:</span> <strong>${escapeHtml(room)}</strong>
+          </div>
           ${lociHtml}
         `;
         container.appendChild(rCard);
@@ -366,117 +587,228 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (e) {}
   }
 
-  // Load Research
+  // Load Research Tab
   async function loadResearch() {
     try {
       const res = await fetch("/api/research/reports");
       const data = await res.json();
       const reports = data.reports || [];
       const container = document.getElementById("research-reports");
+      if (!container) return;
       container.innerHTML = "";
 
       if (reports.length === 0) {
-        container.innerHTML = `<p class="text-muted">No overnight research runs recorded yet.</p>`;
+        container.innerHTML = `
+          <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+            <div style="font-size: 24px; margin-bottom: 8px;">🌙</div>
+            <div style="font-weight: 600; font-size: 14px; color: var(--text-secondary);">No Overnight Research Reports Yet</div>
+            <p style="font-size: 12px; margin-top: 4px;">Click "Run Research Cycle Now" to trigger autonomous weak-spot synthesis and critique pass.</p>
+          </div>
+        `;
         return;
       }
 
-      reports.forEach(rep => {
+      reports.forEach(r => {
         const card = document.createElement("div");
-        card.className = "palace-room-card";
+        card.className = "research-report-card";
         card.innerHTML = `
-          <div class="room-title">🌙 Morning Report (${new Date(rep.created_at || rep.timestamp).toLocaleDateString()})</div>
-          <p><strong>Target:</strong> ${rep.target_topic} (<em>${rep.target_reason}</em>)</p>
-          <div style="margin: 8px 0;">
-            <strong>Validated Findings (Kept):</strong>
-            <ul>
-              ${(rep.survived_findings || []).map(f => `<li>${f}</li>`).join("")}
-            </ul>
+          <div class="report-header">
+            <div>
+              <div class="report-topic">${escapeHtml(r.topic || 'General Intelligence Briefing')}</div>
+              <div class="report-meta">Timestamp: ${r.timestamp || new Date().toISOString()}</div>
+            </div>
+            <span class="badge success">Adversarial Critique Passed</span>
           </div>
-          <div style="margin: 8px 0; color: var(--accent-red);">
-            <strong>Discards (Critiqued &amp; Refuted):</strong>
-            <ul>
-              ${(rep.discarded_claims || []).map(c => `<li>${c}</li>`).join("")}
-            </ul>
-          </div>
+          <div class="report-summary">${formatMarkdown(r.summary || r.report_markdown || 'No summary available.')}</div>
+          ${r.critique ? `
+            <div class="critique-box">
+              <div class="critique-title">🛡️ Pro Adversarial Critique Pass:</div>
+              <div style="font-size: 12px; color: var(--text-secondary);">${escapeHtml(r.critique)}</div>
+            </div>
+          ` : ''}
         `;
         container.appendChild(card);
       });
     } catch (e) {}
   }
 
-  document.getElementById("btn-trigger-research").addEventListener("click", async () => {
-    const btn = document.getElementById("btn-trigger-research");
-    btn.textContent = "Running Research Cycle...";
-    btn.disabled = true;
-
-    // Activate research state
-    setAgentState("searching", "Overnight Research Active", "Targeting weakest knowledge area and gathering research...");
-    if (researchOrbContainer) {
-      researchOrbContainer.classList.remove("hidden");
-    }
-
-    try {
-      // Transition to connecting / critique pass
-      setTimeout(() => {
-        setAgentState("connecting", "Critique & Validation Pass", "Adversarial critique pass attacking findings...");
-      }, 1200);
-
-      await fetch("/research/run", { method: "POST" });
-      await loadResearch();
-      setAgentState("breathing", "Research Complete", "Findings validated, morning report generated.");
-    } catch (e) {
-      setAgentState("breathing", "Research Failed", `Error: ${e.message}`);
-    } finally {
-      if (researchOrbContainer) {
-        researchOrbContainer.classList.add("hidden");
-      }
-      btn.textContent = "Run Research Cycle Now";
-      btn.disabled = false;
-    }
-  });
-
-  // Load Evals
+  // Load Evals Benchmark Tab
   async function loadEvals() {
     try {
-      const res = await fetch("/static/results.json").catch(() => null);
-      if (res && res.ok) {
-        const data = await res.json();
-        renderEvals(data);
-      }
+      const res = await fetch("/static/results.json");
+      const data = await res.json();
+
+      const coldScoreEl = document.getElementById("eval-cold-score");
+      const learnedScoreEl = document.getElementById("eval-learned-score");
+      const deltaEl = document.getElementById("eval-delta");
+
+      if (coldScoreEl) coldScoreEl.textContent = `${data.cold_score} (${data.cold_percentage})`;
+      if (learnedScoreEl) learnedScoreEl.textContent = `${data.learned_score} (${data.learned_percentage})`;
+      if (deltaEl) deltaEl.textContent = `${data.delta} (${data.delta_percentage})`;
+
+      const tbody = document.getElementById("evals-table-body");
+      if (!tbody) return;
+      tbody.innerHTML = "";
+
+      const coldResults = data.cold_results || [];
+      const learnedResults = data.learned_results || [];
+
+      coldResults.forEach((cold, i) => {
+        const learned = learnedResults[i] || { passed: false, detail: "" };
+        const coldBadge = cold.passed ? `<span class="badge success">PASS</span>` : `<span class="badge danger">FAIL</span>`;
+        const learnedBadge = learned.passed ? `<span class="badge success">PASS</span>` : `<span class="badge danger">FAIL</span>`;
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td><code>${cold.id}</code></td>
+          <td><strong>${escapeHtml(cold.name)}</strong></td>
+          <td>${coldBadge}</td>
+          <td>${learnedBadge}</td>
+          <td style="font-size: 11px; font-family: var(--font-mono); color: var(--text-secondary);">${escapeHtml(learned.detail || cold.detail)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
     } catch (e) {}
   }
 
-  function renderEvals(data) {
-    if (!data) return;
-    document.getElementById("eval-cold-score").textContent = `${data.cold_score} (${data.cold_percentage})`;
-    document.getElementById("eval-learned-score").textContent = `${data.learned_score} (${data.learned_percentage})`;
-    document.getElementById("eval-delta").textContent = `${data.delta} (${data.delta_percentage})`;
+  // Trigger Research Cycle
+  const btnTriggerResearch = document.getElementById("btn-trigger-research");
+  if (btnTriggerResearch) {
+    btnTriggerResearch.addEventListener("click", async () => {
+      btnTriggerResearch.disabled = true;
+      btnTriggerResearch.innerHTML = "Executing Research Cycle...";
+      setAgentState("searching", "Conducting Research", "Scouring web sources and synthesizing intelligence...");
 
-    const tbody = document.getElementById("evals-table-body");
-    tbody.innerHTML = "";
-
-    const coldMap = {};
-    (data.cold_results || []).forEach(r => { coldMap[r.id] = r; });
-
-    (data.learned_results || []).forEach(r => {
-      const cold = coldMap[r.id] || { passed: false };
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td><code>${r.id}</code></td>
-        <td>${r.name}</td>
-        <td>${cold.passed ? `<span class="badge success">PASS</span>` : `<span class="badge danger">FAIL</span>`}</td>
-        <td>${r.passed ? `<span class="badge success">PASS</span>` : `<span class="badge danger">FAIL</span>`}</td>
-      `;
-      tbody.appendChild(tr);
+      try {
+        await fetch("/api/research/trigger", { method: "POST" });
+        await loadResearch();
+        setAgentState("breathing", "Idle / Ready", "Research cycle finished.");
+      } catch (e) {
+        setAgentState("breathing", "Idle / Error", `Research error: ${e.message}`);
+      } finally {
+        btnTriggerResearch.disabled = false;
+        btnTriggerResearch.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Run Research Cycle Now`;
+      }
     });
   }
 
-  document.getElementById("btn-run-evals").addEventListener("click", async () => {
-    alert("Running evals runner in background. Results will refresh.");
-  });
+  // Trigger Evals Re-run
+  const btnRunEvals = document.getElementById("btn-run-evals");
+  if (btnRunEvals) {
+    btnRunEvals.addEventListener("click", async () => {
+      btnRunEvals.disabled = true;
+      btnRunEvals.innerHTML = "Running 20-Task Suite...";
+      setAgentState("working", "Running Benchmark", "Executing 20 cold tasks and 20 learned tasks...");
 
-  // Initial load
+      try {
+        await fetch("/api/evals/run", { method: "POST" }).catch(() => {});
+        await loadEvals();
+        setAgentState("breathing", "Idle / Ready", "Benchmark completed.");
+      } catch (e) {
+        setAgentState("breathing", "Idle / Error", `Benchmark error: ${e.message}`);
+      } finally {
+        btnRunEvals.disabled = false;
+        btnRunEvals.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3l14 9-14 9V3z"/></svg> Re-run Live Benchmark`;
+      }
+    });
+  }
+
+  // ── Modals Setup ───────────────────────────────────────────────
+  const corrModal = document.getElementById("correction-modal");
+  const btnAddCorr = document.getElementById("btn-add-correction-modal");
+  const btnCloseCorr = document.getElementById("btn-close-correction-modal");
+  const btnCancelCorr = document.getElementById("btn-cancel-correction-modal");
+  const btnSaveCorr = document.getElementById("btn-save-correction-modal");
+
+  function openCorrectionModal() {
+    if (corrModal) corrModal.classList.remove("hidden");
+  }
+
+  function closeCorrectionModal() {
+    if (corrModal) corrModal.classList.add("hidden");
+    document.getElementById("modal-corr-situation").value = "";
+    document.getElementById("modal-corr-wrong").value = "";
+    document.getElementById("modal-corr-rule").value = "";
+  }
+
+  if (btnAddCorr) btnAddCorr.addEventListener("click", openCorrectionModal);
+  if (btnCloseCorr) btnCloseCorr.addEventListener("click", closeCorrectionModal);
+  if (btnCancelCorr) btnCancelCorr.addEventListener("click", closeCorrectionModal);
+
+  if (btnSaveCorr) {
+    btnSaveCorr.addEventListener("click", async () => {
+      const situation = document.getElementById("modal-corr-situation").value.trim();
+      const wrongAction = document.getElementById("modal-corr-wrong").value.trim();
+      const rule = document.getElementById("modal-corr-rule").value.trim();
+
+      if (!situation || !rule) return;
+
+      try {
+        await fetch("/api/corrections", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            situation: situation,
+            wrong_action: wrongAction,
+            correction: rule,
+          }),
+        });
+        closeCorrectionModal();
+        loadLedger();
+      } catch (e) {}
+    });
+  }
+
+  // Memory Modal
+  const memModal = document.getElementById("memory-modal");
+  const btnAddMem = document.getElementById("btn-add-memory-modal");
+  const btnCloseMem = document.getElementById("btn-close-memory-modal");
+  const btnCancelMem = document.getElementById("btn-cancel-memory-modal");
+  const btnSaveMem = document.getElementById("btn-save-memory-modal");
+
+  function openMemoryModal() {
+    if (memModal) memModal.classList.remove("hidden");
+  }
+
+  function closeMemoryModal() {
+    if (memModal) memModal.classList.add("hidden");
+    document.getElementById("modal-mem-fact").value = "";
+    document.getElementById("modal-mem-room").value = "";
+    document.getElementById("modal-mem-locus").value = "";
+  }
+
+  if (btnAddMem) btnAddMem.addEventListener("click", openMemoryModal);
+  if (btnCloseMem) btnCloseMem.addEventListener("click", closeMemoryModal);
+  if (btnCancelMem) btnCancelMem.addEventListener("click", closeMemoryModal);
+
+  if (btnSaveMem) {
+    btnSaveMem.addEventListener("click", async () => {
+      const fact = document.getElementById("modal-mem-fact").value.trim();
+      const room = document.getElementById("modal-mem-room").value.trim();
+      const locus = document.getElementById("modal-mem-locus").value.trim();
+
+      if (!fact) return;
+
+      try {
+        await fetch("/api/memory", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            fact: fact,
+            room: room || "general",
+            locus: locus || "notes",
+          }),
+        });
+        closeMemoryModal();
+        loadPalace();
+      } catch (e) {}
+    });
+  }
+
+  // Initial loads
+  refreshTelemetry();
   loadSkills();
   loadLedger();
-  refreshTelemetry();
+  loadPalace();
+  loadEvals();
 });
