@@ -1,0 +1,53 @@
+```mermaid
+graph TD
+    subgraph Trusted_Client["LAPTOP (Trusted Boundary)"]
+        User["User / Web Dashboard"]
+        VaultNode["Local Vault Node (Synthetic Notes)"]
+    end
+
+    subgraph Google_Cloud["GOOGLE CLOUD (Cloud Run / us-central1)"]
+        Server["FastAPI Core & Telemetry"]
+        ADK["Google ADK Agent Runtime"]
+        Refinery["Prompt Refinery (Ambiguity Classifier)"]
+        Planner["Strategic Planner (3-Path Scorer)"]
+        Forge["Skill Forge & Registry (3-in-7 Trigger)"]
+        Ledger["Correction Ledger (Feedback Rules)"]
+        Palace["Memory Palace (room -> locus -> item)"]
+        Approval["Approval Layer (Manifest Risk Gates)"]
+        Router["Model Router & Thinking Budget"]
+        Research["Overnight Research Loop & Critique"]
+        
+        PubSub["Cloud Pub/Sub (Job Queue)"]
+        Scheduler["Cloud Scheduler (Overnight Cron)"]
+    end
+
+    subgraph Google_Backend["GOOGLE BACKEND SERVICES"]
+        GeminiFlash["Gemini 3.7 Flash (Reasoning & Tools)"]
+        GeminiPro["Gemini 3.7 Pro (Critique & Planning)"]
+        Firestore["Cloud Firestore (Ledgers, Skills, Palace)"]
+    end
+
+    User <-->|HTTP / WebSockets| Server
+    Server <--> ADK
+    ADK --> Refinery
+    ADK --> Planner
+    ADK --> Forge
+    ADK --> Ledger
+    ADK --> Palace
+    ADK --> Approval
+    ADK --> Router
+    
+    Router -->|Thinking Budget: 0 - 2048| GeminiFlash
+    Router -->|Thinking Budget: 8192| GeminiPro
+    
+    Palace <--> Firestore
+    Ledger <--> Firestore
+    Forge <--> Firestore
+    
+    Scheduler -->|POST /research/run| Server
+    Server <--> PubSub
+    PubSub --> Research
+    Research --> GeminiPro
+
+    VaultNode <.-. "Local Privacy Boundary: Questions & Answers Only" .-> ADK
+```

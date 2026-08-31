@@ -1,0 +1,17 @@
+.venv/
+.env
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+*.log
+local_store.json
+
+# Internal working documents — kept locally, never published.
+# WINNING_STRATEGY is prize targeting and judge analysis; SUBMISSION is draft
+# Devpost copy with placeholders. Neither belongs in a public repository.
+WINNING_STRATEGY.md
+SUBMISSION.md

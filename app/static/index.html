@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KIW1 — Autonomous Self-Improving Agentic Harness</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo-badge">KIW1</div>
+        <div class="brand-text">
+          <div class="brand-name">KIW1 Harness</div>
+          <div class="brand-sub">Gemini 3.7 &bull; ADK &bull; Cloud Run</div>
+        </div>
+      </div>
+
+      <nav class="nav-menu">
+        <button class="nav-item active" data-tab="chat-tab" id="nav-chat">
+          <span class="nav-icon">💬</span> Chat &amp; Planner
+        </button>
+        <button class="nav-item" data-tab="skills-tab" id="nav-skills">
+          <span class="nav-icon">⚡</span> Skill Registry <span class="badge" id="skills-badge">0</span>
+        </button>
+        <button class="nav-item" data-tab="ledger-tab" id="nav-ledger">
+          <span class="nav-icon">📖</span> Correction Ledger <span class="badge" id="ledger-badge">0</span>
+        </button>
+        <button class="nav-item" data-tab="palace-tab" id="nav-palace">
+          <span class="nav-icon">🏛️</span> Memory Palace
+        </button>
+        <button class="nav-item" data-tab="research-tab" id="nav-research">
+          <span class="nav-icon">🌙</span> Overnight Research
+        </button>
+        <button class="nav-item" data-tab="evals-tab" id="nav-evals">
+          <span class="nav-icon">📊</span> Evals Benchmark
+        </button>
+      </nav>
+
+      <!-- Live Telemetry Widget in Sidebar -->
+      <div class="telemetry-box">
+        <div class="telemetry-header">Live Telemetry</div>
+        <div class="telemetry-row">
+          <span>Latency</span>
+          <span class="mono-val" id="stat-latency">0 ms</span>
+        </div>
+        <div class="telemetry-row">
+          <span>Tokens</span>
+          <span class="mono-val" id="stat-tokens">0</span>
+        </div>
+        <div class="telemetry-row">
+          <span>Cost (USD)</span>
+          <span class="mono-val text-green" id="stat-cost">$0.000000</span>
+        </div>
+        <div class="telemetry-row">
+          <span>Effort Mode</span>
+          <span class="mono-val" id="stat-effort">Standard</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+      <!-- Top Header Bar -->
+      <header class="top-bar">
+        <div class="title-section">
+          <h1 id="page-title">Chat &amp; Orchestrator</h1>
+          <p class="tagline">"Notices what you keep asking for, writes itself a skill, and researches weak spots overnight."</p>
+        </div>
+
+        <!-- Real-Time Agent State Orb Widget (Location 1: size 64 chat-avatar scale) -->
+        <div class="agent-status-widget" id="agent-status-widget">
+          <div class="orb-avatar-wrapper" id="main-orb-container"></div>
+          <div class="status-info">
+            <div class="status-state-label" id="agent-state-label">Idle / Ready</div>
+            <div class="status-activity-detail" id="agent-activity-detail">Awaiting user instruction</div>
+          </div>
+        </div>
+
+        <div class="controls-section">
+          <div class="control-group">
+            <label for="effort-select">Effort:</label>
+            <select id="effort-select" class="select-input">
+              <option value="quick">Quick (0 Thinking)</option>
+              <option value="standard" selected>Standard (2k Thinking)</option>
+              <option value="thorough">Thorough (8k Pro Thinking)</option>
+            </select>
+          </div>
+          <div class="control-group">
+            <label class="toggle-label">
+              <input type="checkbox" id="hands-off-toggle">
+              <span>Hands-Off Mode</span>
+            </label>
+          </div>
+        </div>
+      </header>
+
+      <!-- TAB 1: Chat & Execution Orchestration -->
+      <section class="tab-pane active" id="chat-tab">
+        <div class="chat-container">
+          <div class="chat-messages" id="chat-messages">
+            <div class="message system-message">
+              <div class="msg-author">KIW1 Kernel</div>
+              <div class="msg-body">
+                System initialized. ADK Root Agent ready with <strong>Prompt Refinery</strong>, 
+                <strong>Strategic Planner</strong>, <strong>Correction Ledger</strong>, and <strong>Skill Forge</strong> active.
+                Type <code>/skill</code> to view registered capabilities.
+              </div>
+            </div>
+          </div>
+
+          <!-- Clarification Modal / Inline Interrogation -->
+          <div class="clarification-panel hidden" id="clarification-panel">
+            <div class="clarification-header">
+              <span class="badge warning">Prompt Refinery Interrogation</span>
+              <p id="clarification-prompt-text"></p>
+            </div>
+            <div class="clarification-body" id="clarification-questions"></div>
+            <div class="clarification-actions">
+              <button class="btn btn-primary" id="btn-submit-clarification">Submit Clarification</button>
+              <button class="btn btn-secondary" id="btn-cancel-clarification">Cancel</button>
+            </div>
+          </div>
+
+          <!-- Chat Input -->
+          <div class="chat-input-bar">
+            <input type="text" id="chat-input" placeholder="Type a request, instruction, or /skill..." autocomplete="off">
+            <button class="btn btn-primary" id="btn-send">Send</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: Skill Registry -->
+      <section class="tab-pane" id="skills-tab">
+        <div class="tab-header">
+          <div class="tab-title-row">
+            <h2>Skill Registry &amp; Forge</h2>
+            <!-- Inline size 20 orb (Location 2) -->
+            <div class="inline-orb-wrapper hidden" id="skills-orb-container" title="Skill Forge Active"></div>
+          </div>
+          <p>Skills automatically forged after 3 occurrences in 7 days. Managed with deterministic auto-retirement bookkeeping.</p>
+        </div>
+        <div class="cards-grid" id="skills-list"></div>
+      </section>
+
+      <!-- TAB 3: Correction Ledger -->
+      <section class="tab-pane" id="ledger-tab">
+        <div class="tab-header">
+          <h2>Correction Ledger</h2>
+          <p>Every correction becomes a durable rule retrieved before acting on future tasks. Contradicted rules auto-retire.</p>
+        </div>
+        <div class="ledger-actions">
+          <button class="btn btn-secondary" id="btn-add-correction-modal">+ Add Manual Correction</button>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Rule ID</th>
+                <th>Situation</th>
+                <th>Learned Rule</th>
+                <th>Weight</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="ledger-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- TAB 4: Memory Palace -->
+      <section class="tab-pane" id="palace-tab">
+        <div class="tab-header">
+          <h2>Spatial Memory Palace</h2>
+          <p>Deterministic <code>Room &rarr; Locus &rarr; Item</code> spatial hierarchy with decay scoring and provenance tagging.</p>
+        </div>
+        <div class="palace-tree-view" id="palace-tree"></div>
+      </section>
+
+      <!-- TAB 5: Overnight Research -->
+      <section class="tab-pane" id="research-tab">
+        <div class="tab-header">
+          <div class="tab-title-row">
+            <h2>Overnight Research &amp; Self-Critique</h2>
+            <!-- Inline size 20 orb (Location 2) -->
+            <div class="inline-orb-wrapper hidden" id="research-orb-container" title="Research Subsystem Active"></div>
+          </div>
+          <p>Autonomous overnight weak-spot targeting, research, adversarial Pro critique pass, and morning reports.</p>
+          <button class="btn btn-primary" id="btn-trigger-research">Run Research Cycle Now</button>
+        </div>
+        <div class="reports-container" id="research-reports"></div>
+      </section>
+
+      <!-- TAB 6: Evals Benchmark -->
+      <section class="tab-pane" id="evals-tab">
+        <div class="tab-header">
+          <h2>The 20-Task Proof of Self-Improvement</h2>
+          <p>Cold Baseline vs Learned Run on identical 20-task benchmark. The only falsifiable claim.</p>
+          <button class="btn btn-primary" id="btn-run-evals">Re-run 20-Task Benchmark</button>
+        </div>
+        <div class="evals-summary-cards" id="evals-summary">
+          <div class="summary-card">
+            <div class="card-label">Cold Baseline</div>
+            <div class="card-value text-red" id="eval-cold-score">15 / 20 (75%)</div>
+          </div>
+          <div class="summary-card">
+            <div class="card-label">Learned Score</div>
+            <div class="card-value text-green" id="eval-learned-score">20 / 20 (100%)</div>
+          </div>
+          <div class="summary-card">
+            <div class="card-label">Improvement Delta</div>
+            <div class="card-value text-blue" id="eval-delta">+5 (+25%)</div>
+          </div>
+        </div>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Task ID</th>
+                <th>Description</th>
+                <th>Cold Status</th>
+                <th>Learned Status</th>
+              </tr>
+            </thead>
+            <tbody id="evals-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script type="module" src="/static/app.js"></script>
+</body>
+</html>

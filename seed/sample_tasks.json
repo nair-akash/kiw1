@@ -1,0 +1,26 @@
+[
+  {
+    "title": "Beat 1: Skill Forge Trigger",
+    "description": "Repeated invoice chasing query that automatically triggers Skill Forge on the 3rd repetition.",
+    "tasks": [
+      "Format the weekly unpaid invoice chase report",
+      "Format the weekly unpaid invoice chase report",
+      "Format the weekly unpaid invoice chase report"
+    ]
+  },
+  {
+    "title": "Beat 2: Correction Ledger Learning",
+    "description": "User provides a correction rule once, and KIW1 applies it unprompted on future tasks.",
+    "correction": {
+      "situation": "formatting invoices",
+      "wrong_action": "using CSV table format",
+      "correction": "always format as structured markdown with GST breakdown"
+    },
+    "subsequent_query": "Format invoice for Acme Corp"
+  },
+  {
+    "title": "Beat 3: Overnight Research Morning Report",
+    "description": "Autonomous weak-spot target selection, research pass, Pro critique, and morning report.",
+    "endpoint": "/research/run"
+  }
+]
