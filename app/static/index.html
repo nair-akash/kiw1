@@ -19,16 +19,14 @@
     <!-- Sleek Navigation Header -->
     <header class="app-header">
       <div class="header-brand">
-        <div class="brand-orb-mini" id="header-orb-wrap">
-          <div class="tol-orb tol-breathing is-sm" id="header-orb"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
-        </div>
+        <div class="brand-badge-icon">KIW1</div>
         <div class="brand-meta">
-          <span class="brand-title">KIW1</span>
+          <span class="brand-title">KIW1 Studio</span>
           <span class="brand-tag">Autonomous &bull; Self-Improving</span>
         </div>
       </div>
 
-      <!-- Human Friendly Navigation Tabs -->
+      <!-- Human-Friendly Navigation Tabs -->
       <nav class="header-nav">
         <button class="nav-tab active" data-tab="chat-tab">
           <span class="tab-icon">💬</span>
@@ -38,6 +36,11 @@
           <span class="tab-icon">🧠</span>
           <span class="tab-text">Memory</span>
           <span class="tab-pill" id="badge-memory">0</span>
+        </button>
+        <button class="nav-tab" data-tab="ledger-tab">
+          <span class="tab-icon">📖</span>
+          <span class="tab-text">Rules &amp; Ledger</span>
+          <span class="tab-pill" id="badge-rules">0</span>
         </button>
         <button class="nav-tab" data-tab="skills-tab">
           <span class="tab-icon">⚡</span>
@@ -50,17 +53,17 @@
         </button>
         <button class="nav-tab" data-tab="benchmark-tab">
           <span class="tab-icon">🏆</span>
-          <span class="tab-text">Self-Improvement</span>
+          <span class="tab-text">Proof (+30%)</span>
           <span class="tab-pill highlight" id="badge-delta">+30%</span>
         </button>
       </nav>
 
-      <!-- Right Header Actions & Status -->
+      <!-- Right Header Actions -->
       <div class="header-right">
         <div class="effort-selector">
-          <button class="effort-btn active" data-effort="standard" title="Balanced reasoning & speed">Balanced</button>
-          <button class="effort-btn" data-effort="quick" title="Instant rapid response">Fast ⚡</button>
-          <button class="effort-btn" data-effort="thorough" title="Deep extended chain of thought">Deep Think 🔬</button>
+          <button class="effort-btn active" data-effort="standard" title="Balanced speed and reasoning">Balanced</button>
+          <button class="effort-btn" data-effort="quick" title="Instant rapid generation">Fast ⚡</button>
+          <button class="effort-btn" data-effort="thorough" title="Extended deep chain of thought">Deep Think 🔬</button>
           <input type="hidden" id="effort-value" value="standard">
         </div>
 
@@ -77,12 +80,11 @@
       <section class="view-panel active" id="chat-tab">
         <div class="chat-viewport">
           
-          <!-- Interactive Living Hero (shown when starting fresh) -->
+          <!-- Interactive Living Hero (shown on fresh session) -->
           <div class="hero-stage" id="hero-stage">
             <!-- Living Organic Nebula Canvas Orb -->
             <div class="living-nebula-container">
               <canvas id="nebula-canvas" width="340" height="340"></canvas>
-              <div class="hero-orb-overlay" id="hero-orb-container"></div>
             </div>
 
             <div class="hero-status-pill" id="hero-status-pill">
@@ -154,8 +156,27 @@
 
         </div>
 
-        <!-- Floating Magic Composer Bar -->
+        <!-- Floating Magic Composer Dock with Real-Time Thinking Orb -->
         <div class="composer-dock">
+          
+          <!-- Agent Intelligence & Status Bar (Thinking Orb Shifted Here) -->
+          <div class="composer-status-bar">
+            <div class="composer-orb-block">
+              <div class="tol-orb tol-breathing is-sm" id="composer-orb"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+              <div class="composer-agent-state" id="composer-agent-state">
+                <span class="composer-state-title" id="composer-state-title">KIW1 Ready</span>
+                <span class="composer-state-detail" id="composer-state-detail">Awaiting instruction &bull; Gemini 3.7 Flash</span>
+              </div>
+            </div>
+
+            <!-- Real-Time Telemetry Metrics -->
+            <div class="composer-telemetry" id="composer-telemetry">
+              <span class="telemetry-chip" id="telemetry-latency" title="Last turn latency">⏱️ 0 ms</span>
+              <span class="telemetry-chip" id="telemetry-tokens" title="Tokens used">🔤 0 tokens</span>
+              <span class="telemetry-chip" id="telemetry-cost" title="Cost in USD">💲 $0.000</span>
+            </div>
+          </div>
+
           <div class="composer-shortcuts">
             <button class="chip-shortcut" data-insert="/remember "><span>🧠</span> Remember fact</button>
             <button class="chip-shortcut" data-insert="/recall "><span>🔍</span> Recall memory</button>
@@ -195,7 +216,23 @@
         </div>
       </section>
 
-      <!-- ── VIEW 3: Superpowers & Skills ──────────────────── -->
+      <!-- ── VIEW 3: Correction Rules & Ledger ─────────────── -->
+      <section class="view-panel" id="ledger-tab">
+        <div class="panel-container">
+          <div class="panel-header">
+            <div>
+              <h2>📖 Correction Rules Ledger</h2>
+              <p>Rules learned when you correct the agent, automatically weighted and injected into future decision loops.</p>
+            </div>
+            <button class="btn btn-primary" id="btn-open-corr-modal">
+              <span>+</span> Add Correction Rule
+            </button>
+          </div>
+          <div class="ledger-rules-grid" id="ledger-rules-view"></div>
+        </div>
+      </section>
+
+      <!-- ── VIEW 4: Superpowers & Skills ──────────────────── -->
       <section class="view-panel" id="skills-tab">
         <div class="panel-container">
           <div class="panel-header">
@@ -208,7 +245,7 @@
         </div>
       </section>
 
-      <!-- ── VIEW 4: Morning Briefs & Research ──────────────── -->
+      <!-- ── VIEW 5: Morning Briefs & Research ──────────────── -->
       <section class="view-panel" id="research-tab">
         <div class="panel-container">
           <div class="panel-header">
@@ -224,7 +261,7 @@
         </div>
       </section>
 
-      <!-- ── VIEW 5: Self-Improvement Benchmark ────────────── -->
+      <!-- ── VIEW 6: Self-Improvement Benchmark ────────────── -->
       <section class="view-panel" id="benchmark-tab">
         <div class="panel-container">
           <div class="panel-header">

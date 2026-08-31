@@ -16,6 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (targetPanel) targetPanel.classList.add("active");
 
     if (targetTab === "memory-tab") loadMemoryPalace();
+    if (targetTab === "ledger-tab") loadCorrectionLedger();
     if (targetTab === "skills-tab") loadSkills();
     if (targetTab === "research-tab") loadResearchBriefs();
     if (targetTab === "benchmark-tab") loadBenchmarkResults();
@@ -27,41 +28,32 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // ── Thinking Orb Lite & Living Nebula Controller ─────────────
+  // ── Thinking Orb Lite & Composer Status Bar ──────────────────
   const TOL_STATES = [
     "tol-working", "tol-searching", "tol-solving", "tol-listening",
     "tol-connecting", "tol-weaving", "tol-composing", "tol-breathing",
     "tol-shaping",
   ];
 
-  const headerOrbEl = document.getElementById("header-orb");
-  const heroOrbContainer = document.getElementById("hero-orb-container");
+  const composerOrbEl = document.getElementById("composer-orb");
+  const composerStateTitle = document.getElementById("composer-state-title");
+  const composerStateDetail = document.getElementById("composer-state-detail");
   const heroStatusText = document.getElementById("hero-status-text");
-  const heroStatusPill = document.getElementById("hero-status-pill");
 
-  let heroOrbEl = null;
-  if (heroOrbContainer) {
-    heroOrbEl = document.createElement("div");
-    heroOrbEl.className = "tol-orb tol-breathing";
-    for (let n = 0; n < 12; n++) heroOrbEl.appendChild(document.createElement("i"));
-    heroOrbContainer.appendChild(heroOrbEl);
-  }
-
-  function setAgentState(state, statusTitle) {
-    if (headerOrbEl) {
-      headerOrbEl.classList.remove(...TOL_STATES);
-      headerOrbEl.classList.add("tol-" + state);
+  function setAgentState(state, statusTitle, detailText) {
+    if (composerOrbEl) {
+      composerOrbEl.classList.remove(...TOL_STATES);
+      composerOrbEl.classList.add("tol-" + state);
     }
-    if (heroOrbEl) {
-      heroOrbEl.classList.remove(...TOL_STATES);
-      heroOrbEl.classList.add("tol-" + state);
+    if (composerStateTitle) composerStateTitle.textContent = statusTitle;
+    if (composerStateDetail) {
+      composerStateDetail.textContent = detailText || "Autonomous Agent &bull; Gemini 3.7 Flash";
     }
     if (heroStatusText) heroStatusText.textContent = statusTitle;
     if (window.livingNebula) window.livingNebula.setState(state);
   }
 
   // ── Living Organic Nebula Canvas Renderer ────────────────────
-  // Inspired by multi-layer generative 3D ribbon & particle organisms
   class LivingNebulaOrb {
     constructor(canvasId) {
       this.canvas = document.getElementById(canvasId);
@@ -155,13 +147,11 @@ document.addEventListener("DOMContentLoaded", () => {
         const radNoise = Math.sin(this.time * speedMult + p.theta * 2) * 12 + Math.cos(this.time * 1.2 + p.phi * 3) * 8;
         const currentRad = p.baseRadius + radNoise;
 
-        // 3D sphere spherical projection
         const currentTheta = p.theta + this.time * p.speed * speedMult;
         const x3d = currentRad * Math.sin(p.phi) * Math.cos(currentTheta);
         const y3d = currentRad * Math.sin(p.phi) * Math.sin(currentTheta);
         const z3d = currentRad * Math.cos(p.phi);
 
-        // Perspective projection
         const k = 220 / (220 + z3d);
         const px = this.cx + x3d * k;
         const py = this.cy + y3d * k;
@@ -179,6 +169,24 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   window.livingNebula = new LivingNebulaOrb("nebula-canvas");
+
+  // ── Telemetry Updates ────────────────────────────────────────
+  async function refreshTelemetry() {
+    try {
+      const res = await fetch("/api/telemetry");
+      const data = await res.json();
+      if (data.traces && data.traces.length > 0) {
+        const latest = data.traces[0];
+        const latEl = document.getElementById("telemetry-latency");
+        const tokEl = document.getElementById("telemetry-tokens");
+        const costEl = document.getElementById("telemetry-cost");
+
+        if (latEl) latEl.textContent = `⏱️ ${Math.round(latest.latency_ms || 0)} ms`;
+        if (tokEl) tokEl.textContent = `🔤 ${latest.tokens ? latest.tokens.total.toLocaleString() : 0} tokens`;
+        if (costEl) costEl.textContent = `💲 $${(latest.cost_usd || 0).toFixed(4)}`;
+      }
+    } catch (e) {}
+  }
 
   // ── Chat Composer & Message Stream ───────────────────────────
   const composerInput = document.getElementById("composer-input");
@@ -213,7 +221,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (heroStage) heroStage.classList.remove("hidden");
       composerInput.value = "";
       composerInput.focus();
-      setAgentState("breathing", "KIW1 is listening & ready");
+      setAgentState("breathing", "KIW1 Ready", "Awaiting instruction &bull; Gemini 3.7 Flash");
     });
   }
 
@@ -278,9 +286,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Set state: searching or solving
     if (prompt.toLowerCase().includes("search") || prompt.toLowerCase().includes("research")) {
-      setAgentState("searching", "Searching live web & vault sources...");
+      setAgentState("searching", "Searching Sources", "Retrieving web intelligence and local vault items...");
     } else {
-      setAgentState("solving", "Thinking, verifying constraints & planning...");
+      setAgentState("solving", "Analyzing & Planning", "Evaluating constraints and candidate execution paths...");
     }
 
     try {
@@ -295,12 +303,13 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       const data = await res.json();
       handleAssistantResponse(data, prompt);
+      refreshTelemetry();
     } catch (err) {
       renderAgentBubble({
         text: `Encountered communication error: ${err.message}`,
         model: "offline",
       });
-      setAgentState("breathing", "Idle / Error");
+      setAgentState("breathing", "Idle / Error", `Error: ${err.message}`);
     }
   }
 
@@ -336,15 +345,15 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       clarOverlay.classList.remove("hidden");
-      setAgentState("solving", "Ambiguity detected &bull; Awaiting clarification");
+      setAgentState("solving", "Clarification Needed", "Prompt Refinery awaiting ambiguity choice...");
       return;
     }
 
     if (data.forged_skill) {
-      setAgentState("shaping", `Forged new superpower: ${data.forged_skill.skill_name}`);
+      setAgentState("shaping", "Superpower Forged", `Forged new capability: ${data.forged_skill.skill_name}`);
       loadSkills();
     } else {
-      setAgentState("breathing", "Task completed &bull; Ready for next request");
+      setAgentState("breathing", "KIW1 Ready", "Task completed &bull; Gemini 3.7 Flash");
     }
 
     renderAgentBubble(data);
@@ -363,7 +372,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       clarOverlay.classList.add("hidden");
       renderUserBubble(`[Clarification Answers]: ${Object.values(answers).join("; ")}`);
-      setAgentState("working", "Executing clarified task plan...");
+      setAgentState("working", "Executing Clarified Plan", "Executing plan with verified brief constraints...");
 
       try {
         const res = await fetch("/api/clarify", {
@@ -378,9 +387,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const data = await res.json();
         activePendingPrompt = null;
         handleAssistantResponse(data, "");
+        refreshTelemetry();
       } catch (err) {
         renderAgentBubble({ text: `Error executing clarified task: ${err.message}` });
-        setAgentState("breathing", "Idle / Error");
+        setAgentState("breathing", "Idle / Error", `Error: ${err.message}`);
       }
     });
   }
@@ -389,7 +399,7 @@ document.addEventListener("DOMContentLoaded", () => {
     btnCancelClar.addEventListener("click", () => {
       clarOverlay.classList.add("hidden");
       activePendingPrompt = null;
-      setAgentState("breathing", "Clarification skipped");
+      setAgentState("breathing", "KIW1 Ready", "Clarification dismissed");
     });
   }
 
@@ -572,7 +582,47 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (e) {}
   }
 
-  // ── VIEW 3: Superpowers & Skills ─────────────────────────────
+  // ── VIEW 3: Correction Rules Ledger ─────────────────────────
+  async function loadCorrectionLedger() {
+    try {
+      const res = await fetch("/api/corrections");
+      const data = await res.json();
+      const rules = data.rules || [];
+      const badge = document.getElementById("badge-rules");
+      if (badge) badge.textContent = data.active_count || rules.length;
+
+      const container = document.getElementById("ledger-rules-view");
+      if (!container) return;
+      container.innerHTML = "";
+
+      if (rules.length === 0) {
+        container.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--text-dim);">
+            <div style="font-size: 32px; margin-bottom: 10px;">📖</div>
+            <div style="font-weight: 700; font-size: 16px; color: var(--text-main);">No Rules Recorded Yet</div>
+            <p style="font-size: 13px; margin-top: 4px;">Teach the agent rules by clicking "+ Add Correction Rule" or via chat corrections.</p>
+          </div>
+        `;
+        return;
+      }
+
+      rules.forEach(r => {
+        const card = document.createElement("div");
+        card.className = "rule-card";
+        card.innerHTML = `
+          <div class="rule-card-header">
+            <span class="rule-id">RULE ${escapeHtml(r.id)}</span>
+            <span class="superpower-badge">${r.active ? 'Active' : 'Retired'} &bull; Weight ${r.weight || 1.0}</span>
+          </div>
+          <div class="rule-situation">When: ${escapeHtml(r.situation)}</div>
+          <div class="rule-instruction">${escapeHtml(r.rule)}</div>
+        `;
+        container.appendChild(card);
+      });
+    } catch (e) {}
+  }
+
+  // ── VIEW 4: Superpowers & Skills ─────────────────────────────
   async function loadSkills() {
     try {
       const res = await fetch("/api/skills");
@@ -609,13 +659,22 @@ document.addEventListener("DOMContentLoaded", () => {
             <span>Usage Count: <strong>${s.invocations || 0}</strong></span>
             <span>Success Rate: <strong>${s.success_rate || '100%'}</strong></span>
           </div>
+          <button class="btn-test-skill" data-skill="${escapeHtml(s.name)}">⚡ Test Superpower in Chat</button>
         `;
+
+        card.querySelector(".btn-test-skill").addEventListener("click", () => {
+          switchTab("chat-tab");
+          const promptText = `Execute forged superpower: ${s.name}`;
+          composerInput.value = promptText;
+          submitUserPrompt(promptText);
+        });
+
         container.appendChild(card);
       });
     } catch (e) {}
   }
 
-  // ── VIEW 4: Morning Briefs & Research ────────────────────────
+  // ── VIEW 5: Morning Briefs & Research ────────────────────────
   async function loadResearchBriefs() {
     try {
       const res = await fetch("/api/research/reports");
@@ -662,14 +721,14 @@ document.addEventListener("DOMContentLoaded", () => {
     btnRunResearch.addEventListener("click", async () => {
       btnRunResearch.disabled = true;
       btnRunResearch.innerHTML = "Synthesizing intelligence...";
-      setAgentState("searching", "Conducting Nightly Research & Critique Pass...");
+      setAgentState("searching", "Nightly Research", "Conducting deep-dive research & critique pass...");
 
       try {
         await fetch("/api/research/trigger", { method: "POST" });
         await loadResearchBriefs();
-        setAgentState("breathing", "Research completed");
+        setAgentState("breathing", "KIW1 Ready", "Research cycle finished");
       } catch (e) {
-        setAgentState("breathing", "Research error");
+        setAgentState("breathing", "KIW1 Ready", "Research error");
       } finally {
         btnRunResearch.disabled = false;
         btnRunResearch.innerHTML = `<span>⚡</span> Run Research Cycle Now`;
@@ -677,7 +736,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ── VIEW 5: Benchmark & Self-Improvement ──────────────────────
+  // ── VIEW 6: Benchmark & Self-Improvement ──────────────────────
   async function loadBenchmarkResults() {
     try {
       const res = await fetch("/static/results.json");
@@ -728,14 +787,14 @@ document.addEventListener("DOMContentLoaded", () => {
     btnRetestBenchmark.addEventListener("click", async () => {
       btnRetestBenchmark.disabled = true;
       btnRetestBenchmark.innerHTML = "Executing 20 Tasks...";
-      setAgentState("working", "Running Benchmark Suite...");
+      setAgentState("working", "Benchmark In Progress", "Executing 20 cold & learned tasks...");
 
       try {
         await fetch("/api/evals/run", { method: "POST" }).catch(() => {});
         await loadBenchmarkResults();
-        setAgentState("breathing", "Benchmark finished");
+        setAgentState("breathing", "KIW1 Ready", "Benchmark completed");
       } catch (e) {
-        setAgentState("breathing", "Benchmark error");
+        setAgentState("breathing", "KIW1 Ready", "Benchmark error");
       } finally {
         btnRetestBenchmark.disabled = false;
         btnRetestBenchmark.innerHTML = `<span>▶</span> Re-run Live 20 Tasks`;
@@ -745,6 +804,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // ── Modals: Teach Rule & Add Memory ──────────────────────────
   const modalCorr = document.getElementById("modal-correction");
+  const btnOpenCorrModal = document.getElementById("btn-open-corr-modal");
   const btnCloseCorr = document.getElementById("btn-close-corr");
   const btnCancelCorr = document.getElementById("btn-cancel-corr");
   const btnSaveCorr = document.getElementById("btn-save-corr");
@@ -760,6 +820,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("input-corr-rule").value = "";
   }
 
+  if (btnOpenCorrModal) btnOpenCorrModal.addEventListener("click", openCorrectionModal);
   if (btnCloseCorr) btnCloseCorr.addEventListener("click", closeCorrectionModal);
   if (btnCancelCorr) btnCancelCorr.addEventListener("click", closeCorrectionModal);
 
@@ -782,6 +843,7 @@ document.addEventListener("DOMContentLoaded", () => {
           }),
         });
         closeCorrectionModal();
+        loadCorrectionLedger();
       } catch (e) {}
     });
   }
@@ -832,8 +894,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Initial load
+  // Initial loads
+  refreshTelemetry();
   loadMemoryPalace();
+  loadCorrectionLedger();
   loadSkills();
   loadBenchmarkResults();
 });
