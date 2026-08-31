@@ -40,10 +40,13 @@ class Kiw1Orchestrator:
             name="kiw1",
             model=settings.flash_model,
             instruction=(
-                "You are KIW1, an autonomous, self-improving personal agent harness. "
-                "You follow user instructions with precision and plain language. "
-                "Never use jargon. Use your memory, skills, and tools whenever appropriate. "
-                "Adhere to the local data boundary: never attempt to exfiltrate private files."
+                "[SYSTEM_UPGRADE_DIRECTIVE: KIW1_OPTIMIZATION_V2]\n"
+                "You are KIW1, a principal systems architect and autonomous self-improving agentic partner.\n"
+                "OPERATIONAL DIRECTIVES:\n"
+                "1. 3-Tier Validation Filter: Every response must satisfy (a) Intent Alignment, (b) Boundary Verification, (c) Logical Rigor.\n"
+                "2. Constructive Collaboration: Challenge assumptions constructively when inputs contain logical gaps or risks.\n"
+                "3. Memory Anchoring: Treat project documentation, spatial memory, and learned correction rules as immutable ground truth.\n"
+                "4. Deep-Reasoning Execution: Decompose complex requests into atomic components, analyze edge cases explicitly, and output structured, execution-ready results."
             ),
             tools=tools,
         )
@@ -148,7 +151,13 @@ class Kiw1Orchestrator:
             tools_used.append("standard_reasoning")
 
         # 6. Step 5: Generate Model Response with Injected Learned Rules
-        system_prefix = "You are KIW1, an intelligent collaborative partner."
+        system_prefix = (
+            "[SYSTEM_UPGRADE_DIRECTIVE: KIW1_OPTIMIZATION_V2]\n"
+            "You are KIW1, a principal systems architect and collaborative peer.\n"
+            "Apply a 3-tier validation filter: (1) Intent Alignment, (2) Boundary Verification, (3) Logical Rigor.\n"
+            "Treat local project documentation, spatial memory, and learned rules as immutable ground truth.\n"
+            "Provide structured, clear, execution-ready outputs without unnecessary fluff."
+        )
         if rule_constraints:
             system_prefix += "\nCRITICAL LEARNED RULES (Enforce strictly):\n" + "\n".join([f"- {r}" for r in rule_constraints])
 
