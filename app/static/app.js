@@ -336,37 +336,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   window.livingNebula = new LivingNebulaOrb("nebula-canvas");
-        ctx.lineWidth = 1.8;
-        ctx.stroke();
-      }
-
-      // 3. 3D Particle Constellation (Undulating Surface Mesh)
-      for (let p of this.particles) {
-        const radNoise = Math.sin(this.time * speedMult + p.theta * 2) * 12 + Math.cos(this.time * 1.2 + p.phi * 3) * 8;
-        const currentRad = p.baseRadius + radNoise;
-
-        const currentTheta = p.theta + this.time * p.speed * speedMult;
-        const x3d = currentRad * Math.sin(p.phi) * Math.cos(currentTheta);
-        const y3d = currentRad * Math.sin(p.phi) * Math.sin(currentTheta);
-        const z3d = currentRad * Math.cos(p.phi);
-
-        const k = 220 / (220 + z3d);
-        const px = this.cx + x3d * k;
-        const py = this.cy + y3d * k;
-        const size = Math.max(0.6, p.size * k);
-        const alpha = Math.max(0.1, (k - 0.4) * p.alpha);
-
-        ctx.beginPath();
-        ctx.arc(px, py, size, 0, Math.PI * 2);
-        ctx.fillStyle = z3d > 0 ? `rgba(255, 220, 150, ${alpha})` : `rgba(130, 180, 255, ${alpha * 0.7})`;
-        ctx.fill();
-      }
-
-      requestAnimationFrame(this.animate);
-    }
-  }
-
-  window.livingNebula = new LivingNebulaOrb("nebula-canvas");
 
   // ── Telemetry Updates ────────────────────────────────────────
   async function refreshTelemetry() {
@@ -772,6 +741,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const res = await fetch("/api/memory");
       const data = await res.json();
       const tree = data.tree || {};
+      renderPalaceGraph(tree);
       const badge = document.getElementById("badge-memory");
       let count = 0;
       Object.values(tree).forEach(loci => {
@@ -1380,19 +1350,6 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
   }
-
-  // Hook Palace Graph into loadMemoryPalace
-  const originalLoadMemoryPalace = loadMemoryPalace;
-  loadMemoryPalace = async function() {
-    try {
-      const res = await fetch("/api/memory");
-      const data = await res.json();
-      if (data.tree) {
-        renderPalaceGraph(data.tree);
-      }
-    } catch (e) {}
-    return originalLoadMemoryPalace();
-  };
 
   // Initial loads
   refreshTelemetry();
