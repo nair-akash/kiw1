@@ -236,27 +236,40 @@ class Kiw1Orchestrator:
 
         # Check intent for tool mapping
         goal_lower = brief.goal.lower()
-        if "remember" in goal_lower or "store" in goal_lower:
-            fact_text = brief.goal.split("remember", 1)[-1].strip(" :") if "remember" in brief.goal else brief.goal
-            res = core_tools_plugin.remember(fact_text)
-            tools_used.append("remember")
-            executed_details.append(f"Stored memory: '{fact_text}' in {res.get('room')}/{res.get('locus')}")
-        elif "recall" in goal_lower or "what did" in goal_lower or "lookup" in goal_lower or "what is" in goal_lower:
-            res = core_tools_plugin.recall(brief.goal)
-            tools_used.append("recall")
-            mems = res.get("memories", [])
-            mem_text = "; ".join([m.get("item", "") for m in mems]) if mems else "None found"
-            executed_details.append(f"Retrieved memories from palace: {mem_text}")
+        if "weather" in goal_lower or "forecast" in goal_lower or "temperature" in goal_lower:
+            import re
+            from app.plugins.search import search_plugin
+            cleaned_goal = re.sub(r'[^\w\s]', '', brief.goal).strip()
+            match = re.search(r'\b(?:in|for|at|of)\s+([A-Za-z\s]+?)(?:\s+(?:today|tomorrow|now|right now|currently))?$', cleaned_goal, re.IGNORECASE)
+            if match:
+                loc = match.group(1).strip()
+            else:
+                loc = re.sub(r'(?i)\b(what|is|the|weather|forecast|temperature|check|how|current|today|right now|now|please|tell|me|get)\b', '', cleaned_goal).strip() or "Auckland"
+            weather_data = search_plugin.get_weather(loc)
+            tools_used.append("get_weather")
+            executed_details.append(f"Live Meteorological Feed for {loc.title()}: {weather_data.get('summary')} (Condition: {weather_data.get('condition')}, Temp: {weather_data.get('temperature_c')}/{weather_data.get('temperature_f')}, Humidity: {weather_data.get('humidity')}, Wind: {weather_data.get('wind')})")
+        elif "search" in goal_lower or "research" in goal_lower or "web" in goal_lower or "internet" in goal_lower:
+            from app.plugins.search import search_plugin
+            res = search_plugin.web_search(brief.goal)
+            tools_used.append("web_search")
+            results_snippets = "; ".join([r.get("snippet", "") for r in res.get("results", [])[:2]])
+            executed_details.append(f"Live Web Search findings: {results_snippets}")
         elif "calculate" in goal_lower or "math" in goal_lower:
             expr = "".join([c for c in brief.goal if c.isdigit() or c in "+-*/(). "]).strip()
             res = core_tools_plugin.calculate(expr or "1+1")
             tools_used.append("calculate")
             executed_details.append(f"Calculated {expr} = {res.get('result')}")
-        elif "search" in goal_lower or "research" in goal_lower:
-            from app.plugins.search import search_plugin
-            res = search_plugin.web_search(brief.goal)
-            tools_used.append("web_search")
-            executed_details.append(f"Web research completed with {len(res.get('results', []))} citations.")
+        elif "remember" in goal_lower or "store in memory" in goal_lower:
+            fact_text = brief.goal.split("remember", 1)[-1].strip(" :") if "remember" in brief.goal else brief.goal
+            res = core_tools_plugin.remember(fact_text)
+            tools_used.append("remember")
+            executed_details.append(f"Stored memory: '{fact_text}' in {res.get('room')}/{res.get('locus')}")
+        elif "recall" in goal_lower or "what did i remember" in goal_lower or "from memory" in goal_lower:
+            res = core_tools_plugin.recall(brief.goal)
+            tools_used.append("recall")
+            mems = res.get("memories", [])
+            mem_text = "; ".join([m.get("item", "") for m in mems]) if mems else "None found"
+            executed_details.append(f"Retrieved memories from palace: {mem_text}")
         elif "vault" in goal_lower or "notes" in goal_lower:
             from app.plugins.vault import vault_plugin
             res = vault_plugin.query_vault(brief.goal)
