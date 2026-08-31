@@ -259,17 +259,17 @@ class Kiw1Orchestrator:
             res = core_tools_plugin.calculate(expr or "1+1")
             tools_used.append("calculate")
             executed_details.append(f"Calculated {expr} = {res.get('result')}")
-        elif "remember" in goal_lower or "store in memory" in goal_lower:
-            fact_text = brief.goal.split("remember", 1)[-1].strip(" :") if "remember" in brief.goal else brief.goal
-            res = core_tools_plugin.remember(fact_text)
-            tools_used.append("remember")
-            executed_details.append(f"Stored memory: '{fact_text}' in {res.get('room')}/{res.get('locus')}")
-        elif "recall" in goal_lower or "what did i remember" in goal_lower or "from memory" in goal_lower:
+        elif "recall" in goal_lower or "what is" in goal_lower or "what was" in goal_lower or "what did" in goal_lower or "who is" in goal_lower or "from memory" in goal_lower or "look up" in goal_lower:
             res = core_tools_plugin.recall(brief.goal)
             tools_used.append("recall")
             mems = res.get("memories", [])
             mem_text = "; ".join([m.get("item", "") for m in mems]) if mems else "None found"
-            executed_details.append(f"Retrieved memories from palace: {mem_text}")
+            executed_details.append(f"Retrieved spatial memories from palace: {mem_text}")
+        elif goal_lower.startswith("remember") or "please remember" in goal_lower or "remember that" in goal_lower or "store in memory" in goal_lower or "save in memory" in goal_lower or "store that" in goal_lower:
+            fact_text = brief.goal.split("remember", 1)[-1].strip(" :") if "remember" in brief.goal else brief.goal
+            res = core_tools_plugin.remember(fact_text)
+            tools_used.append("remember")
+            executed_details.append(f"Stored memory: '{fact_text}' in {res.get('room')}/{res.get('locus')}")
         elif "vault" in goal_lower or "notes" in goal_lower:
             from app.plugins.vault import vault_plugin
             res = vault_plugin.query_vault(brief.goal)

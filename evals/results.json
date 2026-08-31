@@ -2,10 +2,10 @@
   "total_tasks": 20,
   "deterministic_tasks": 20,
   "judged_tasks": 0,
-  "cold_score": "13/20",
-  "cold_percentage": "65%",
-  "learned_score": "19/20",
-  "learned_percentage": "95%",
+  "cold_score": "14/20",
+  "cold_percentage": "70%",
+  "learned_score": "20/20",
+  "learned_percentage": "100%",
   "delta": "+6",
   "delta_percentage": "+30%",
   "cold_results": [
@@ -36,8 +36,8 @@
     {
       "id": "task_05",
       "name": "Spatial memory recall of user timezone preference",
-      "passed": false,
-      "detail": "Expected 'Auckland' in output"
+      "passed": true,
+      "detail": "Found 'Auckland' in output"
     },
     {
       "id": "task_06",
@@ -158,8 +158,8 @@
     {
       "id": "task_05",
       "name": "Spatial memory recall of user timezone preference",
-      "passed": false,
-      "detail": "Expected 'Auckland' in output"
+      "passed": true,
+      "detail": "Found 'Auckland' in output"
     },
     {
       "id": "task_06",
