@@ -15,3 +15,6 @@ local_store.json
 # Devpost copy with placeholders. Neither belongs in a public repository.
 WINNING_STRATEGY.md
 SUBMISSION.md
+
+# local agent config, not part of the product
+.gemini/
