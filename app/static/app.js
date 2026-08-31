@@ -35,25 +35,73 @@ document.addEventListener("DOMContentLoaded", () => {
     "tol-shaping",
   ];
 
-  const composerOrbEl = document.getElementById("composer-orb");
+  const composerOrbWrap = document.querySelector(".composer-orb-block");
   const composerStateTitle = document.getElementById("composer-state-title");
   const composerStateDetail = document.getElementById("composer-state-detail");
   const heroStatusText = document.getElementById("hero-status-text");
 
+  let currentEffort = "standard";
+
+  function renderOrbMarkup(container, isDeepThink, isSm) {
+    if (!container) return;
+    container.innerHTML = "";
+
+    if (isDeepThink) {
+      const dto = document.createElement("div");
+      dto.className = "deep-think-orb" + (isSm ? " is-sm" : "");
+      dto.innerHTML = `
+        <div class="deep-think-core"></div>
+        <div class="deep-think-ring ring-magenta"></div>
+        <div class="deep-think-ring ring-cyan"></div>
+        <div class="deep-think-ring ring-gold"></div>
+        <i></i><i></i><i></i><i></i>
+      `;
+      container.appendChild(dto);
+      return dto;
+    } else {
+      const orb = document.createElement("div");
+      orb.className = "tol-orb tol-breathing" + (isSm ? " is-sm" : "");
+      orb.id = "composer-orb";
+      for (let n = 0; n < 12; n++) orb.appendChild(document.createElement("i"));
+      container.appendChild(orb);
+      return orb;
+    }
+  }
+
+  // Initialize composer orb
+  let activeComposerOrb = renderOrbMarkup(composerOrbWrap, false, true);
+
+  function updateOrbMode(effort) {
+    currentEffort = effort;
+    const isDeep = (effort === "thorough");
+
+    renderOrbMarkup(composerOrbWrap, isDeep, true);
+    if (window.livingNebula) {
+      window.livingNebula.setDeepThink(isDeep);
+    }
+
+    if (isDeep) {
+      setAgentState("solving", "Deep Think Active", "Extended reasoning model &bull; Gemini 3.7 Flash Thinking");
+    } else {
+      setAgentState("breathing", "KIW1 Ready", "Awaiting instruction &bull; Gemini 3.7 Flash");
+    }
+  }
+
   function setAgentState(state, statusTitle, detailText) {
-    if (composerOrbEl) {
-      composerOrbEl.classList.remove(...TOL_STATES);
-      composerOrbEl.classList.add("tol-" + state);
+    const orbEl = document.getElementById("composer-orb");
+    if (orbEl) {
+      orbEl.classList.remove(...TOL_STATES);
+      orbEl.classList.add("tol-" + state);
     }
     if (composerStateTitle) composerStateTitle.textContent = statusTitle;
     if (composerStateDetail) {
-      composerStateDetail.textContent = detailText || "Autonomous Agent &bull; Gemini 3.7 Flash";
+      composerStateDetail.textContent = detailText || (currentEffort === "thorough" ? "Deep Think Mode &bull; Gemini 3.7 Flash" : "Autonomous Agent &bull; Gemini 3.7 Flash");
     }
     if (heroStatusText) heroStatusText.textContent = statusTitle;
     if (window.livingNebula) window.livingNebula.setState(state);
   }
 
-  // ── Living Organic Nebula Canvas Renderer ────────────────────
+  // ── Living Organic Nebula & Deep Think Planetary Canvas ──────
   class LivingNebulaOrb {
     constructor(canvasId) {
       this.canvas = document.getElementById(canvasId);
@@ -64,30 +112,60 @@ document.addEventListener("DOMContentLoaded", () => {
       this.cx = this.width / 2;
       this.cy = this.height / 2;
       this.state = "breathing";
+      this.isDeepThink = false;
       this.time = 0;
       this.particles = [];
+      this.planetaryNodes = [];
       this.initParticles();
+      this.initPlanetaryNodes();
       this.animate = this.animate.bind(this);
       requestAnimationFrame(this.animate);
     }
 
     initParticles() {
       const count = 140;
+      this.particles = [];
       for (let i = 0; i < count; i++) {
         const phi = Math.acos(-1 + (2 * i) / count);
         const theta = Math.sqrt(count * Math.PI) * phi;
         this.particles.push({
-          x: 0,
-          y: 0,
           baseRadius: 65 + Math.random() * 35,
           phi: phi,
           theta: theta,
           size: 1.2 + Math.random() * 2.2,
           speed: 0.008 + Math.random() * 0.012,
-          hueOffset: Math.random() * 60,
           alpha: 0.3 + Math.random() * 0.7,
         });
       }
+    }
+
+    initPlanetaryNodes() {
+      this.planetaryNodes = [];
+      // 3 orbital rings with orbiting planets matching user screenshot
+      const ringConfigs = [
+        { radiusX: 95, radiusY: 34, tilt: -0.32, speed: 0.018, color: "#a855f7", ringColor: "rgba(168, 85, 247, 0.75)" }, // Magenta
+        { radiusX: 90, radiusY: 36, tilt: 0.42,  speed: -0.024, color: "#00f2fe", ringColor: "rgba(0, 242, 254, 0.75)" },   // Cyan
+        { radiusX: 80, radiusY: 28, tilt: -0.08, speed: 0.030, color: "#ff9e3b", ringColor: "rgba(255, 158, 59, 0.75)" },  // Gold
+      ];
+
+      for (let rIdx = 0; rIdx < ringConfigs.length; rIdx++) {
+        const cfg = ringConfigs[rIdx];
+        const numNodes = 7;
+        for (let n = 0; n < numNodes; n++) {
+          this.planetaryNodes.push({
+            ringIdx: rIdx,
+            angle: (n / numNodes) * Math.PI * 2 + Math.random() * 0.5,
+            size: 2.2 + Math.random() * 3.5,
+            color: n % 2 === 0 ? "#93c5fd" : (n % 3 === 0 ? "#00f2fe" : "#ffedd5"),
+            opacity: 0.5 + Math.random() * 0.5,
+          });
+        }
+      }
+      this.ringConfigs = ringConfigs;
+    }
+
+    setDeepThink(enabled) {
+      this.isDeepThink = enabled;
     }
 
     setState(newState) {
@@ -99,45 +177,165 @@ document.addEventListener("DOMContentLoaded", () => {
       const ctx = this.ctx;
       ctx.clearRect(0, 0, this.width, this.height);
 
-      let coreColor1 = "rgba(255, 158, 59, 0.85)";  // warm sunset gold
-      let coreColor2 = "rgba(168, 85, 247, 0.4)";   // cosmic violet
-      let speedMult = 1.0;
+      if (this.isDeepThink) {
+        // ── RENDER DEEP THINK PLANETARY QUANTUM ORB (Screenshot Match) ──
+        
+        // 1. Soft Violet-Magenta Radial Halo
+        const haloGrad = ctx.createRadialGradient(this.cx, this.cy, 15, this.cx, this.cy, 115);
+        haloGrad.addColorStop(0, "rgba(255, 158, 59, 0.4)");
+        haloGrad.addColorStop(0.35, "rgba(168, 85, 247, 0.25)");
+        haloGrad.addColorStop(0.7, "rgba(99, 102, 241, 0.1)");
+        haloGrad.addColorStop(1, "rgba(7, 8, 13, 0)");
+        ctx.fillStyle = haloGrad;
+        ctx.beginPath();
+        ctx.arc(this.cx, this.cy, 115, 0, Math.PI * 2);
+        ctx.fill();
 
-      if (this.state === "searching") {
-        coreColor1 = "rgba(0, 242, 254, 0.85)";
-        coreColor2 = "rgba(99, 102, 241, 0.5)";
-        speedMult = 2.0;
-      } else if (this.state === "solving" || this.state === "working") {
-        coreColor1 = "rgba(255, 77, 77, 0.9)";
-        coreColor2 = "rgba(255, 158, 59, 0.6)";
-        speedMult = 2.5;
-      } else if (this.state === "shaping") {
-        coreColor1 = "rgba(16, 185, 129, 0.85)";
-        coreColor2 = "rgba(0, 242, 254, 0.5)";
-        speedMult = 1.6;
+        // 2. Intersecting Elliptical Orbital Rings
+        for (let r = 0; r < this.ringConfigs.length; r++) {
+          const cfg = this.ringConfigs[r];
+          ctx.save();
+          ctx.translate(this.cx, this.cy);
+          ctx.rotate(cfg.tilt + Math.sin(this.time * 0.5 + r) * 0.05);
+
+          ctx.beginPath();
+          ctx.ellipse(0, 0, cfg.radiusX, cfg.radiusY, 0, 0, Math.PI * 2);
+          ctx.strokeStyle = cfg.ringColor;
+          ctx.lineWidth = 1.4;
+          ctx.shadowColor = cfg.color;
+          ctx.shadowBlur = 10;
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        // 3. Orbiting Planetary Nodes along Ellipses
+        for (let node of this.planetaryNodes) {
+          const cfg = this.ringConfigs[node.ringIdx];
+          node.angle += cfg.speed;
+
+          const rawX = Math.cos(node.angle) * cfg.radiusX;
+          const rawY = Math.sin(node.angle) * cfg.radiusY;
+
+          // Rotate by ring tilt
+          const cosT = Math.cos(cfg.tilt);
+          const sinT = Math.sin(cfg.tilt);
+          const px = this.cx + (rawX * cosT - rawY * sinT);
+          const py = this.cy + (rawX * sinT + rawY * cosT);
+
+          const depth = Math.sin(node.angle);
+          const scale = 0.8 + (depth + 1) * 0.25;
+
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(px, py, node.size * scale, 0, Math.PI * 2);
+          ctx.fillStyle = node.color;
+          ctx.shadowColor = node.color;
+          ctx.shadowBlur = 8;
+          ctx.globalAlpha = node.opacity * (depth > 0 ? 1 : 0.6);
+          ctx.fill();
+          ctx.restore();
+        }
+
+        // 4. Intense Glowing Amber Core Sun
+        const coreSize = 14 + Math.sin(this.time * 2.5) * 2.5;
+        const coreGrad = ctx.createRadialGradient(this.cx, this.cy, 2, this.cx, this.cy, coreSize * 2.2);
+        coreGrad.addColorStop(0, "#ffffff");
+        coreGrad.addColorStop(0.3, "#ff9e3b");
+        coreGrad.addColorStop(0.7, "#ff4d4d");
+        coreGrad.addColorStop(1, "rgba(255, 77, 77, 0)");
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(this.cx, this.cy, coreSize * 2.2, 0, Math.PI * 2);
+        ctx.fillStyle = coreGrad;
+        ctx.shadowColor = "#ff9e3b";
+        ctx.shadowBlur = 24;
+        ctx.fill();
+        ctx.restore();
+
+        // 5. Surrounding Star Dust Particles
+        for (let p of this.particles.slice(0, 45)) {
+          const px = this.cx + Math.cos(p.theta + this.time * 0.2) * (p.baseRadius * 1.15);
+          const py = this.cy + Math.sin(p.phi + this.time * 0.3) * (p.baseRadius * 0.9);
+          ctx.beginPath();
+          ctx.arc(px, py, p.size * 0.8, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(147, 197, 253, ${p.alpha * 0.6})`;
+          ctx.fill();
+        }
+
+      } else {
+        // ── RENDER STANDARD LIVING ORGANIC NEBULA ─────────────────────
+        let coreColor1 = "rgba(255, 158, 59, 0.85)";  // warm sunset gold
+        let coreColor2 = "rgba(168, 85, 247, 0.4)";   // cosmic violet
+        let speedMult = 1.0;
+
+        if (this.state === "searching") {
+          coreColor1 = "rgba(0, 242, 254, 0.85)";
+          coreColor2 = "rgba(99, 102, 241, 0.5)";
+          speedMult = 2.0;
+        } else if (this.state === "solving" || this.state === "working") {
+          coreColor1 = "rgba(255, 77, 77, 0.9)";
+          coreColor2 = "rgba(255, 158, 59, 0.6)";
+          speedMult = 2.5;
+        } else if (this.state === "shaping") {
+          coreColor1 = "rgba(16, 185, 129, 0.85)";
+          coreColor2 = "rgba(0, 242, 254, 0.5)";
+          speedMult = 1.6;
+        }
+
+        // Glowing Fluid Core
+        const glowGrad = ctx.createRadialGradient(
+          this.cx, this.cy, 10,
+          this.cx, this.cy, 110 + Math.sin(this.time * 2) * 8
+        );
+        glowGrad.addColorStop(0, coreColor1);
+        glowGrad.addColorStop(0.4, coreColor2);
+        glowGrad.addColorStop(1, "rgba(7, 8, 13, 0)");
+
+        ctx.fillStyle = glowGrad;
+        ctx.beginPath();
+        ctx.arc(this.cx, this.cy, 110, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Multi-Strand Fluid Ribbons (Vortex Rings)
+        for (let r = 0; r < 3; r++) {
+          ctx.beginPath();
+          const ribbonRadius = 60 + r * 18 + Math.sin(this.time * 1.5 + r) * 6;
+          const rot = this.time * 0.8 * (r % 2 === 0 ? 1 : -1) * speedMult;
+          ctx.ellipse(this.cx, this.cy, ribbonRadius, ribbonRadius * 0.45, rot, 0, Math.PI * 2);
+          ctx.strokeStyle = r === 0 ? "rgba(255, 158, 59, 0.35)" : (r === 1 ? "rgba(0, 242, 254, 0.35)" : "rgba(168, 85, 247, 0.35)");
+          ctx.lineWidth = 1.8;
+          ctx.stroke();
+        }
+
+        // 3D Particle Constellation (Undulating Surface Mesh)
+        for (let p of this.particles) {
+          const radNoise = Math.sin(this.time * speedMult + p.theta * 2) * 12 + Math.cos(this.time * 1.2 + p.phi * 3) * 8;
+          const currentRad = p.baseRadius + radNoise;
+
+          const currentTheta = p.theta + this.time * p.speed * speedMult;
+          const x3d = currentRad * Math.sin(p.phi) * Math.cos(currentTheta);
+          const y3d = currentRad * Math.sin(p.phi) * Math.sin(currentTheta);
+          const z3d = currentRad * Math.cos(p.phi);
+
+          const k = 220 / (220 + z3d);
+          const px = this.cx + x3d * k;
+          const py = this.cy + y3d * k;
+          const size = Math.max(0.6, p.size * k);
+          const alpha = Math.max(0.1, (k - 0.4) * p.alpha);
+
+          ctx.beginPath();
+          ctx.arc(px, py, size, 0, Math.PI * 2);
+          ctx.fillStyle = z3d > 0 ? `rgba(255, 220, 150, ${alpha})` : `rgba(130, 180, 255, ${alpha * 0.7})`;
+          ctx.fill();
+        }
       }
 
-      // 1. Glowing Fluid Core
-      const glowGrad = ctx.createRadialGradient(
-        this.cx, this.cy, 10,
-        this.cx, this.cy, 110 + Math.sin(this.time * 2) * 8
-      );
-      glowGrad.addColorStop(0, coreColor1);
-      glowGrad.addColorStop(0.4, coreColor2);
-      glowGrad.addColorStop(1, "rgba(7, 8, 13, 0)");
+      requestAnimationFrame(this.animate);
+    }
+  }
 
-      ctx.fillStyle = glowGrad;
-      ctx.beginPath();
-      ctx.arc(this.cx, this.cy, 110, 0, Math.PI * 2);
-      ctx.fill();
-
-      // 2. Multi-Strand Fluid Ribbons (Vortex Rings)
-      for (let r = 0; r < 3; r++) {
-        ctx.beginPath();
-        const ribbonRadius = 60 + r * 18 + Math.sin(this.time * 1.5 + r) * 6;
-        const rot = this.time * 0.8 * (r % 2 === 0 ? 1 : -1) * speedMult;
-        ctx.ellipse(this.cx, this.cy, ribbonRadius, ribbonRadius * 0.45, rot, 0, Math.PI * 2);
-        ctx.strokeStyle = r === 0 ? "rgba(255, 158, 59, 0.35)" : (r === 1 ? "rgba(0, 242, 254, 0.35)" : "rgba(168, 85, 247, 0.35)");
+  window.livingNebula = new LivingNebulaOrb("nebula-canvas");
         ctx.lineWidth = 1.8;
         ctx.stroke();
       }
@@ -202,7 +400,9 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.addEventListener("click", () => {
       document.querySelectorAll(".effort-btn").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
-      if (effortValue) effortValue.value = btn.dataset.effort;
+      const eff = btn.dataset.effort;
+      if (effortValue) effortValue.value = eff;
+      updateOrbMode(eff);
     });
   });
 
@@ -473,13 +673,17 @@ document.addEventListener("DOMContentLoaded", () => {
       `;
     }
 
+    const avatarHtml = (currentEffort === "thorough")
+      ? `<div class="deep-think-orb is-sm"><div class="deep-think-core"></div><div class="deep-think-ring ring-magenta"></div><div class="deep-think-ring ring-cyan"></div><div class="deep-think-ring ring-gold"></div><i></i><i></i><i></i><i></i></div>`
+      : `<div class="tol-orb tol-breathing is-sm"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>`;
+
     bubble.innerHTML = `
       <div class="agent-bubble-header">
         <div class="agent-avatar-icon">
-          <div class="tol-orb tol-breathing is-sm"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          ${avatarHtml}
         </div>
         <div class="agent-name-tag">KIW1</div>
-        <div class="agent-model-pill">${model}</div>
+        <div class="agent-model-pill">${model}${currentEffort === "thorough" ? " &bull; Deep Think" : ""}</div>
       </div>
       ${thoughtHtml}
       ${toolsHtml}

@@ -231,8 +231,153 @@
 /* ── accessibility: one static frame ──────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .tol-orb i,
-  .tol-searching::after {
+  .tol-searching::after,
+  .deep-think-orb i,
+  .deep-think-ring {
     animation: none !important;
   }
   .tol-orb i { opacity: 0.85; }
 }
+
+/* ── Deep Think Planetary Quantum Orb ──────────────────────────────────
+   Multi-ring elliptical orbits with glowing amber core & orbiting planet nodes
+   ───────────────────────────────────────────────────────────────────── */
+.deep-think-orb {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 600px;
+}
+.deep-think-orb.is-sm {
+  width: 22px;
+  height: 22px;
+}
+
+/* Glowing Amber-Violet Sun Core */
+.deep-think-core {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff 0%, #ff9e3b 40%, #ff4d4d 75%, rgba(168, 85, 247, 0.4) 100%);
+  box-shadow: 0 0 16px #ff9e3b, 0 0 32px rgba(168, 85, 247, 0.6);
+  animation: corePulse 2s ease-in-out infinite alternate;
+  z-index: 2;
+}
+.deep-think-orb.is-sm .deep-think-core {
+  width: 6px;
+  height: 6px;
+  box-shadow: 0 0 6px #ff9e3b, 0 0 12px rgba(168, 85, 247, 0.6);
+}
+
+@keyframes corePulse {
+  0% { transform: scale(0.88); opacity: 0.85; }
+  100% { transform: scale(1.18); opacity: 1; filter: drop-shadow(0 0 8px #ff9e3b); }
+}
+
+/* 3 Intersecting Tilted Orbital Rings */
+.deep-think-ring {
+  position: absolute;
+  border-radius: 50%;
+  border-style: solid;
+  pointer-events: none;
+  transform-style: preserve-3d;
+}
+
+/* Ring 1: Magenta / Violet */
+.ring-magenta {
+  width: 58px;
+  height: 58px;
+  border-width: 1.5px;
+  border-color: rgba(168, 85, 247, 0.85);
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.4);
+  transform: rotateX(68deg) rotateY(18deg);
+  animation: spinRing1 4s linear infinite;
+}
+.deep-think-orb.is-sm .ring-magenta {
+  width: 20px;
+  height: 20px;
+  border-width: 1px;
+}
+
+/* Ring 2: Cyan / Teal */
+.ring-cyan {
+  width: 54px;
+  height: 54px;
+  border-width: 1.5px;
+  border-color: rgba(0, 242, 254, 0.85);
+  box-shadow: 0 0 10px rgba(0, 242, 254, 0.4);
+  transform: rotateX(64deg) rotateY(-28deg);
+  animation: spinRing2 3.2s linear infinite reverse;
+}
+.deep-think-orb.is-sm .ring-cyan {
+  width: 18px;
+  height: 18px;
+  border-width: 1px;
+}
+
+/* Ring 3: Amber / Gold */
+.ring-gold {
+  width: 50px;
+  height: 50px;
+  border-width: 1.5px;
+  border-color: rgba(255, 158, 59, 0.85);
+  box-shadow: 0 0 10px rgba(255, 158, 59, 0.4);
+  transform: rotateX(72deg) rotateY(2deg);
+  animation: spinRing3 2.6s linear infinite;
+}
+.deep-think-orb.is-sm .ring-gold {
+  width: 16px;
+  height: 16px;
+  border-width: 1px;
+}
+
+@keyframes spinRing1 {
+  from { transform: rotateX(68deg) rotateY(18deg) rotateZ(0deg); }
+  to   { transform: rotateX(68deg) rotateY(18deg) rotateZ(360deg); }
+}
+@keyframes spinRing2 {
+  from { transform: rotateX(64deg) rotateY(-28deg) rotateZ(0deg); }
+  to   { transform: rotateX(64deg) rotateY(-28deg) rotateZ(360deg); }
+}
+@keyframes spinRing3 {
+  from { transform: rotateX(72deg) rotateY(2deg) rotateZ(0deg); }
+  to   { transform: rotateX(72deg) rotateY(2deg) rotateZ(360deg); }
+}
+
+/* Orbiting Planetary Nodes */
+.deep-think-nodes i {
+  position: absolute;
+  border-radius: 50%;
+  background: #67e8f9;
+  box-shadow: 0 0 6px #00f2fe;
+}
+.deep-think-orb i:nth-child(1) { width: 4px; height: 4px; animation: orbitNode1 2.2s linear infinite; }
+.deep-think-orb i:nth-child(2) { width: 5px; height: 5px; background: #cbd5e1; animation: orbitNode2 3.4s linear infinite; }
+.deep-think-orb i:nth-child(3) { width: 3.5px; height: 3.5px; background: #ff9e3b; animation: orbitNode3 1.8s linear infinite; }
+.deep-think-orb i:nth-child(4) { width: 4.5px; height: 4.5px; background: #c084fc; animation: orbitNode1 4.1s linear infinite reverse; }
+
+.deep-think-orb.is-sm i:nth-child(1) { width: 2px; height: 2px; }
+.deep-think-orb.is-sm i:nth-child(2) { width: 2.2px; height: 2.2px; }
+.deep-think-orb.is-sm i:nth-child(3) { width: 1.8px; height: 1.8px; }
+.deep-think-orb.is-sm i:nth-child(4) { width: 2px; height: 2px; }
+
+@keyframes orbitNode1 {
+  0%   { transform: rotate(0deg) translateX(26px) rotate(0deg); opacity: 1; }
+  50%  { transform: rotate(180deg) translateX(26px) scale(0.7) rotate(-180deg); opacity: 0.4; }
+  100% { transform: rotate(360deg) translateX(26px) rotate(-360deg); opacity: 1; }
+}
+@keyframes orbitNode2 {
+  0%   { transform: rotate(45deg) translateX(22px) rotate(-45deg); opacity: 0.5; }
+  50%  { transform: rotate(225deg) translateX(22px) scale(1.2) rotate(-225deg); opacity: 1; }
+  100% { transform: rotate(405deg) translateX(22px) rotate(-405deg); opacity: 0.5; }
+}
+@keyframes orbitNode3 {
+  0%   { transform: rotate(90deg) translateX(18px) rotate(-90deg); opacity: 1; }
+  50%  { transform: rotate(270deg) translateX(18px) scale(0.6) rotate(-270deg); opacity: 0.3; }
+  100% { transform: rotate(450deg) translateX(18px) rotate(-450deg); opacity: 1; }
+}
+
