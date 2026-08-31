@@ -1,4 +1,5 @@
 import asyncio
+import re
 import time
 from typing import Any, Dict, List, Optional
 from google.adk.agents import Agent
@@ -290,7 +291,6 @@ class Kiw1Orchestrator:
         # Check intent for tool mapping
         goal_lower = brief.goal.lower()
         if "weather" in goal_lower or "forecast" in goal_lower or "temperature" in goal_lower:
-            import re
             from app.plugins.search import search_plugin
             cleaned_goal = re.sub(r'[^\w\s]', '', brief.goal).strip()
             match = re.search(r'\b(?:in|for|at|of)\s+([A-Za-z\s]+?)(?:\s+(?:today|tomorrow|now|right now|currently))?$', cleaned_goal, re.IGNORECASE)
@@ -307,7 +307,10 @@ class Kiw1Orchestrator:
             tools_used.append("web_search")
             results_snippets = "; ".join([r.get("snippet", "") for r in res.get("results", [])[:2]])
             executed_details.append(f"Live Web Search findings: {results_snippets}")
-        elif "calculate" in goal_lower or "math" in goal_lower:
+        elif (
+            re.search(r"\b(calculate|compute)\s+[\d\s+\-*/().^%]+$", goal_lower)
+            or (("calculate" in goal_lower or "compute" in goal_lower) and any(op in goal_lower for op in ["+", "*", "/"]) and not any(kw in goal_lower for kw in ["derangement", "euler", "integral", "theorem", "matrix", "vector", "mod", "totient"]))
+        ):
             expr = "".join([c for c in brief.goal if c.isdigit() or c in "+-*/(). "]).strip()
             res = core_tools_plugin.calculate(expr or "1+1")
             tools_used.append("calculate")
@@ -388,21 +391,21 @@ class Kiw1Orchestrator:
             response_text = f"Completed task: '{brief.goal}'. " + " ".join(executed_details)
 
         # 7. Step 6: Skill Forge Post-Task Evaluation (PRD §6.2)
+        # Record EVERY completed task using user's raw input (deterministic code, zero model drift)
         forged_announcement = None
-        if tools_used and tools_used != ["standard_reasoning"]:
-            fp = record_task_execution(brief.goal, tools_used)
-            if should_promote(fp):
-                skill = forge_skill(brief.goal, tools_used, fp=fp)
-                forged_announcement = {
-                    "skill_name": skill["name"],
-                    "description": skill["description"],
-                    "tools": skill["tools"],
-                    "message": (
-                        f"You've asked me to do this three times this week. "
-                        f"I've turned it into a skill called '{skill['name']}'. "
-                        f"Want me to run it on a schedule?"
-                    ),
-                }
+        fp = record_task_execution(user_input, tools_used)
+        if should_promote(fp):
+            skill = forge_skill(user_input, tools_used, fp=fp)
+            forged_announcement = {
+                "skill_name": skill["name"],
+                "description": skill["description"],
+                "tools": skill["tools"],
+                "message": (
+                    f"You've asked me to do this three times this week. "
+                    f"I've turned it into a skill called '{skill['name']}'. "
+                    f"Want me to run it on a schedule?"
+                ),
+            }
 
         # 8. Complete telemetry trace
         completed_trace = telemetry.end_run(trace_id, success=True)

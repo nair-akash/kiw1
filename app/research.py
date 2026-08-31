@@ -20,25 +20,75 @@ class OvernightResearchLoop:
     """
 
     def select_research_target(self) -> tuple[str, str, str]:
-        """Picks the weakest area using deterministic heuristics (PRD §6.3).
+        """Picks the weakest area using multi-signal telemetry, ledger, and memory heuristics (PRD §6.3).
+        Priority:
+        1. Recent failed tasks in telemetry traces.
+        2. Low-confidence execution turns.
+        3. Active unreinforced user corrections from the ledger.
+        4. Stale or decaying loci in the Memory Palace.
+        5. Frontier AI capability optimization fallback.
         Returns: (target_topic, reason, category).
         """
-        # 1. Check recent active corrections in the ledger
-        active_corrections = ledger.list_rules()
-        unreinforced = [r for r in active_corrections if r.get("active", True) and r.get("reinforcement_count", 0) == 0]
-        if unreinforced:
-            rule = unreinforced[-1]
-            return rule["situation"], f"Active user correction requires deeper grounding: '{rule['situation']}'", "correction_grounding"
+        # 1. Check for recent failed tasks in telemetry
+        recent_traces = telemetry.get_recent_traces(limit=20)
+        failed_traces = [t for t in recent_traces if not t.get("success", True) and t.get("task")]
+        if failed_traces:
+            target_task = failed_traces[0]["task"]
+            clean_task = target_task.replace("/", "").strip()
+            return (
+                f"Error recovery and edge-case resolution for: {clean_task}",
+                f"Recent task execution failure detected in telemetry trace for '{clean_task}'",
+                "failure_remediation",
+            )
 
-        # 2. Check stale or low-access memories in Memory Palace
+        # 2. Check for low-confidence turns (confidence < 0.88)
+        for t in recent_traces:
+            for s in t.get("steps", []):
+                details_str = str(s.get("details", "")).lower()
+                if "confidence" in details_str and ("0.7" in details_str or "0.8" in details_str):
+                    task_name = t.get("task", "agent reasoning")
+                    return (
+                        f"Deep architectural grounding and best practices for: {task_name}",
+                        f"Low confidence score detected on task '{task_name}'",
+                        "confidence_enhancement",
+                    )
+
+        # 3. Check active user corrections in the ledger
+        active_corrections = ledger.list_rules()
+        valid_corrections = [
+            r for r in active_corrections
+            if r.get("active", True) and len(r.get("situation", "").split()) >= 2
+        ]
+        if valid_corrections:
+            rule = valid_corrections[-1]
+            sit = rule.get("situation", "user preference")
+            return (
+                f"Best practices and edge-case prevention for: {sit}",
+                f"Active user correction in ledger requires deeper grounding: '{rule.get('rule', sit)}'",
+                "correction_grounding",
+            )
+
+        # 4. Check stale or decaying memories in Memory Palace
         memories = store.list_memory_items()
         stale = [m for m in memories if m.get("decay_score", 1.0) < 0.7]
         if stale:
             m = stale[0]
-            return f"{m.get('room')}: {m.get('locus')}", f"Memory decay indicates need for refresh: {m.get('item')[:40]}...", "memory_refresh"
+            room = m.get("room", "Knowledge")
+            locus = m.get("locus", "General")
+            return (
+                f"Domain knowledge refresh for {room}: {locus}",
+                f"Spatial memory decay detected at locus '{room}/{locus}' (Item: {m.get('item', '')[:40]}...)",
+                "memory_refresh",
+            )
 
-        # 3. Default foundational knowledge target
-        return "Gemini 3.7 tool calling and thinking budget optimization", "Proactive overnight capability enhancement", "capability_grounding"
+        # 5. High-leverage frontier agent capabilities fallback (Never generic junk)
+        frontier_topics = [
+            ("Gemini 3.7 Flash thinking budget optimization and latency-critical reasoning", "Proactive reasoning budget and latency optimization", "capability_grounding"),
+            ("Deterministic code sandboxing and sub-millisecond execution security", "Proactive sandbox security and isolation hardening", "capability_grounding"),
+            ("Multi-agent consensus protocols and adversarial self-correction loops", "Proactive swarm consensus and verification improvement", "capability_grounding"),
+            ("Cross-session persistent spatial memory palace indexing for LLMs", "Proactive spatial memory recall and decay optimization", "capability_grounding"),
+        ]
+        return frontier_topics[0]
 
     async def execute_research_cycle(self, trace_id: Optional[str] = None) -> Dict[str, Any]:
         """Executes full research, critique, storage, and report generation."""
