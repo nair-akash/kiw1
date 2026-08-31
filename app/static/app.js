@@ -1,5 +1,4 @@
-// KIW1 Interactive Frontend Client with Thinking Orbs Agent State Integration
-import { mountOrb } from './orb/ThinkingOrb.js';
+// KIW1 Interactive Frontend Client — Thinking Orb Lite (pure CSS)
 
 document.addEventListener("DOMContentLoaded", () => {
   // Navigation Tabs
@@ -58,40 +57,46 @@ document.addEventListener("DOMContentLoaded", () => {
   const skillsOrbContainer = document.getElementById("skills-orb-container");
   const researchOrbContainer = document.getElementById("research-orb-container");
 
-  let mainOrb = null;
-  let skillsInlineOrb = null;
-  let researchInlineOrb = null;
+  // ── Thinking Orb Lite helpers ──────────────────────────────────────────
+  // All nine state classes for removal during swap
+  const TOL_STATES = [
+    "tol-working", "tol-searching", "tol-solving", "tol-listening",
+    "tol-connecting", "tol-weaving", "tol-composing", "tol-breathing",
+    "tol-shaping",
+  ];
 
-  // Initialize Thinking Orbs (Location 1: size 64 chat avatar scale)
+  /** Build the 12-dot markup inside a container and return the orb div. */
+  function createOrbElement(container, stateClass, isSm) {
+    const orb = document.createElement("div");
+    orb.className = "tol-orb " + stateClass;
+    if (isSm) orb.classList.add("is-sm");
+    for (let n = 0; n < 12; n++) orb.appendChild(document.createElement("i"));
+    container.appendChild(orb);
+    return orb;
+  }
+
+  /** Swap the state class on an existing orb element. */
+  function setOrbState(orbEl, newState) {
+    if (!orbEl) return;
+    orbEl.classList.remove(...TOL_STATES);
+    orbEl.classList.add("tol-" + newState);
+    orbEl.setAttribute("aria-label", newState.charAt(0).toUpperCase() + newState.slice(1));
+  }
+
+  // Initialise the three orbs
+  let mainOrbEl = null;
   if (mainOrbContainer) {
-    mainOrb = mountOrb(mainOrbContainer, {
-      state: "breathing",
-      size: 64,
-      ariaLabel: "Agent idle and ready",
-    });
+    mainOrbEl = createOrbElement(mainOrbContainer, "tol-breathing", false);
   }
-
-  // Location 2: size 20 inline orbs (hidden when subsystem is idle)
   if (skillsOrbContainer) {
-    skillsInlineOrb = mountOrb(skillsOrbContainer, {
-      state: "shaping",
-      size: 20,
-      ariaLabel: "Skill Forge active",
-    });
+    createOrbElement(skillsOrbContainer, "tol-shaping", true);
   }
-
   if (researchOrbContainer) {
-    researchInlineOrb = mountOrb(researchOrbContainer, {
-      state: "searching",
-      size: 20,
-      ariaLabel: "Research subsystem active",
-    });
+    createOrbElement(researchOrbContainer, "tol-searching", true);
   }
 
   function setAgentState(state, stateTitle, activityDetail) {
-    if (mainOrb) {
-      mainOrb.setState(state, activityDetail || stateTitle);
-    }
+    setOrbState(mainOrbEl, state);
     if (agentStateLabel) agentStateLabel.textContent = stateTitle;
     if (agentActivityDetail) agentActivityDetail.textContent = activityDetail;
   }
@@ -411,9 +416,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
-      // Simulate transition to connecting / critique pass
+      // Transition to connecting / critique pass
       setTimeout(() => {
-        setAgentState("connecting", "Critique & Validation Pass", "Adversarial Gemini 3.7 Pro pass attacking findings...");
+        setAgentState("connecting", "Critique & Validation Pass", "Adversarial critique pass attacking findings...");
       }, 1200);
 
       await fetch("/research/run", { method: "POST" });

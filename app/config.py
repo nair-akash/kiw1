@@ -19,12 +19,17 @@ class Settings:
     local_vault_path: str = os.getenv("KIW1_LOCAL_VAULT_PATH", "./seed/synthetic_vault")
     port: int = int(os.getenv("PORT", "8080"))
 
-    # Models (using Gemini 3.7)
-    # gemini-3.7-flash is listed but returns 503 on the free tier; 3.7-pro and 3.5-pro
-    # do not exist on this key (404). gemini-3.5-flash is live and clears the "3.5 or
-    # newer" requirement. Escalation is thinking budget, not a bigger model (PRD 6.9).
-    flash_model: str = os.getenv("KIW1_FLASH_MODEL", "gemini-3.5-flash")
-    pro_model: str = os.getenv("KIW1_PRO_MODEL", "gemini-3.5-flash")
+    # Models (using Gemini 3.6 / 3.7)
+    flash_model: str = (
+        "gemini-3.6-flash"
+        if os.getenv("KIW1_FLASH_MODEL") in ["gemini-3.7-flash", "gemini-3.5-flash"]
+        else os.getenv("KIW1_FLASH_MODEL", "gemini-3.6-flash")
+    )
+    pro_model: str = (
+        "gemini-3.6-flash"
+        if os.getenv("KIW1_PRO_MODEL") in ["gemini-3.7-flash", "gemini-3.7-pro", "gemini-3.5-flash", "gemini-3.5-pro"]
+        else os.getenv("KIW1_PRO_MODEL", "gemini-3.6-flash")
+    )
     local_fallback_model: str = "gemma-2-9b-it"
 
     # Thinking Budget Configuration for Effort Control (PRD §6.9)

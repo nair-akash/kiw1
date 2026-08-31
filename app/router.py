@@ -79,63 +79,90 @@ class ModelRouter:
                 "latency_ms": latency_ms,
             }
 
-        try:
-            config_params: Dict[str, Any] = {}
-            if system_instruction:
-                config_params["system_instruction"] = system_instruction
-            if thinking_budget > 0:
-                config_params["thinking_config"] = types.ThinkingConfig(thinking_budget=thinking_budget)
-            if structured_schema:
-                config_params["response_mime_type"] = "application/json"
-                config_params["response_schema"] = structured_schema
+        config_params: Dict[str, Any] = {}
+        if system_instruction:
+            config_params["system_instruction"] = system_instruction
+        if thinking_budget > 0:
+            config_params["thinking_config"] = types.ThinkingConfig(thinking_budget=thinking_budget)
+        if structured_schema:
+            config_params["response_mime_type"] = "application/json"
+            config_params["response_schema"] = structured_schema
 
-            config = types.GenerateContentConfig(**config_params)
-            response = self._client.models.generate_content(
+        config = types.GenerateContentConfig(**config_params)
+
+        candidate_models = [
+            model,
+            "gemini-3.5-flash-lite",
+            "gemini-3.1-flash-lite",
+            "gemini-flash-lite-latest",
+            "gemini-3-flash-preview",
+        ]
+        # De-duplicate while preserving order
+        unique_models = []
+        for m in candidate_models:
+            if m not in unique_models:
+                unique_models.append(m)
+
+        last_err = None
+        for current_model in unique_models:
+            for attempt in range(2):
+                try:
+                    response = self._client.models.generate_content(
+                        model=current_model,
+                        contents=prompt,
+                        config=config,
+                    )
+
+                    latency_ms = (time.time() - start_time) * 1000
+                    usage = getattr(response, "usage_metadata", None)
+                    p_tokens = getattr(usage, "prompt_token_count", len(prompt.split()) * 2) if usage else 100
+                    c_tokens = getattr(usage, "candidates_token_count", 50) if usage else 50
+                    t_tokens = getattr(usage, "thoughts_token_count", thinking_budget) if usage else thinking_budget
+
+                    if trace_id:
+                        telemetry.record_step(
+                            trace_id=trace_id,
+                            name=f"generate:{task_type}",
+                            model=current_model,
+                            prompt_tokens=p_tokens,
+                            completion_tokens=c_tokens,
+                            thinking_tokens=t_tokens,
+                            latency_ms=latency_ms,
+                            status="success",
+                        )
+
+                    return {
+                        "text": response.text or "",
+                        "model": current_model,
+                        "thinking_budget": thinking_budget,
+                        "prompt_tokens": p_tokens,
+                        "completion_tokens": c_tokens,
+                        "thinking_tokens": t_tokens,
+                        "latency_ms": latency_ms,
+                    }
+                except Exception as e:
+                    last_err = e
+                    err_str = str(e)
+                    if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str or "404" in err_str:
+                        # Move to next fallback model immediately
+                        break
+                    elif attempt == 0 and ("503" in err_str or "UNAVAILABLE" in err_str):
+                        time.sleep(1.5)
+                        continue
+                    break
+
+        latency_ms = (time.time() - start_time) * 1000
+        if trace_id:
+            telemetry.record_step(
+                trace_id=trace_id,
+                name=f"generate:{task_type}",
                 model=model,
-                contents=prompt,
-                config=config,
+                prompt_tokens=50,
+                completion_tokens=0,
+                thinking_tokens=0,
+                latency_ms=latency_ms,
+                status=f"error: {str(last_err)}",
             )
-
-            latency_ms = (time.time() - start_time) * 1000
-            usage = getattr(response, "usage_metadata", None)
-            p_tokens = getattr(usage, "prompt_token_count", len(prompt.split()) * 2) if usage else 100
-            c_tokens = getattr(usage, "candidates_token_count", 50) if usage else 50
-            t_tokens = getattr(usage, "thoughts_token_count", thinking_budget) if usage else thinking_budget
-
-            if trace_id:
-                telemetry.record_step(
-                    trace_id=trace_id,
-                    name=f"generate:{task_type}",
-                    model=model,
-                    prompt_tokens=p_tokens,
-                    completion_tokens=c_tokens,
-                    thinking_tokens=t_tokens,
-                    latency_ms=latency_ms,
-                    status="success",
-                )
-
-            return {
-                "text": response.text or "",
-                "model": model,
-                "thinking_budget": thinking_budget,
-                "prompt_tokens": p_tokens,
-                "completion_tokens": c_tokens,
-                "thinking_tokens": t_tokens,
-                "latency_ms": latency_ms,
-            }
-        except Exception as e:
-            latency_ms = (time.time() - start_time) * 1000
-            if trace_id:
-                telemetry.record_step(
-                    trace_id=trace_id,
-                    name=f"generate:{task_type}",
-                    model=model,
-                    prompt_tokens=50,
-                    completion_tokens=0,
-                    thinking_tokens=0,
-                    latency_ms=latency_ms,
-                    status=f"error: {str(e)}",
-                )
-            raise e
+        raise last_err or RuntimeError("Failed to generate content")
 
 router = ModelRouter()

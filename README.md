@@ -155,12 +155,4 @@ gcloud config set project YOUR_PROJECT_ID
 | **Web Dashboard UI** | Built & Verified | `app/static/index.html`, `style.css`, `app.js` |
 | **Deployment Automation** | Built & Verified | `Dockerfile`, `deploy.sh` |
 
----
-
-## 📦 Third-Party Components
-
-- **Thinking Orbs** (`app/static/orb/`): Dotted thought-orb loading and state indicators for AI & agent interfaces.
-  - License: MIT License
-  - Copyright: &copy; 2026 Jakub Antalik (with @a_brinza)
-  - Upstream: [github.com/Jakubantalik/thinking-orbs](https://github.com/Jakubantalik/thinking-orbs)
 

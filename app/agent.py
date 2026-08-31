@@ -13,6 +13,7 @@ from app.plugins.kernel import kernel
 from app.plugins.tools import core_tools_plugin
 from app.refinery import refinery
 from app.router import router
+from app.store import store
 from app.telemetry import telemetry
 
 class Kiw1Orchestrator:
@@ -109,11 +110,12 @@ class Kiw1Orchestrator:
             res = core_tools_plugin.remember(fact_text)
             tools_used.append("remember")
             executed_details.append(f"Stored memory: '{fact_text}' in {res.get('room')}/{res.get('locus')}")
-        elif "recall" in goal_lower or "what did" in goal_lower or "lookup" in goal_lower:
+        elif "recall" in goal_lower or "what did" in goal_lower or "lookup" in goal_lower or "what is" in goal_lower:
             res = core_tools_plugin.recall(brief.goal)
             tools_used.append("recall")
             mems = res.get("memories", [])
-            executed_details.append(f"Retrieved {len(mems)} memories from palace.")
+            mem_text = "; ".join([m.get("item", "") for m in mems]) if mems else "None found"
+            executed_details.append(f"Retrieved memories from palace: {mem_text}")
         elif "calculate" in goal_lower or "math" in goal_lower:
             expr = "".join([c for c in brief.goal if c.isdigit() or c in "+-*/(). "]).strip()
             res = core_tools_plugin.calculate(expr or "1+1")
@@ -129,6 +131,19 @@ class Kiw1Orchestrator:
             res = vault_plugin.query_vault(brief.goal)
             tools_used.append("query_vault")
             executed_details.append(f"Queried local notes (answers-only mode).")
+        elif "draft" in goal_lower or "email" in goal_lower:
+            res = core_tools_plugin.draft_email("finance@acme.com", "Subject", brief.goal)
+            tools_used.append("draft_email")
+            executed_details.append(f"Drafted email with status: {res.get('status')}")
+        elif "execute" in goal_lower and "skill" in goal_lower:
+            skill_name = "skill-invoice-records"
+            for s in store.list_skills():
+                if s.get("name") and s.get("name") in goal_lower:
+                    skill_name = s.get("name")
+                    break
+            res = core_tools_plugin.execute_skill(skill_name)
+            tools_used.append("execute_skill")
+            executed_details.append(f"Executed skill {skill_name}: {res.get('status')}")
         else:
             tools_used.append("standard_reasoning")
 

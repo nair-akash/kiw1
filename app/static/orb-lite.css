@@ -1,49 +1,7 @@
-/* ─────────────────────────────────────────────────────────────────────────
-   Thinking Orbs — CSS gallery for Obsidian
-   Companion to Skills/web-motion. Renders the nine shipped states as
-   pure-CSS approximations so they can be browsed inside Obsidian, which
-   cannot run the real canvas engine (no community plugins, and reading
-   view strips <script>).
-
-   THESE ARE NOT THE SHIPPED COMPONENT. They convey each state's character
-   for picking one. Products must use the real `thinking-orbs` package —
-   see Skills/web-motion/SKILL.md §1.
-
-   Rules honoured: transform/opacity only (no layout animation),
-   monochrome via currentColor, prefers-reduced-motion respected.
-   Enable in Settings → Appearance → CSS snippets.
+/* ── Thinking Orb Lite ────────────────────────────────────────────────────
+   Pure-CSS state indicator. Nine states, twelve dots, one class swap.
+   Colour via currentColor; dot size via --d; .is-sm for 20 px inline.
    ───────────────────────────────────────────────────────────────────── */
-
-.tol-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
-  gap: 14px;
-  margin: 1.2em 0;
-}
-
-.tol-cell {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  padding: 18px 10px 14px;
-  border: 1px solid var(--background-modifier-border);
-  border-radius: 10px;
-  background: var(--background-secondary);
-}
-
-.tol-name {
-  font-size: 0.82em;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  color: var(--text-normal);
-}
-.tol-mode {
-  font-size: 0.7em;
-  color: var(--text-muted);
-  font-family: var(--font-monospace);
-  margin-top: -6px;
-}
 
 /* ── the orb ──────────────────────────────────────────────────────────── */
 
@@ -51,7 +9,7 @@
   position: relative;
   width: 64px;
   height: 64px;
-  color: var(--text-normal);
+  color: var(--text-normal, currentColor);
   flex: none;
 }
 .tol-orb.is-sm { width: 20px; height: 20px; }
@@ -84,11 +42,9 @@
 .tol-orb i:nth-child(12) { --i: 11; }
 
 /* ── working — particles on tilted orbits ─────────────────────────────── */
-/* three concentric orbit planes, each squashed to a different ellipse so it
-   reads as tilted rings rather than one flat line */
 .tol-working i {
   --r: 24px;
-  --sq: 0.42;                       /* vertical squash = the tilt */
+  --sq: 0.42;
   animation: tol-orbit 1.7s linear infinite;
   animation-delay: calc(var(--i) * -0.1417s);
 }
@@ -103,7 +59,6 @@
 }
 
 /* ── searching — a scan meridian sweeps a dotted globe ────────────────── */
-/* dots sit on a fixed globe; the scan sweeps brightness around them */
 .tol-searching i {
   --d: 4px;
   transform: rotate(calc(var(--i) * 30deg)) translateX(23px);
@@ -205,7 +160,6 @@
 }
 
 /* ── composing — an undulating multi-band sash ────────────────────────── */
-/* two counter-phased bands, so it reads as a sash rather than one waveform */
 .tol-composing i {
   --d: 4px;
   --band: -9px;
@@ -234,7 +188,7 @@
   50%      { transform: rotate(calc(var(--i) * 30deg)) translateX(26px) scale(1.15); opacity: 1; }
 }
 
-/* ── shaping — a dotted outline morphs circle → triangle → square ─────── */
+/* ── shaping — a dotted outline morphs circle -> triangle -> square ───── */
 .tol-shaping i {
   animation: tol-morph 3.2s cubic-bezier(0.6, 0, 0.3, 1) infinite;
   animation-delay: calc(var(--i) * -0.02s);
@@ -246,7 +200,7 @@
   100%      { transform: rotate(calc(var(--i) * 30deg)) translateX(23px) rotate(calc(var(--i) * -30deg)); }
 }
 
-/* ── inline (20px) variant — the second shipped size ──────────────────── */
+/* ── inline (20 px) variant ───────────────────────────────────────────── */
 .tol-orb.is-sm i { --d: 2.4px; }
 .tol-orb.is-sm.tol-working i,
 .tol-orb.is-sm.tol-breathing i,
@@ -274,7 +228,7 @@
   vertical-align: middle;
 }
 
-/* ── accessibility: one static frame, per the skill's working rule 1 ──── */
+/* ── accessibility: one static frame ──────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .tol-orb i,
   .tol-searching::after {
@@ -282,20 +236,3 @@
   }
   .tol-orb i { opacity: 0.85; }
 }
-
-/* ── Live Dashboard (Thinking Orbs Live Dashboard.md) ─────────────────── */
-/* Two galleries, not two columns: Obsidian renders ![[embeds]] inside tables
-   but NOT inline HTML in table cells, so a side-by-side table left Lite blank.
-   Pro = markdown table of webp embeds; Lite = an HTML block (.tol-grid). */
-
-.markdown-preview-view table img[src$=".webp"],
-.markdown-rendered table img[src$=".webp"] {
-  width: 96px;
-  height: 96px;
-  display: block;
-  margin: 0 auto;
-  background: #101012;
-  border-radius: 8px;
-}
-
-table td { vertical-align: middle; }

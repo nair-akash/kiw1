@@ -44,10 +44,12 @@ class CorrectionLedger:
         matched_rules = []
 
         def _stem(w: str) -> str:
-            # Simple fast pure-python suffix stripping for matching
-            for suffix in ["ing", "tion", "ed", "es", "s", "ly"]:
-                if w.endswith(suffix) and len(w) > len(suffix) + 2:
-                    return w[:-len(suffix)]
+            if w.endswith("s") and not w.endswith("ss") and len(w) > 2:
+                w = w[:-1]
+            if w.endswith("ing") and len(w) > 4:
+                w = w[:-3]
+            if w.endswith("ed") and len(w) > 3:
+                w = w[:-2]
             return w
 
         context_stems = {_stem(w) for w in context_words if len(w) > 2}
