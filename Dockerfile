@@ -20,7 +20,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY app/ ./app/
 COPY evals/ ./evals/
 COPY seed/ ./seed/
-COPY local_store.json* ./
 
 EXPOSE 8080
 
