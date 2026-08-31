@@ -235,12 +235,116 @@ class DurableStore:
             self._local_data["taste"]["profile"] = current
             self._save_local_data()
 
+    # Autonomous Commitments Operations
+    def save_commitment(self, commitment_data: Dict[str, Any]) -> str:
+        cid = commitment_data.get("id") or f"cmt_{commitment_data.get('skill_id', 'skill')}_{int(datetime.now(timezone.utc).timestamp())}"
+        commitment_data["id"] = cid
+        if "created_at" not in commitment_data:
+            commitment_data["created_at"] = datetime.now(timezone.utc).isoformat()
+        if "provenance" not in commitment_data:
+            commitment_data["provenance"] = "agent_self_derived"
+        if "status" not in commitment_data:
+            commitment_data["status"] = "active"
+
+        if self.is_cloud():
+            self.get_user_ref().collection("commitments").document(cid).set(commitment_data)
+        else:
+            if "commitments" not in self._local_data:
+                self._local_data["commitments"] = {}
+            self._local_data["commitments"][cid] = commitment_data
+            self._save_local_data()
+        return cid
+
+    def get_commitment(self, cid: str) -> Optional[Dict[str, Any]]:
+        if self.is_cloud():
+            doc = self.get_user_ref().collection("commitments").document(cid).get()
+            return doc.to_dict() if doc.exists else None
+        return self._local_data.get("commitments", {}).get(cid)
+
+    def list_commitments(self, active_only: bool = False) -> List[Dict[str, Any]]:
+        if self.is_cloud():
+            query = self.get_user_ref().collection("commitments")
+            if active_only:
+                query = query.where("enabled", "==", True)
+            docs = query.stream()
+            return [d.to_dict() for d in docs]
+        commitments = list(self._local_data.get("commitments", {}).values())
+        if active_only:
+            return [c for c in commitments if c.get("enabled", True) and c.get("status") == "active"]
+        return commitments
+
+    def update_commitment(self, cid: str, updates: Dict[str, Any]):
+        if self.is_cloud():
+            self.get_user_ref().collection("commitments").document(cid).update(updates)
+        else:
+            if "commitments" in self._local_data and cid in self._local_data["commitments"]:
+                self._local_data["commitments"][cid].update(updates)
+                self._save_local_data()
+
+    def delete_commitment(self, cid: str) -> bool:
+        if self.is_cloud():
+            self.get_user_ref().collection("commitments").document(cid).delete()
+            return True
+        else:
+            if "commitments" in self._local_data and cid in self._local_data["commitments"]:
+                del self._local_data["commitments"][cid]
+                self._save_local_data()
+                return True
+        return False
+
+    # Delivery Ledger Operations
+    def add_delivery(self, delivery_data: Dict[str, Any]) -> str:
+        did = f"del_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}_{len(self._local_data.get('deliveries', {})) + 1}"
+        delivery_data["id"] = did
+        if "timestamp" not in delivery_data:
+            delivery_data["timestamp"] = datetime.now(timezone.utc).isoformat()
+        if self.is_cloud():
+            self.get_user_ref().collection("deliveries").document(did).set(delivery_data)
+        else:
+            if "deliveries" not in self._local_data:
+                self._local_data["deliveries"] = {}
+            self._local_data["deliveries"][did] = delivery_data
+            self._save_local_data()
+        return did
+
+    def list_deliveries(self, limit: int = 20) -> List[Dict[str, Any]]:
+        if self.is_cloud():
+            docs = self.get_user_ref().collection("deliveries").order_by("timestamp", direction=firestore.Query.DESCENDING).limit(limit).stream()
+            return [d.to_dict() for d in docs]
+        deliveries = list(self._local_data.get("deliveries", {}).values())
+        deliveries.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
+        return deliveries[:limit]
+
+    # Execution Idempotency
+    def record_execution_idempotency(self, idempotency_key: str, result_data: Dict[str, Any]):
+        entry = {
+            "key": idempotency_key,
+            "result": result_data,
+            "executed_at": datetime.now(timezone.utc).isoformat(),
+        }
+        if self.is_cloud():
+            self.get_user_ref().collection("idempotency").document(idempotency_key).set(entry)
+        else:
+            if "idempotency" not in self._local_data:
+                self._local_data["idempotency"] = {}
+            self._local_data["idempotency"][idempotency_key] = entry
+            self._save_local_data()
+
+    def get_execution_idempotency(self, idempotency_key: str) -> Optional[Dict[str, Any]]:
+        if self.is_cloud():
+            doc = self.get_user_ref().collection("idempotency").document(idempotency_key).get()
+            return doc.to_dict() if doc.exists else None
+        return self._local_data.get("idempotency", {}).get(idempotency_key)
+
     def reset_for_benchmark(self):
-        """Clears memory, forged skills, and corrections for cold benchmark testing."""
+        """Clears memory, forged skills, commitments, and corrections for cold benchmark testing."""
         self._local_data["memory"] = {}
         self._local_data["skills"] = {}
         self._local_data["corrections"] = {}
         self._local_data["fingerprints"] = []
+        self._local_data["commitments"] = {}
+        self._local_data["deliveries"] = {}
+        self._local_data["idempotency"] = {}
         self._save_local_data()
 
 store = DurableStore()

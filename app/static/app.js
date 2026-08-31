@@ -20,6 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (targetTab === "skills-tab") loadSkills();
     if (targetTab === "research-tab") loadResearchBriefs();
     if (targetTab === "benchmark-tab") loadBenchmarkResults();
+    if (targetTab === "commitments-tab") loadCommitments();
   }
 
   navTabs.forEach(tab => {
@@ -1417,11 +1418,148 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // ── Autonomous Commitments Tab ─────────────────────────
+  async function loadCommitments() {
+    try {
+      const [cmtRes, delRes, proRes] = await Promise.all([
+        fetch("/api/commitments").then(r => r.json()),
+        fetch("/api/deliveries").then(r => r.json()),
+        fetch("/api/session/proactive").then(r => r.json()),
+      ]);
+
+      const cmts = cmtRes.commitments || [];
+      const deliveries = delRes.deliveries || [];
+
+      // Update badge
+      const badge = document.getElementById("badge-commitments");
+      if (badge) badge.textContent = cmts.length;
+
+      // Proactive banner
+      const banner = document.getElementById("proactive-banner");
+      const bannerText = document.getElementById("proactive-text");
+      if (proRes.announcement && banner && bannerText) {
+        bannerText.textContent = proRes.announcement;
+        banner.classList.remove("hidden");
+      } else if (banner) {
+        banner.classList.add("hidden");
+      }
+
+      // Commitment cards grid
+      const grid = document.getElementById("commitments-grid");
+      if (grid) {
+        if (cmts.length === 0) {
+          grid.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-icon">🤖</div>
+              <div class="empty-title">No Standing Commitments Yet</div>
+              <div class="empty-desc">When you repeat a task 3 times, KIW1 forges a skill and offers to run it autonomously on a schedule.</div>
+            </div>`;
+        } else {
+          grid.innerHTML = cmts.map(c => {
+            const status = c.status || "active";
+            const statusClass = status;
+            const nextRun = c.next_run_time ? new Date(c.next_run_time).toLocaleString() : "Pending";
+            const lastRun = c.last_run ? new Date(c.last_run).toLocaleString() : "Never";
+            const pauseBtn = status === "active"
+              ? `<button onclick="commitmentAction('${c.id}', 'pause')">⏸ Pause</button>`
+              : `<button onclick="commitmentAction('${c.id}', 'resume')">▶ Resume</button>`;
+
+            return `
+              <div class="commitment-card ${statusClass}">
+                <div class="cmt-header">
+                  <div class="cmt-name">⚡ ${c.skill_name || c.skill_id}</div>
+                  <span class="cmt-status ${statusClass}">${status}</span>
+                </div>
+                <div class="cmt-details">
+                  <div class="cmt-detail"><span class="label">Schedule</span> ${c.human_schedule || c.cadence || "Weekly"}</div>
+                  <div class="cmt-detail"><span class="label">Next Run</span> ${nextRun}</div>
+                  <div class="cmt-detail"><span class="label">Last Run</span> ${lastRun}</div>
+                  <div class="cmt-detail"><span class="label">Runs</span> ${c.run_count || 0}</div>
+                  <div class="cmt-detail"><span class="label">Origin</span> ${c.provenance || "agent_self_derived"}</div>
+                  ${c.disabled_reason ? `<div class="cmt-detail" style="color: var(--accent-rose)"><span class="label">Reason</span> ${c.disabled_reason}</div>` : ""}
+                </div>
+                <div class="cmt-actions">
+                  <button onclick="commitmentAction('${c.id}', 'trigger')">🚀 Run Now</button>
+                  ${pauseBtn}
+                  <button class="danger" onclick="commitmentAction('${c.id}', 'cancel')">🗑 Cancel</button>
+                </div>
+              </div>`;
+          }).join("");
+        }
+      }
+
+      // Delivery Ledger
+      const delList = document.getElementById("delivery-list");
+      if (delList) {
+        if (deliveries.length === 0) {
+          delList.innerHTML = `
+            <div class="empty-state small">
+              <div class="empty-desc">No deliveries yet. Commitments will log their outcomes here.</div>
+            </div>`;
+        } else {
+          delList.innerHTML = deliveries.map(d => {
+            const icon = d.status === "completed" ? "✅" : d.status === "partially_complete" ? "⚠️" : "❌";
+            const time = d.timestamp ? new Date(d.timestamp).toLocaleString() : "";
+            return `
+              <div class="delivery-item">
+                <div class="del-status-icon">${icon}</div>
+                <div class="del-body">
+                  <div class="del-skill">${d.skill_name || "Unknown"}</div>
+                  <div class="del-summary">${d.summary || d.status}</div>
+                </div>
+                <div class="del-time">${time}</div>
+              </div>`;
+          }).join("");
+        }
+      }
+    } catch (err) {
+      console.error("Failed to load commitments:", err);
+    }
+  }
+
+  // Expose commitment actions globally
+  window.commitmentAction = async function(cid, action) {
+    try {
+      let endpoint, method;
+      if (action === "trigger") { endpoint = `/api/commitments/${cid}/trigger`; method = "POST"; }
+      else if (action === "pause") { endpoint = `/api/commitments/${cid}/pause`; method = "POST"; }
+      else if (action === "resume") { endpoint = `/api/commitments/${cid}/resume`; method = "POST"; }
+      else if (action === "cancel") { endpoint = `/api/commitments/${cid}`; method = "DELETE"; }
+      else return;
+
+      await fetch(endpoint, { method });
+      loadCommitments();
+    } catch (err) {
+      console.error(`Commitment action '${action}' failed:`, err);
+    }
+  };
+
+  // Dismiss proactive banner
+  const proactiveDismiss = document.getElementById("proactive-dismiss");
+  if (proactiveDismiss) {
+    proactiveDismiss.addEventListener("click", () => {
+      const banner = document.getElementById("proactive-banner");
+      if (banner) banner.classList.add("hidden");
+    });
+  }
+
   // Initial loads
   refreshTelemetry();
   loadMemoryPalace();
   loadCorrectionLedger();
   loadSkills();
   loadBenchmarkResults();
-});
+  loadCommitments();
 
+  // Check proactive on session start
+  fetch("/api/session/proactive").then(r => r.json()).then(data => {
+    if (data.announcement) {
+      const banner = document.getElementById("proactive-banner");
+      const bannerText = document.getElementById("proactive-text");
+      if (banner && bannerText) {
+        bannerText.textContent = data.announcement;
+        banner.classList.remove("hidden");
+      }
+    }
+  }).catch(() => {});
+});

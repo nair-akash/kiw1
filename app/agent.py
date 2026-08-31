@@ -81,6 +81,74 @@ class Kiw1Orchestrator:
                 },
             }
 
+        if trimmed_lower.startswith("/commitment") or trimmed_lower.startswith("/commitments"):
+            from app.commitments import commitment_manager
+            parts = trimmed.split()
+            subcmd = parts[1].lower() if len(parts) > 1 else "list"
+            target_arg = parts[2] if len(parts) > 2 else ""
+
+            if subcmd == "accept" and target_arg:
+                cmt = commitment_manager.create_commitment(target_arg)
+                completed_trace = telemetry.end_run(trace_id, success=True)
+                return {
+                    "type": "commitment_created",
+                    "text": f"✅ **Standing Autonomous Commitment Created**:\n- **Skill**: `{cmt['skill_name']}`\n- **Schedule**: {cmt['human_schedule']} (`{cmt['cron_expression']}`)\n- **Next Run**: `{cmt['next_run_time']}`\n- **Provenance**: `{cmt['provenance']}` *(Self-derived from observed repetition)*\n- **Consent**: Granted once, running autonomously.",
+                    "commitment": cmt,
+                    "tools_used": ["create_commitment"],
+                    "telemetry": {"trace_id": trace_id, "latency_ms": 0, "tokens": 80, "cost_usd": 0.0},
+                }
+            elif subcmd == "trigger" and target_arg:
+                res = await commitment_manager.execute_commitment(target_arg)
+                completed_trace = telemetry.end_run(trace_id, success=res.get("success", False))
+                return {
+                    "type": "commitment_triggered",
+                    "text": f"🚀 **Unattended Execution Triggered for `{target_arg}`**:\n- **Status**: `{res.get('status')}`\n- **Summary**: {res.get('summary')}\n- **Output**: {str(res.get('output', ''))[:200]}...",
+                    "execution_result": res,
+                    "tools_used": ["execute_commitment"],
+                    "telemetry": {"trace_id": trace_id, "latency_ms": 0, "tokens": 150, "cost_usd": 0.0},
+                }
+            elif subcmd == "pause" and target_arg:
+                store.update_commitment(target_arg, {"status": "paused", "enabled": False})
+                return {"type": "response", "text": f"⏸️ Commitment `{target_arg}` is now paused."}
+            elif subcmd == "resume" and target_arg:
+                store.update_commitment(target_arg, {"status": "active", "enabled": True})
+                return {"type": "response", "text": f"▶️ Commitment `{target_arg}` has resumed active execution."}
+            elif subcmd == "cancel" and target_arg:
+                store.delete_commitment(target_arg)
+                return {"type": "response", "text": f"🗑️ Commitment `{target_arg}` has been cancelled and removed."}
+            else:
+                # list
+                cmts = store.list_commitments()
+                cmt_lines = "\n".join([
+                    f"- **{c['skill_name']}** [{c.get('status', 'active').upper()}]: {c.get('human_schedule', 'Weekly')} (Next: `{c.get('next_run_time', 'Pending')}`) | Provenance: `{c.get('provenance', 'agent_self_derived')}`"
+                    for c in cmts
+                ]) if cmts else "No standing commitments yet. When a skill is forged, accept the scheduled commitment to activate."
+                completed_trace = telemetry.end_run(trace_id, success=True)
+                return {
+                    "type": "commitment_list",
+                    "text": f"### 🤖 Standing Autonomous Commitments ({len(cmts)})\n\n{cmt_lines}",
+                    "commitments": cmts,
+                    "tools_used": ["list_commitments"],
+                    "telemetry": {"trace_id": trace_id, "latency_ms": 0, "tokens": 100, "cost_usd": 0.0},
+                }
+
+        if trimmed_lower in ["yes", "yes please", "yes, schedule it", "yes, run it on a schedule", "schedule it", "schedule that", "confirm schedule"]:
+            from app.commitments import commitment_manager
+            skills = store.list_skills()
+            if skills:
+                latest_skill = skills[-1]
+                existing = [c for c in store.list_commitments() if c.get("skill_id") == latest_skill["name"]]
+                if not existing:
+                    cmt = commitment_manager.create_commitment(latest_skill["name"])
+                    completed_trace = telemetry.end_run(trace_id, success=True)
+                    return {
+                        "type": "commitment_created",
+                        "text": f"✅ **Standing Autonomous Commitment Created**:\n- **Skill**: `{cmt['skill_name']}`\n- **Schedule**: {cmt['human_schedule']} (`{cmt['cron_expression']}`)\n- **Next Run**: `{cmt['next_run_time']}`\n- **Provenance**: `{cmt['provenance']}` *(Self-derived from observed repetition)*\n- **Consent**: Single consent recorded. I will run this indefinitely on schedule without prompting.",
+                        "commitment": cmt,
+                        "tools_used": ["create_commitment"],
+                        "telemetry": {"trace_id": trace_id, "latency_ms": 0, "tokens": 80, "cost_usd": 0.0},
+                    }
+
         if trimmed_lower in ["/eval", "/evals", "/benchmark"] or "run the 20-task self-improvement benchmark" in trimmed_lower:
             from pathlib import Path
             import json
@@ -404,20 +472,25 @@ class Kiw1Orchestrator:
         if not response_text:
             response_text = f"Completed task: '{brief.goal}'. " + " ".join(executed_details)
 
-        # 7. Step 6: Skill Forge Post-Task Evaluation (PRD §6.2)
+        # 7. Step 6: Skill Forge Post-Task Evaluation & Cadence Inference (PRD §6.2)
         # Record EVERY completed task using user's raw input (deterministic code, zero model drift)
         forged_announcement = None
         fp = record_task_execution(user_input, tools_used)
         if should_promote(fp):
             skill = forge_skill(user_input, tools_used, fp=fp)
+            from app.commitments import infer_cadence_from_history
+            cadence, cron_expr, human_sched = infer_cadence_from_history(fp)
             forged_announcement = {
                 "skill_name": skill["name"],
                 "description": skill["description"],
                 "tools": skill["tools"],
+                "cadence": cadence,
+                "cron_expression": cron_expr,
+                "human_schedule": human_sched,
                 "message": (
                     f"You've asked me to do this three times this week. "
                     f"I've turned it into a skill called '{skill['name']}'. "
-                    f"Want me to run it on a schedule?"
+                    f"Want me to run it {human_sched}?"
                 ),
             }
 

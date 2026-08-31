@@ -51,6 +51,11 @@
           <span class="tab-icon">🌙</span>
           <span class="tab-text">Morning Briefs</span>
         </button>
+        <button class="nav-tab" data-tab="commitments-tab">
+          <span class="tab-icon">🤖</span>
+          <span class="tab-text">Autonomous</span>
+          <span class="tab-pill" id="badge-commitments">0</span>
+        </button>
         <button class="nav-tab" data-tab="benchmark-tab">
           <span class="tab-icon">🏆</span>
           <span class="tab-text">Proof (+30%)</span>
@@ -338,6 +343,43 @@
 
           <!-- Visual Tasks List Container -->
           <div class="benchmark-tasks-list" id="benchmark-tasks-list"></div>
+        </div>
+      </section>
+
+      <!-- ── VIEW 7: Autonomous Commitments ──────────────────── -->
+      <section class="view-panel" id="commitments-tab">
+        <div class="panel-scroll">
+          <div class="panel-header">
+            <h2>🤖 Autonomous Commitments</h2>
+            <p class="panel-desc">Standing tasks that run on schedule without prompting. Forged from observed repetition, gated by risk level.</p>
+          </div>
+
+          <!-- Proactive Announcement Banner -->
+          <div class="proactive-banner hidden" id="proactive-banner">
+            <div class="proactive-icon">💡</div>
+            <div class="proactive-text" id="proactive-text"></div>
+            <button class="proactive-dismiss" id="proactive-dismiss">&times;</button>
+          </div>
+
+          <!-- Commitment Cards Grid -->
+          <div class="commitments-grid" id="commitments-grid">
+            <div class="empty-state">
+              <div class="empty-icon">🤖</div>
+              <div class="empty-title">No Standing Commitments Yet</div>
+              <div class="empty-desc">When you repeat a task 3 times, KIW1 forges a skill and offers to run it autonomously on a schedule.</div>
+            </div>
+          </div>
+
+          <!-- Delivery Ledger -->
+          <div class="delivery-section">
+            <h3 class="section-title">📦 Delivery Ledger</h3>
+            <p class="section-desc">Results from unattended autonomous executions.</p>
+            <div class="delivery-list" id="delivery-list">
+              <div class="empty-state small">
+                <div class="empty-desc">No deliveries yet. Commitments will log their outcomes here.</div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 

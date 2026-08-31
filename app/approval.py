@@ -31,4 +31,19 @@ class ApprovalLayer:
         # NONE: Local reversible
         return False, f"NO RISK: '{tool_name}' executed silently."
 
+    def classify_risk(self, task_intent: str, tool_name: str) -> tuple[str, str]:
+        """Classifies risk level for an intent and tool name deterministically."""
+        intent_lower = task_intent.lower()
+        if any(w in intent_lower for w in ["delete all", "drop table", "wire funds", "pay invoice", "execute shell", "rm -rf", "delete database", "drop database"]):
+            return "HIGH", "Irreversible destructive or financial transaction detected in task intent."
+
+        from app.plugins.kernel import kernel
+        manifest = kernel.get_manifest(tool_name) if hasattr(kernel, "get_manifest") else None
+        if manifest and getattr(manifest, "risk", "") == "high":
+            return "HIGH", f"Tool '{tool_name}' is registered as HIGH risk in plugin manifest."
+        elif manifest and getattr(manifest, "risk", "") == "medium":
+            return "MEDIUM", f"Tool '{tool_name}' is registered as MEDIUM risk."
+
+        return "LOW", "Standard non-destructive operation."
+
 approval_layer = ApprovalLayer(hands_off=False)

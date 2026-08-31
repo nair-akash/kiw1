@@ -116,10 +116,18 @@ def record_skill_outcome(name: str, outcome: str) -> Optional[Dict[str, Any]]:
         # Auto-retirement check: success rate < 60% over >= 5 invocations
         if success_rate < settings.skill_retirement_min_success_rate:
             skill["enabled"] = False
-            skill["disabled_reason"] = (
+            disabled_reason = (
                 f"Auto-disabled: Success rate {int(success_rate * 100)}% ({succeeded}/{invocations}) "
                 f"fell below minimum {int(settings.skill_retirement_min_success_rate * 100)}% threshold."
             )
+            skill["disabled_reason"] = disabled_reason
+
+            # Automatically suspend all linked commitments in the commitment manager
+            try:
+                from app.commitments import commitment_manager
+                commitment_manager.auto_suspend_for_skill(name, reason=disabled_reason)
+            except Exception:
+                pass
 
     store.save_skill(skill)
     return skill

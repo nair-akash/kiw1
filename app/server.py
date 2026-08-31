@@ -203,6 +203,65 @@ async def execute_swarm_task(req: SwarmRequest):
     res = await swarm_orchestrator.orchestrate_swarm(req.task)
     return res
 
+# Autonomous Commitments & Delivery Ledger Endpoints
+class CreateCommitmentRequest(BaseModel):
+    skill_name: str
+    cadence: Optional[str] = None
+    cron_expression: Optional[str] = None
+    provenance: Optional[str] = "agent_self_derived"
+
+@app.get("/api/commitments")
+async def get_commitments():
+    return {
+        "commitments": store.list_commitments(),
+        "total": len(store.list_commitments()),
+    }
+
+@app.post("/api/commitments/create")
+async def create_commitment_endpoint(req: CreateCommitmentRequest):
+    from app.commitments import commitment_manager
+    cmt = commitment_manager.create_commitment(
+        skill_name_or_id=req.skill_name,
+        cadence=req.cadence,
+        cron_expr=req.cron_expression,
+        provenance=req.provenance or "agent_self_derived",
+    )
+    return {"success": True, "commitment": cmt}
+
+@app.post("/api/commitments/{cid}/trigger")
+async def trigger_commitment_endpoint(cid: str):
+    from app.commitments import commitment_manager
+    res = await commitment_manager.execute_commitment(cid, force=True)
+    return res
+
+@app.post("/api/commitments/{cid}/pause")
+async def pause_commitment_endpoint(cid: str):
+    store.update_commitment(cid, {"status": "paused", "enabled": False})
+    return {"success": True, "status": "paused"}
+
+@app.post("/api/commitments/{cid}/resume")
+async def resume_commitment_endpoint(cid: str):
+    store.update_commitment(cid, {"status": "active", "enabled": True})
+    return {"success": True, "status": "active"}
+
+@app.delete("/api/commitments/{cid}")
+async def delete_commitment_endpoint(cid: str):
+    deleted = store.delete_commitment(cid)
+    return {"success": deleted}
+
+@app.get("/api/deliveries")
+async def get_deliveries():
+    return {
+        "deliveries": store.list_deliveries(),
+        "total": len(store.list_deliveries()),
+    }
+
+@app.get("/api/session/proactive")
+async def get_proactive_announcement():
+    from app.commitments import commitment_manager
+    announcement = commitment_manager.get_proactive_announcement()
+    return {"announcement": announcement}
+
 @app.get("/api/evals/frontier")
 async def get_frontier_evals():
     frontier_file = Path(__file__).parent.parent / "evals" / "frontier_results.json"
