@@ -1,208 +1,286 @@
-// KIW1 Studio Frontend Client — Codex Design System & Thinking Orb Lite (pure CSS)
+// KIW1 Companion Studio — Living Organic Nebula & Human-Centered UX
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Navigation Tabs
-  const navItems = document.querySelectorAll(".nav-item");
-  const tabPanes = document.querySelectorAll(".tab-pane");
-  const pageTitle = document.getElementById("page-title");
+  // ── Navigation Tabs ──────────────────────────────────────────
+  const navTabs = document.querySelectorAll(".nav-tab");
+  const viewPanels = document.querySelectorAll(".view-panel");
 
-  const tabTitles = {
-    "chat-tab": "Chat & Strategic Orchestrator",
-    "skills-tab": "Skill Registry & Autonomous Forge",
-    "ledger-tab": "Correction Ledger",
-    "palace-tab": "Spatial Memory Palace",
-    "research-tab": "Overnight Research & Self-Critique",
-    "evals-tab": "20-Task Proof of Improvement",
-  };
+  function switchTab(targetTab) {
+    navTabs.forEach(t => t.classList.remove("active"));
+    viewPanels.forEach(p => p.classList.remove("active"));
 
-  function switchTab(target) {
-    navItems.forEach(b => b.classList.remove("active"));
-    tabPanes.forEach(p => p.classList.remove("active"));
-
-    const activeBtn = document.querySelector(`.nav-item[data-tab="${target}"]`);
+    const activeBtn = document.querySelector(`.nav-tab[data-tab="${targetTab}"]`);
     if (activeBtn) activeBtn.classList.add("active");
 
-    const pane = document.getElementById(target);
-    if (pane) pane.classList.add("active");
-    if (pageTitle && tabTitles[target]) pageTitle.textContent = tabTitles[target];
+    const targetPanel = document.getElementById(targetTab);
+    if (targetPanel) targetPanel.classList.add("active");
 
-    // Refresh data for active tab
-    if (target === "skills-tab") loadSkills();
-    if (target === "ledger-tab") loadLedger();
-    if (target === "palace-tab") loadPalace();
-    if (target === "research-tab") loadResearch();
-    if (target === "evals-tab") loadEvals();
+    if (targetTab === "memory-tab") loadMemoryPalace();
+    if (targetTab === "skills-tab") loadSkills();
+    if (targetTab === "research-tab") loadResearchBriefs();
+    if (targetTab === "benchmark-tab") loadBenchmarkResults();
   }
 
-  navItems.forEach(btn => {
-    btn.addEventListener("click", () => {
-      switchTab(btn.dataset.tab);
+  navTabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      switchTab(tab.dataset.tab);
     });
   });
 
-  // Chat Elements
-  const chatMessages = document.getElementById("chat-messages");
-  const chatInput = document.getElementById("chat-input");
-  const btnSend = document.getElementById("btn-send");
-  const effortSelect = document.getElementById("effort-select");
-  const handsOffToggle = document.getElementById("hands-off-toggle");
-  const welcomeHero = document.getElementById("welcome-hero");
-  const btnNewChat = document.getElementById("btn-new-chat");
-
-  // Effort Pills
-  const effortPills = document.querySelectorAll(".effort-pill");
-  effortPills.forEach(pill => {
-    pill.addEventListener("click", () => {
-      effortPills.forEach(p => p.classList.remove("active"));
-      pill.classList.add("active");
-      const val = pill.dataset.effort;
-      if (effortSelect) effortSelect.value = val;
-      const statEffort = document.getElementById("stat-effort");
-      if (statEffort) statEffort.textContent = val.toUpperCase();
-    });
-  });
-
-  // Clarification Modal Elements
-  const clarPanel = document.getElementById("clarification-panel");
-  const clarPromptText = document.getElementById("clarification-prompt-text");
-  const clarQuestions = document.getElementById("clarification-questions");
-  const btnSubmitClar = document.getElementById("btn-submit-clarification");
-  const btnCancelClar = document.getElementById("btn-cancel-clarification");
-
-  // Agent State UI Elements
-  const mainOrbContainer = document.getElementById("main-orb-container");
-  const agentStateLabel = document.getElementById("agent-state-label");
-  const agentActivityDetail = document.getElementById("agent-activity-detail");
-
-  const skillsOrbContainer = document.getElementById("skills-orb-container");
-  const researchOrbContainer = document.getElementById("research-orb-container");
-
-  // ── Thinking Orb Lite helpers ──────────────────────────────────────────
+  // ── Thinking Orb Lite & Living Nebula Controller ─────────────
   const TOL_STATES = [
     "tol-working", "tol-searching", "tol-solving", "tol-listening",
     "tol-connecting", "tol-weaving", "tol-composing", "tol-breathing",
     "tol-shaping",
   ];
 
-  /** Build the 12-dot markup inside a container and return the orb div. */
-  function createOrbElement(container, stateClass, isSm) {
-    const orb = document.createElement("div");
-    orb.className = "tol-orb " + stateClass;
-    if (isSm) orb.classList.add("is-sm");
-    for (let n = 0; n < 12; n++) orb.appendChild(document.createElement("i"));
-    container.appendChild(orb);
-    return orb;
+  const headerOrbEl = document.getElementById("header-orb");
+  const heroOrbContainer = document.getElementById("hero-orb-container");
+  const heroStatusText = document.getElementById("hero-status-text");
+  const heroStatusPill = document.getElementById("hero-status-pill");
+
+  let heroOrbEl = null;
+  if (heroOrbContainer) {
+    heroOrbEl = document.createElement("div");
+    heroOrbEl.className = "tol-orb tol-breathing";
+    for (let n = 0; n < 12; n++) heroOrbEl.appendChild(document.createElement("i"));
+    heroOrbContainer.appendChild(heroOrbEl);
   }
 
-  /** Swap the state class on an existing orb element. */
-  function setOrbState(orbEl, newState) {
-    if (!orbEl) return;
-    orbEl.classList.remove(...TOL_STATES);
-    orbEl.classList.add("tol-" + newState);
-    orbEl.setAttribute("aria-label", newState.charAt(0).toUpperCase() + newState.slice(1));
+  function setAgentState(state, statusTitle) {
+    if (headerOrbEl) {
+      headerOrbEl.classList.remove(...TOL_STATES);
+      headerOrbEl.classList.add("tol-" + state);
+    }
+    if (heroOrbEl) {
+      heroOrbEl.classList.remove(...TOL_STATES);
+      heroOrbEl.classList.add("tol-" + state);
+    }
+    if (heroStatusText) heroStatusText.textContent = statusTitle;
+    if (window.livingNebula) window.livingNebula.setState(state);
   }
 
-  // Initialise the three orbs
-  let mainOrbEl = null;
-  if (mainOrbContainer) {
-    mainOrbEl = createOrbElement(mainOrbContainer, "tol-breathing", false);
-  }
-  if (skillsOrbContainer) {
-    createOrbElement(skillsOrbContainer, "tol-shaping", true);
-  }
-  if (researchOrbContainer) {
-    createOrbElement(researchOrbContainer, "tol-searching", true);
-  }
+  // ── Living Organic Nebula Canvas Renderer ────────────────────
+  // Inspired by multi-layer generative 3D ribbon & particle organisms
+  class LivingNebulaOrb {
+    constructor(canvasId) {
+      this.canvas = document.getElementById(canvasId);
+      if (!this.canvas) return;
+      this.ctx = this.canvas.getContext("2d");
+      this.width = this.canvas.width = 340;
+      this.height = this.canvas.height = 340;
+      this.cx = this.width / 2;
+      this.cy = this.height / 2;
+      this.state = "breathing";
+      this.time = 0;
+      this.particles = [];
+      this.initParticles();
+      this.animate = this.animate.bind(this);
+      requestAnimationFrame(this.animate);
+    }
 
-  function setAgentState(state, stateTitle, activityDetail) {
-    setOrbState(mainOrbEl, state);
-    if (agentStateLabel) agentStateLabel.textContent = stateTitle;
-    if (agentActivityDetail) agentActivityDetail.textContent = activityDetail;
-  }
-
-  let pendingPrompt = null;
-
-  // New session button
-  if (btnNewChat) {
-    btnNewChat.addEventListener("click", () => {
-      switchTab("chat-tab");
-      chatMessages.innerHTML = "";
-      if (welcomeHero) {
-        chatMessages.appendChild(welcomeHero);
-        welcomeHero.classList.remove("hidden");
+    initParticles() {
+      const count = 140;
+      for (let i = 0; i < count; i++) {
+        const phi = Math.acos(-1 + (2 * i) / count);
+        const theta = Math.sqrt(count * Math.PI) * phi;
+        this.particles.push({
+          x: 0,
+          y: 0,
+          baseRadius: 65 + Math.random() * 35,
+          phi: phi,
+          theta: theta,
+          size: 1.2 + Math.random() * 2.2,
+          speed: 0.008 + Math.random() * 0.012,
+          hueOffset: Math.random() * 60,
+          alpha: 0.3 + Math.random() * 0.7,
+        });
       }
-      chatInput.value = "";
-      chatInput.focus();
-      setAgentState("breathing", "Idle / Ready", "Started fresh session. Awaiting instruction.");
+    }
+
+    setState(newState) {
+      this.state = newState;
+    }
+
+    animate() {
+      this.time += 0.018;
+      const ctx = this.ctx;
+      ctx.clearRect(0, 0, this.width, this.height);
+
+      let coreColor1 = "rgba(255, 158, 59, 0.85)";  // warm sunset gold
+      let coreColor2 = "rgba(168, 85, 247, 0.4)";   // cosmic violet
+      let speedMult = 1.0;
+
+      if (this.state === "searching") {
+        coreColor1 = "rgba(0, 242, 254, 0.85)";
+        coreColor2 = "rgba(99, 102, 241, 0.5)";
+        speedMult = 2.0;
+      } else if (this.state === "solving" || this.state === "working") {
+        coreColor1 = "rgba(255, 77, 77, 0.9)";
+        coreColor2 = "rgba(255, 158, 59, 0.6)";
+        speedMult = 2.5;
+      } else if (this.state === "shaping") {
+        coreColor1 = "rgba(16, 185, 129, 0.85)";
+        coreColor2 = "rgba(0, 242, 254, 0.5)";
+        speedMult = 1.6;
+      }
+
+      // 1. Glowing Fluid Core
+      const glowGrad = ctx.createRadialGradient(
+        this.cx, this.cy, 10,
+        this.cx, this.cy, 110 + Math.sin(this.time * 2) * 8
+      );
+      glowGrad.addColorStop(0, coreColor1);
+      glowGrad.addColorStop(0.4, coreColor2);
+      glowGrad.addColorStop(1, "rgba(7, 8, 13, 0)");
+
+      ctx.fillStyle = glowGrad;
+      ctx.beginPath();
+      ctx.arc(this.cx, this.cy, 110, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 2. Multi-Strand Fluid Ribbons (Vortex Rings)
+      for (let r = 0; r < 3; r++) {
+        ctx.beginPath();
+        const ribbonRadius = 60 + r * 18 + Math.sin(this.time * 1.5 + r) * 6;
+        const rot = this.time * 0.8 * (r % 2 === 0 ? 1 : -1) * speedMult;
+        ctx.ellipse(this.cx, this.cy, ribbonRadius, ribbonRadius * 0.45, rot, 0, Math.PI * 2);
+        ctx.strokeStyle = r === 0 ? "rgba(255, 158, 59, 0.35)" : (r === 1 ? "rgba(0, 242, 254, 0.35)" : "rgba(168, 85, 247, 0.35)");
+        ctx.lineWidth = 1.8;
+        ctx.stroke();
+      }
+
+      // 3. 3D Particle Constellation (Undulating Surface Mesh)
+      for (let p of this.particles) {
+        const radNoise = Math.sin(this.time * speedMult + p.theta * 2) * 12 + Math.cos(this.time * 1.2 + p.phi * 3) * 8;
+        const currentRad = p.baseRadius + radNoise;
+
+        // 3D sphere spherical projection
+        const currentTheta = p.theta + this.time * p.speed * speedMult;
+        const x3d = currentRad * Math.sin(p.phi) * Math.cos(currentTheta);
+        const y3d = currentRad * Math.sin(p.phi) * Math.sin(currentTheta);
+        const z3d = currentRad * Math.cos(p.phi);
+
+        // Perspective projection
+        const k = 220 / (220 + z3d);
+        const px = this.cx + x3d * k;
+        const py = this.cy + y3d * k;
+        const size = Math.max(0.6, p.size * k);
+        const alpha = Math.max(0.1, (k - 0.4) * p.alpha);
+
+        ctx.beginPath();
+        ctx.arc(px, py, size, 0, Math.PI * 2);
+        ctx.fillStyle = z3d > 0 ? `rgba(255, 220, 150, ${alpha})` : `rgba(130, 180, 255, ${alpha * 0.7})`;
+        ctx.fill();
+      }
+
+      requestAnimationFrame(this.animate);
+    }
+  }
+
+  window.livingNebula = new LivingNebulaOrb("nebula-canvas");
+
+  // ── Chat Composer & Message Stream ───────────────────────────
+  const composerInput = document.getElementById("composer-input");
+  const btnSendMsg = document.getElementById("btn-send-msg");
+  const heroStage = document.getElementById("hero-stage");
+  const messagesFlow = document.getElementById("messages-flow");
+  const btnNewChat = document.getElementById("btn-new-chat");
+  const effortValue = document.getElementById("effort-value");
+  const btnHandsOff = document.getElementById("btn-hands-off");
+
+  // Effort Pills
+  document.querySelectorAll(".effort-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".effort-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      if (effortValue) effortValue.value = btn.dataset.effort;
+    });
+  });
+
+  // Hands-off Autonomous Switch
+  if (btnHandsOff) {
+    btnHandsOff.addEventListener("click", () => {
+      btnHandsOff.classList.toggle("active");
     });
   }
 
-  // Quick Starter Cards in Welcome Hero
-  document.querySelectorAll(".starter-card").forEach(card => {
+  // New Chat
+  if (btnNewChat) {
+    btnNewChat.addEventListener("click", () => {
+      switchTab("chat-tab");
+      messagesFlow.innerHTML = "";
+      if (heroStage) heroStage.classList.remove("hidden");
+      composerInput.value = "";
+      composerInput.focus();
+      setAgentState("breathing", "KIW1 is listening & ready");
+    });
+  }
+
+  // Quick Starter Prompt Cards
+  document.querySelectorAll(".prompt-card").forEach(card => {
     card.addEventListener("click", () => {
       const prompt = card.dataset.prompt;
       if (prompt) {
-        chatInput.value = prompt;
-        sendMessage(prompt);
+        composerInput.value = prompt;
+        submitUserPrompt(prompt);
       }
     });
   });
 
-  // Quick Shortcut Chips
-  document.querySelectorAll(".shortcut-chip").forEach(chip => {
+  // Shortcut Chips
+  document.querySelectorAll(".chip-shortcut").forEach(chip => {
     chip.addEventListener("click", () => {
-      const text = chip.dataset.insert;
-      if (text) {
-        chatInput.value = text;
-        chatInput.focus();
-        if (text === "/skills" || text === "/evals" || text === "/research") {
-          sendMessage(text);
+      const insertText = chip.dataset.insert;
+      if (insertText) {
+        composerInput.value = insertText;
+        composerInput.focus();
+        if (insertText === "/skills" || insertText === "/evals" || insertText === "/research") {
+          submitUserPrompt(insertText);
         }
       }
     });
   });
 
-  // Auto-resize chat textarea
-  if (chatInput) {
-    chatInput.addEventListener("input", () => {
-      chatInput.style.height = "auto";
-      chatInput.style.height = Math.min(chatInput.scrollHeight, 160) + "px";
+  // Textarea auto-height
+  if (composerInput) {
+    composerInput.addEventListener("input", () => {
+      composerInput.style.height = "auto";
+      composerInput.style.height = Math.min(composerInput.scrollHeight, 160) + "px";
     });
 
-    chatInput.addEventListener("keydown", (e) => {
+    composerInput.addEventListener("keydown", (e) => {
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
-        sendMessage(chatInput.value);
+        submitUserPrompt(composerInput.value);
       }
     });
   }
 
-  if (btnSend) {
-    btnSend.addEventListener("click", () => sendMessage(chatInput.value));
+  if (btnSendMsg) {
+    btnSendMsg.addEventListener("click", () => submitUserPrompt(composerInput.value));
   }
 
-  async function sendMessage(text) {
+  async function submitUserPrompt(text) {
     if (!text || text.trim() === "") return;
     const prompt = text.trim();
-    chatInput.value = "";
-    chatInput.style.height = "auto";
+    composerInput.value = "";
+    composerInput.style.height = "auto";
 
-    // Hide welcome hero on first message
-    if (welcomeHero && !welcomeHero.classList.contains("hidden")) {
-      welcomeHero.classList.add("hidden");
+    if (heroStage && !heroStage.classList.contains("hidden")) {
+      heroStage.classList.add("hidden");
     }
 
-    appendUserMessage(prompt);
+    renderUserBubble(prompt);
 
-    const effort = effortSelect ? effortSelect.value : "standard";
-    const handsOff = handsOffToggle ? handsOffToggle.checked : false;
+    const effort = effortValue ? effortValue.value : "standard";
+    const handsOff = btnHandsOff ? btnHandsOff.classList.contains("active") : false;
 
-    // Set state
-    const isSearchQuery = prompt.toLowerCase().includes("search") || prompt.toLowerCase().includes("research");
-    if (isSearchQuery) {
-      setAgentState("searching", "Searching Sources", `Retrieving web and documentation data...`);
+    // Set state: searching or solving
+    if (prompt.toLowerCase().includes("search") || prompt.toLowerCase().includes("research")) {
+      setAgentState("searching", "Searching live web & vault sources...");
     } else {
-      setAgentState("solving", "Analyzing & Planning", `Refinery verifying constraints and scoring paths...`);
+      setAgentState("solving", "Thinking, verifying constraints & planning...");
     }
 
     try {
@@ -216,104 +294,147 @@ document.addEventListener("DOMContentLoaded", () => {
         }),
       });
       const data = await res.json();
-      handleChatResponse(data, prompt);
-      refreshTelemetry();
+      handleAssistantResponse(data, prompt);
     } catch (err) {
-      appendAgentMessage({
+      renderAgentBubble({
         text: `Encountered communication error: ${err.message}`,
         model: "offline",
       });
-      setAgentState("breathing", "Idle / Error", `Error: ${err.message}`);
+      setAgentState("breathing", "Idle / Error");
     }
   }
 
-  function handleChatResponse(data, originalPrompt) {
+  // ── Response Handling ────────────────────────────────────────
+  let activePendingPrompt = null;
+  const clarOverlay = document.getElementById("clarification-overlay");
+  const clarOriginalQuery = document.getElementById("clar-original-query");
+  const clarQuestionsList = document.getElementById("clar-questions-list");
+  const btnConfirmClar = document.getElementById("btn-confirm-clar");
+  const btnCancelClar = document.getElementById("btn-cancel-clar");
+
+  function handleAssistantResponse(data, originalPrompt) {
     if (data.type === "clarification_needed") {
-      pendingPrompt = originalPrompt;
-      clarPromptText.textContent = `Original input: "${originalPrompt}"`;
-      clarQuestions.innerHTML = "";
+      activePendingPrompt = originalPrompt;
+      clarOriginalQuery.textContent = `"${originalPrompt}"`;
+      clarQuestionsList.innerHTML = "";
 
       (data.questions || []).forEach((q, idx) => {
-        const qBlock = document.createElement("div");
-        qBlock.className = "clarification-question-block";
-        qBlock.innerHTML = `
-          <div class="question-title">Q${idx + 1}: ${q.question}</div>
-          <div class="options-group" data-qid="${q.id}">
+        const qBox = document.createElement("div");
+        qBox.className = "clar-q-box";
+        qBox.innerHTML = `
+          <div class="clar-q-title">Q${idx + 1}: ${escapeHtml(q.question)}</div>
+          <div class="clar-options-row" data-qid="${q.id}">
             ${q.options.map((opt, oIdx) => `
-              <label class="option-choice">
-                <input type="radio" name="clar_${q.id}" value="${opt}" ${oIdx === 0 ? "checked" : ""}>
-                <span>${opt}</span>
+              <label class="clar-choice-label">
+                <input type="radio" name="c_${q.id}" value="${escapeHtml(opt)}" ${oIdx === 0 ? "checked" : ""}>
+                <span>${escapeHtml(opt)}</span>
               </label>
             `).join("")}
           </div>
         `;
-        clarQuestions.appendChild(qBlock);
+        clarQuestionsList.appendChild(qBox);
       });
 
-      clarPanel.classList.remove("hidden");
-      setAgentState("solving", "Clarification Required", "Prompt Refinery awaiting user ambiguity resolution.");
+      clarOverlay.classList.remove("hidden");
+      setAgentState("solving", "Ambiguity detected &bull; Awaiting clarification");
       return;
     }
 
-    // Set state
     if (data.forged_skill) {
-      setAgentState("shaping", "Skill Forged", `Forged new capability: ${data.forged_skill.skill_name}`);
-      if (skillsOrbContainer) {
-        skillsOrbContainer.classList.remove("hidden");
-        setTimeout(() => skillsOrbContainer.classList.add("hidden"), 4000);
-      }
+      setAgentState("shaping", `Forged new superpower: ${data.forged_skill.skill_name}`);
       loadSkills();
     } else {
-      setAgentState("breathing", "Idle / Ready", "Task completed. Awaiting next instruction.");
+      setAgentState("breathing", "Task completed &bull; Ready for next request");
     }
 
-    appendAgentMessage(data);
+    renderAgentBubble(data);
   }
 
-  function appendUserMessage(text) {
-    const msg = document.createElement("div");
-    msg.className = "message user-message";
-    msg.innerHTML = `
-      <div class="msg-body">${escapeHtml(text).replace(/\n/g, "<br>")}</div>
-    `;
-    chatMessages.appendChild(msg);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+  // Confirm Clarification
+  if (btnConfirmClar) {
+    btnConfirmClar.addEventListener("click", async () => {
+      if (!activePendingPrompt) return;
+      const answers = {};
+      document.querySelectorAll(".clar-options-row").forEach(row => {
+        const qid = row.dataset.qid;
+        const checked = row.querySelector("input[type='radio']:checked");
+        if (checked) answers[qid] = checked.value;
+      });
+
+      clarOverlay.classList.add("hidden");
+      renderUserBubble(`[Clarification Answers]: ${Object.values(answers).join("; ")}`);
+      setAgentState("working", "Executing clarified task plan...");
+
+      try {
+        const res = await fetch("/api/clarify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            original_prompt: activePendingPrompt,
+            answers: answers,
+            effort: effortValue ? effortValue.value : "standard",
+          }),
+        });
+        const data = await res.json();
+        activePendingPrompt = null;
+        handleAssistantResponse(data, "");
+      } catch (err) {
+        renderAgentBubble({ text: `Error executing clarified task: ${err.message}` });
+        setAgentState("breathing", "Idle / Error");
+      }
+    });
   }
 
-  function appendAgentMessage(data) {
-    const msg = document.createElement("div");
-    msg.className = "message agent-message";
+  if (btnCancelClar) {
+    btnCancelClar.addEventListener("click", () => {
+      clarOverlay.classList.add("hidden");
+      activePendingPrompt = null;
+      setAgentState("breathing", "Clarification skipped");
+    });
+  }
 
-    const text = data.text || "Execution completed.";
-    const model = data.model || "gemini-3.6-flash";
+  function renderUserBubble(text) {
+    const bubble = document.createElement("div");
+    bubble.className = "chat-bubble user-bubble";
+    bubble.innerHTML = escapeHtml(text).replace(/\n/g, "<br>");
+    messagesFlow.appendChild(bubble);
+    scrollChat();
+  }
+
+  function renderAgentBubble(data) {
+    const bubble = document.createElement("div");
+    bubble.className = "chat-bubble agent-bubble";
+
+    const text = data.text || "Task executed successfully.";
+    const model = data.model || "Gemini 3.7 Flash";
     const tools = data.tools_used || [];
     const reasoning = data.reasoning || "";
-    const rulesApplied = (data.brief && data.brief.learned_rules_applied) ? data.brief.learned_rules_applied : [];
-    const forgedSkill = data.forged_skill;
+    const rules = (data.brief && data.brief.learned_rules_applied) ? data.brief.learned_rules_applied : [];
+    const skill = data.forged_skill;
 
     let toolsHtml = "";
     if (tools.length > 0) {
       toolsHtml = `
-        <div class="tools-execution-row">
-          ${tools.map(t => `<span class="tool-pill-badge">⚙️ ${t}</span>`).join("")}
+        <div style="margin-bottom: 6px;">
+          ${tools.map(t => `<span class="tool-tag">⚡ ${t}</span>`).join("")}
         </div>
       `;
     }
 
-    let reasoningHtml = "";
+    let thoughtHtml = "";
     if (reasoning || (data.plan_candidates && data.plan_candidates.length > 0)) {
       const candidates = data.plan_candidates || [];
-      reasoningHtml = `
-        <div class="reasoning-drawer">
-          <div class="reasoning-toggle" onclick="this.parentElement.classList.toggle('open')">
-            <span>🧠 Thought Process &amp; Strategic Plan</span>
-            <span class="chevron">▼</span>
+      thoughtHtml = `
+        <div class="thought-card">
+          <div class="thought-trigger" onclick="this.parentElement.classList.toggle('open')">
+            <span>🧠 Strategic Reasoning &amp; Thought Process</span>
+            <span>▼</span>
           </div>
-          <div class="reasoning-content">
-            ${reasoning ? `<div style="margin-bottom: 6px;">${escapeHtml(reasoning)}</div>` : ''}
+          <div class="thought-content">
+            ${reasoning ? `<div style="margin-bottom: 8px;">${escapeHtml(reasoning)}</div>` : ''}
             ${candidates.length > 0 ? `
-              <div style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">
-                <strong>Strategic Paths Evaluated (${candidates.length}):</strong><br>
+              <div style="font-size: 11px; color: var(--text-dim);">
+                <strong>Evaluated Paths (${candidates.length}):</strong><br>
                 ${candidates.map(c => `&bull; ${c.name} [Confidence: ${(c.confidence * 100).toFixed(0)}%] &mdash; ${c.risk_assessment}`).join("<br>")}
               </div>
             ` : ''}
@@ -323,160 +444,153 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     let rulesHtml = "";
-    if (rulesApplied.length > 0) {
+    if (rules.length > 0) {
       rulesHtml = `
-        <div style="margin-top: 8px; font-size: 12px; color: #a5b4fc; background: rgba(99,102,241,0.08); padding: 6px 10px; border-radius: 6px; border: 1px solid rgba(99,102,241,0.2);">
-          📖 <strong>Applied ${rulesApplied.length} Correction Rule(s):</strong><br>
-          ${rulesApplied.map(r => `&bull; ${escapeHtml(r)}`).join("<br>")}
+        <div style="margin-top: 10px; font-size: 12px; color: #a5b4fc; background: rgba(99,102,241,0.1); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(99,102,241,0.25);">
+          📖 <strong>Applied ${rules.length} Learned Rule(s):</strong><br>
+          ${rules.map(r => `&bull; ${escapeHtml(r)}`).join("<br>")}
         </div>
       `;
     }
 
-    let forgedHtml = "";
-    if (forgedSkill) {
-      forgedHtml = `
-        <div style="margin-top: 8px; font-size: 12px; color: #67e8f9; background: rgba(6,182,212,0.08); padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(6,182,212,0.25);">
-          ⚡ <strong>Autonomous Skill Forged:</strong> ${escapeHtml(forgedSkill.skill_name || '')}<br>
-          <span style="color: var(--text-secondary);">${escapeHtml(forgedSkill.message || '')}</span>
+    let skillHtml = "";
+    if (skill) {
+      skillHtml = `
+        <div style="margin-top: 10px; font-size: 12px; color: #6ee7b7; background: rgba(16,185,129,0.1); padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(16,185,129,0.3);">
+          ⚡ <strong>Self-Taught Superpower Forged:</strong> ${escapeHtml(skill.skill_name || '')}<br>
+          <span style="color: var(--text-muted);">${escapeHtml(skill.message || '')}</span>
         </div>
       `;
     }
 
-    msg.innerHTML = `
-      <div class="message-header">
-        <div class="msg-avatar agent-avatar">
+    bubble.innerHTML = `
+      <div class="agent-bubble-header">
+        <div class="agent-avatar-icon">
           <div class="tol-orb tol-breathing is-sm"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
         </div>
-        <div class="msg-author">KIW1 Kernel</div>
-        <div class="msg-meta-badge">${model}</div>
+        <div class="agent-name-tag">KIW1</div>
+        <div class="agent-model-pill">${model}</div>
       </div>
-      ${reasoningHtml}
+      ${thoughtHtml}
       ${toolsHtml}
-      <div class="msg-body">${formatMarkdown(text)}</div>
+      <div class="bubble-text">${formatMarkdown(text)}</div>
       ${rulesHtml}
-      ${forgedHtml}
-      <div class="msg-actions-row">
-        <button class="btn-msg-action" onclick="navigator.clipboard.writeText(${JSON.stringify(text)})">
+      ${skillHtml}
+      <div class="bubble-footer-actions">
+        <button class="btn-bubble-action btn-copy-action">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
           Copy
         </button>
-        <button class="btn-msg-action btn-teach-action">
+        <button class="btn-bubble-action btn-teach-action">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
-          Teach / Correct
+          Teach Rule
         </button>
       </div>
     `;
 
-    // Hook up inline Teach button
-    const teachBtn = msg.querySelector(".btn-teach-action");
-    if (teachBtn) {
-      teachBtn.addEventListener("click", () => {
-        openCorrectionModal();
-      });
-    }
+    bubble.querySelector(".btn-copy-action").addEventListener("click", () => {
+      navigator.clipboard.writeText(text);
+    });
 
-    chatMessages.appendChild(msg);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+    bubble.querySelector(".btn-teach-action").addEventListener("click", () => {
+      openCorrectionModal();
+    });
+
+    messagesFlow.appendChild(bubble);
+    scrollChat();
+  }
+
+  function scrollChat() {
+    const viewport = document.querySelector(".chat-viewport");
+    if (viewport) viewport.scrollTop = viewport.scrollHeight;
   }
 
   function escapeHtml(str) {
-    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
   }
 
   function formatMarkdown(str) {
     if (!str) return "";
     let html = escapeHtml(str);
-    // Bold
     html = html.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-    // Italic
     html = html.replace(/\*(.*?)\*/g, "<em>$1</em>");
-    // Code inline
     html = html.replace(/`(.*?)`/g, "<code>$1</code>");
-    // Newlines
     html = html.replace(/\n/g, "<br>");
     return html;
   }
 
-  // Clarification Confirmation
-  if (btnSubmitClar) {
-    btnSubmitClar.addEventListener("click", async () => {
-      if (!pendingPrompt) return;
-      const answers = {};
-      document.querySelectorAll(".options-group").forEach(group => {
-        const qid = group.dataset.qid;
-        const checked = group.querySelector("input[type='radio']:checked");
-        if (checked) answers[qid] = checked.value;
-      });
-
-      clarPanel.classList.add("hidden");
-      appendUserMessage(`[Clarification Answers]: ${Object.values(answers).join("; ")}`);
-      setAgentState("working", "Executing Clarified Plan", "Executing task with verified brief constraints...");
-
-      try {
-        const res = await fetch("/api/clarify", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            original_prompt: pendingPrompt,
-            answers: answers,
-            effort: effortSelect ? effortSelect.value : "standard",
-          }),
-        });
-        const data = await res.json();
-        pendingPrompt = null;
-        handleChatResponse(data, "");
-        refreshTelemetry();
-      } catch (err) {
-        appendAgentMessage({ text: `Error: ${err.message}` });
-        setAgentState("breathing", "Idle / Error", `Error: ${err.message}`);
-      }
-    });
-  }
-
-  if (btnCancelClar) {
-    btnCancelClar.addEventListener("click", () => {
-      clarPanel.classList.add("hidden");
-      pendingPrompt = null;
-      setAgentState("breathing", "Idle / Ready", "Clarification dismissed.");
-    });
-  }
-
-  // Telemetry updates
-  async function refreshTelemetry() {
+  // ── VIEW 2: Memory Palace ────────────────────────────────────
+  async function loadMemoryPalace() {
     try {
-      const res = await fetch("/api/telemetry");
+      const res = await fetch("/api/memory");
       const data = await res.json();
-      if (data.traces && data.traces.length > 0) {
-        const latest = data.traces[0];
-        const statLatency = document.getElementById("stat-latency");
-        const statTokens = document.getElementById("stat-tokens");
-        const statCost = document.getElementById("stat-cost");
-        if (statLatency) statLatency.textContent = `${Math.round(latest.latency_ms || 0)} ms`;
-        if (statTokens) statTokens.textContent = latest.tokens ? latest.tokens.total.toLocaleString() : "0";
-        if (statCost) statCost.textContent = `$${(latest.cost_usd || 0).toFixed(6)}`;
+      const tree = data.tree || {};
+      const badge = document.getElementById("badge-memory");
+      let count = 0;
+      Object.values(tree).forEach(loci => {
+        Object.values(loci).forEach(arr => { count += arr.length; });
+      });
+      if (badge) badge.textContent = count;
+
+      const container = document.getElementById("memory-grid-view");
+      if (!container) return;
+      container.innerHTML = "";
+
+      if (Object.keys(tree).length === 0) {
+        container.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--text-dim);">
+            <div style="font-size: 32px; margin-bottom: 10px;">🏛️</div>
+            <div style="font-weight: 700; font-size: 16px; color: var(--text-main);">Memory Palace Empty</div>
+            <p style="font-size: 13px; margin-top: 4px;">Teach KIW1 facts via chat (e.g. <code>/remember ...</code>) or "+ Teach New Fact".</p>
+          </div>
+        `;
+        return;
       }
+
+      Object.entries(tree).forEach(([room, loci]) => {
+        const card = document.createElement("div");
+        card.className = "memory-room-card";
+        let lociHtml = "";
+
+        Object.entries(loci).forEach(([locus, items]) => {
+          lociHtml += `
+            <div class="locus-item-box">
+              <div class="locus-name">📍 Locus: ${escapeHtml(locus)}</div>
+              ${items.map(item => `
+                <div class="fact-text">&bull; ${escapeHtml(item.text || item)}</div>
+              `).join("")}
+            </div>
+          `;
+        });
+
+        card.innerHTML = `
+          <div class="room-badge">🚪 Room &bull; ${escapeHtml(room)}</div>
+          ${lociHtml}
+        `;
+        container.appendChild(card);
+      });
     } catch (e) {}
   }
 
-  // Load Skills Tab
+  // ── VIEW 3: Superpowers & Skills ─────────────────────────────
   async function loadSkills() {
     try {
       const res = await fetch("/api/skills");
       const data = await res.json();
       const skills = data.skills || [];
-      const badge = document.getElementById("skills-badge");
+      const badge = document.getElementById("badge-skills");
       if (badge) badge.textContent = skills.length;
 
-      const container = document.getElementById("skills-list");
+      const container = document.getElementById("skills-grid-view");
       if (!container) return;
       container.innerHTML = "";
 
       if (skills.length === 0) {
         container.innerHTML = `
-          <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted);">
-            <div style="font-size: 24px; margin-bottom: 8px;">⚡</div>
-            <div style="font-weight: 600; font-size: 14px; color: var(--text-secondary);">No Skills Forged Yet</div>
-            <p style="font-size: 12px; margin-top: 4px;">Repeat similar high-frequency tasks 3 times to trigger the autonomous Skill Forge.</p>
+          <div style="grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--text-dim);">
+            <div style="font-size: 32px; margin-bottom: 10px;">⚡</div>
+            <div style="font-weight: 700; font-size: 16px; color: var(--text-main);">No Superpowers Forged Yet</div>
+            <p style="font-size: 13px; margin-top: 4px;">Repeat similar requests 3 times to trigger autonomous skill forging.</p>
           </div>
         `;
         return;
@@ -484,16 +598,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
       skills.forEach(s => {
         const card = document.createElement("div");
-        card.className = "skill-card";
-        const badgeClass = s.enabled ? "success" : "danger";
+        card.className = "superpower-card";
         card.innerHTML = `
-          <div class="skill-card-header">
-            <span class="skill-name">${escapeHtml(s.name)}</span>
-            <span class="badge ${badgeClass}">${s.badge || '⚡'} ${s.status}</span>
+          <div class="superpower-header">
+            <span class="superpower-title">${escapeHtml(s.name)}</span>
+            <span class="superpower-badge">${s.badge || '⚡'} ${s.status}</span>
           </div>
-          <p class="skill-desc">${escapeHtml(s.description)}</p>
-          <div class="skill-meta">
-            <span>Invocations: <strong>${s.invocations || 0}</strong></span>
+          <p class="superpower-desc">${escapeHtml(s.description)}</p>
+          <div class="superpower-stats">
+            <span>Usage Count: <strong>${s.invocations || 0}</strong></span>
             <span>Success Rate: <strong>${s.success_rate || '100%'}</strong></span>
           </div>
         `;
@@ -502,107 +615,22 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (e) {}
   }
 
-  // Load Ledger Tab
-  async function loadLedger() {
-    try {
-      const res = await fetch("/api/corrections");
-      const data = await res.json();
-      const rules = data.rules || [];
-      const badge = document.getElementById("ledger-badge");
-      if (badge) badge.textContent = data.active_count || rules.length;
-
-      const tbody = document.getElementById("ledger-table-body");
-      if (!tbody) return;
-      tbody.innerHTML = "";
-
-      if (rules.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 30px;">No correction rules recorded. Teach the agent rules via chat or "+ Add Manual Rule".</td></tr>`;
-        return;
-      }
-
-      rules.forEach(r => {
-        const tr = document.createElement("tr");
-        const statusBadge = r.active ? `<span class="badge success">Active</span>` : `<span class="badge danger">Retired</span>`;
-        tr.innerHTML = `
-          <td><code>${escapeHtml(r.id)}</code></td>
-          <td>${escapeHtml(r.situation)}</td>
-          <td><strong>${escapeHtml(r.rule)}</strong></td>
-          <td><code>${(r.weight || 1.0).toFixed(1)}</code></td>
-          <td>${statusBadge}</td>
-        `;
-        tbody.appendChild(tr);
-      });
-    } catch (e) {}
-  }
-
-  // Load Memory Palace Tab
-  async function loadPalace() {
-    try {
-      const res = await fetch("/api/memory");
-      const data = await res.json();
-      const tree = data.tree || {};
-      const badge = document.getElementById("palace-badge");
-      const totalMemories = Object.values(tree).reduce((sum, loci) => sum + Object.values(loci).reduce((s2, arr) => s2 + arr.length, 0), 0);
-      if (badge) badge.textContent = totalMemories;
-
-      const container = document.getElementById("palace-tree");
-      if (!container) return;
-      container.innerHTML = "";
-
-      if (Object.keys(tree).length === 0) {
-        container.innerHTML = `
-          <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted);">
-            <div style="font-size: 24px; margin-bottom: 8px;">🏛️</div>
-            <div style="font-weight: 600; font-size: 14px; color: var(--text-secondary);">Memory Palace Empty</div>
-            <p style="font-size: 12px; margin-top: 4px;">Use <code>/remember [fact]</code> or "+ Store Memory" to persist knowledge in spatial loci.</p>
-          </div>
-        `;
-        return;
-      }
-
-      Object.entries(tree).forEach(([room, loci]) => {
-        const rCard = document.createElement("div");
-        rCard.className = "palace-room-card";
-        let lociHtml = "";
-
-        Object.entries(loci).forEach(([locus, items]) => {
-          lociHtml += `
-            <div class="locus-block">
-              <div class="locus-title">Locus: ${escapeHtml(locus)}</div>
-              ${items.map(item => `
-                <div class="item-row">&bull; ${escapeHtml(item.text || item)}</div>
-              `).join("")}
-            </div>
-          `;
-        });
-
-        rCard.innerHTML = `
-          <div class="room-header">
-            <span>🚪 Room:</span> <strong>${escapeHtml(room)}</strong>
-          </div>
-          ${lociHtml}
-        `;
-        container.appendChild(rCard);
-      });
-    } catch (e) {}
-  }
-
-  // Load Research Tab
-  async function loadResearch() {
+  // ── VIEW 4: Morning Briefs & Research ────────────────────────
+  async function loadResearchBriefs() {
     try {
       const res = await fetch("/api/research/reports");
       const data = await res.json();
       const reports = data.reports || [];
-      const container = document.getElementById("research-reports");
+      const container = document.getElementById("research-briefs-view");
       if (!container) return;
       container.innerHTML = "";
 
       if (reports.length === 0) {
         container.innerHTML = `
-          <div style="text-align: center; padding: 40px; color: var(--text-muted);">
-            <div style="font-size: 24px; margin-bottom: 8px;">🌙</div>
-            <div style="font-weight: 600; font-size: 14px; color: var(--text-secondary);">No Overnight Research Reports Yet</div>
-            <p style="font-size: 12px; margin-top: 4px;">Click "Run Research Cycle Now" to trigger autonomous weak-spot synthesis and critique pass.</p>
+          <div style="text-align: center; padding: 60px 20px; color: var(--text-dim);">
+            <div style="font-size: 32px; margin-bottom: 10px;">🌙</div>
+            <div style="font-weight: 700; font-size: 16px; color: var(--text-main);">No Morning Briefs Yet</div>
+            <p style="font-size: 13px; margin-top: 4px;">Click "Run Research Cycle Now" to synthesize intelligence and adversarial critique.</p>
           </div>
         `;
         return;
@@ -610,20 +638,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
       reports.forEach(r => {
         const card = document.createElement("div");
-        card.className = "research-report-card";
+        card.className = "brief-card";
         card.innerHTML = `
-          <div class="report-header">
-            <div>
-              <div class="report-topic">${escapeHtml(r.topic || 'General Intelligence Briefing')}</div>
-              <div class="report-meta">Timestamp: ${r.timestamp || new Date().toISOString()}</div>
-            </div>
-            <span class="badge success">Adversarial Critique Passed</span>
+          <div class="brief-top">
+            <div class="brief-topic">${escapeHtml(r.topic || 'General Intelligence Briefing')}</div>
+            <span class="superpower-badge">Adversarial Critique Passed</span>
           </div>
-          <div class="report-summary">${formatMarkdown(r.summary || r.report_markdown || 'No summary available.')}</div>
+          <div class="brief-body">${formatMarkdown(r.summary || r.report_markdown || '')}</div>
           ${r.critique ? `
-            <div class="critique-box">
-              <div class="critique-title">🛡️ Pro Adversarial Critique Pass:</div>
-              <div style="font-size: 12px; color: var(--text-secondary);">${escapeHtml(r.critique)}</div>
+            <div class="brief-critique">
+              <div class="critique-head">🛡️ Pro Critique Pass:</div>
+              <div style="font-size: 12px; color: var(--text-muted);">${escapeHtml(r.critique)}</div>
             </div>
           ` : ''}
         `;
@@ -632,160 +657,162 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (e) {}
   }
 
-  // Load Evals Benchmark Tab
-  async function loadEvals() {
+  const btnRunResearch = document.getElementById("btn-run-research");
+  if (btnRunResearch) {
+    btnRunResearch.addEventListener("click", async () => {
+      btnRunResearch.disabled = true;
+      btnRunResearch.innerHTML = "Synthesizing intelligence...";
+      setAgentState("searching", "Conducting Nightly Research & Critique Pass...");
+
+      try {
+        await fetch("/api/research/trigger", { method: "POST" });
+        await loadResearchBriefs();
+        setAgentState("breathing", "Research completed");
+      } catch (e) {
+        setAgentState("breathing", "Research error");
+      } finally {
+        btnRunResearch.disabled = false;
+        btnRunResearch.innerHTML = `<span>⚡</span> Run Research Cycle Now`;
+      }
+    });
+  }
+
+  // ── VIEW 5: Benchmark & Self-Improvement ──────────────────────
+  async function loadBenchmarkResults() {
     try {
       const res = await fetch("/static/results.json");
       const data = await res.json();
 
-      const coldScoreEl = document.getElementById("eval-cold-score");
-      const learnedScoreEl = document.getElementById("eval-learned-score");
-      const deltaEl = document.getElementById("eval-delta");
+      const coldScore = document.getElementById("bench-cold-score");
+      const learnedScore = document.getElementById("bench-learned-score");
+      const deltaScore = document.getElementById("bench-delta-score");
+      const badgeDelta = document.getElementById("badge-delta");
 
-      if (coldScoreEl) coldScoreEl.textContent = `${data.cold_score} (${data.cold_percentage})`;
-      if (learnedScoreEl) learnedScoreEl.textContent = `${data.learned_score} (${data.learned_percentage})`;
-      if (deltaEl) deltaEl.textContent = `${data.delta} (${data.delta_percentage})`;
+      if (coldScore) coldScore.textContent = `${data.cold_score}`;
+      if (learnedScore) learnedScore.textContent = `${data.learned_score}`;
+      if (deltaScore) deltaScore.textContent = `${data.delta} Tasks`;
+      if (badgeDelta) badgeDelta.textContent = `${data.delta_percentage}`;
 
-      const tbody = document.getElementById("evals-table-body");
-      if (!tbody) return;
-      tbody.innerHTML = "";
+      const listContainer = document.getElementById("benchmark-tasks-list");
+      if (!listContainer) return;
+      listContainer.innerHTML = "";
 
       const coldResults = data.cold_results || [];
       const learnedResults = data.learned_results || [];
 
-      coldResults.forEach((cold, i) => {
-        const learned = learnedResults[i] || { passed: false, detail: "" };
-        const coldBadge = cold.passed ? `<span class="badge success">PASS</span>` : `<span class="badge danger">FAIL</span>`;
-        const learnedBadge = learned.passed ? `<span class="badge success">PASS</span>` : `<span class="badge danger">FAIL</span>`;
+      coldResults.forEach((cold, idx) => {
+        const learned = learnedResults[idx] || { passed: false, detail: "" };
+        const row = document.createElement("div");
+        row.className = "bench-task-row";
 
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td><code>${cold.id}</code></td>
-          <td><strong>${escapeHtml(cold.name)}</strong></td>
-          <td>${coldBadge}</td>
-          <td>${learnedBadge}</td>
-          <td style="font-size: 11px; font-family: var(--font-mono); color: var(--text-secondary);">${escapeHtml(learned.detail || cold.detail)}</td>
+        const coldPill = cold.passed ? `<span class="pill-status pass">Cold: PASS</span>` : `<span class="pill-status fail">Cold: FAIL</span>`;
+        const learnedPill = learned.passed ? `<span class="pill-status pass">Learned: PASS</span>` : `<span class="pill-status fail">Learned: FAIL</span>`;
+
+        row.innerHTML = `
+          <div class="bench-task-info">
+            <span class="bench-task-id">${cold.id}</span>
+            <span class="bench-task-title">${escapeHtml(cold.name)}</span>
+          </div>
+          <div class="bench-status-group">
+            ${coldPill}
+            ${learnedPill}
+          </div>
         `;
-        tbody.appendChild(tr);
+        listContainer.appendChild(row);
       });
     } catch (e) {}
   }
 
-  // Trigger Research Cycle
-  const btnTriggerResearch = document.getElementById("btn-trigger-research");
-  if (btnTriggerResearch) {
-    btnTriggerResearch.addEventListener("click", async () => {
-      btnTriggerResearch.disabled = true;
-      btnTriggerResearch.innerHTML = "Executing Research Cycle...";
-      setAgentState("searching", "Conducting Research", "Scouring web sources and synthesizing intelligence...");
-
-      try {
-        await fetch("/api/research/trigger", { method: "POST" });
-        await loadResearch();
-        setAgentState("breathing", "Idle / Ready", "Research cycle finished.");
-      } catch (e) {
-        setAgentState("breathing", "Idle / Error", `Research error: ${e.message}`);
-      } finally {
-        btnTriggerResearch.disabled = false;
-        btnTriggerResearch.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Run Research Cycle Now`;
-      }
-    });
-  }
-
-  // Trigger Evals Re-run
-  const btnRunEvals = document.getElementById("btn-run-evals");
-  if (btnRunEvals) {
-    btnRunEvals.addEventListener("click", async () => {
-      btnRunEvals.disabled = true;
-      btnRunEvals.innerHTML = "Running 20-Task Suite...";
-      setAgentState("working", "Running Benchmark", "Executing 20 cold tasks and 20 learned tasks...");
+  const btnRetestBenchmark = document.getElementById("btn-retest-benchmark");
+  if (btnRetestBenchmark) {
+    btnRetestBenchmark.addEventListener("click", async () => {
+      btnRetestBenchmark.disabled = true;
+      btnRetestBenchmark.innerHTML = "Executing 20 Tasks...";
+      setAgentState("working", "Running Benchmark Suite...");
 
       try {
         await fetch("/api/evals/run", { method: "POST" }).catch(() => {});
-        await loadEvals();
-        setAgentState("breathing", "Idle / Ready", "Benchmark completed.");
+        await loadBenchmarkResults();
+        setAgentState("breathing", "Benchmark finished");
       } catch (e) {
-        setAgentState("breathing", "Idle / Error", `Benchmark error: ${e.message}`);
+        setAgentState("breathing", "Benchmark error");
       } finally {
-        btnRunEvals.disabled = false;
-        btnRunEvals.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3l14 9-14 9V3z"/></svg> Re-run Live Benchmark`;
+        btnRetestBenchmark.disabled = false;
+        btnRetestBenchmark.innerHTML = `<span>▶</span> Re-run Live 20 Tasks`;
       }
     });
   }
 
-  // ── Modals Setup ───────────────────────────────────────────────
-  const corrModal = document.getElementById("correction-modal");
-  const btnAddCorr = document.getElementById("btn-add-correction-modal");
-  const btnCloseCorr = document.getElementById("btn-close-correction-modal");
-  const btnCancelCorr = document.getElementById("btn-cancel-correction-modal");
-  const btnSaveCorr = document.getElementById("btn-save-correction-modal");
+  // ── Modals: Teach Rule & Add Memory ──────────────────────────
+  const modalCorr = document.getElementById("modal-correction");
+  const btnCloseCorr = document.getElementById("btn-close-corr");
+  const btnCancelCorr = document.getElementById("btn-cancel-corr");
+  const btnSaveCorr = document.getElementById("btn-save-corr");
 
   function openCorrectionModal() {
-    if (corrModal) corrModal.classList.remove("hidden");
+    if (modalCorr) modalCorr.classList.remove("hidden");
   }
 
   function closeCorrectionModal() {
-    if (corrModal) corrModal.classList.add("hidden");
-    document.getElementById("modal-corr-situation").value = "";
-    document.getElementById("modal-corr-wrong").value = "";
-    document.getElementById("modal-corr-rule").value = "";
+    if (modalCorr) modalCorr.classList.add("hidden");
+    document.getElementById("input-corr-sit").value = "";
+    document.getElementById("input-corr-wrong").value = "";
+    document.getElementById("input-corr-rule").value = "";
   }
 
-  if (btnAddCorr) btnAddCorr.addEventListener("click", openCorrectionModal);
   if (btnCloseCorr) btnCloseCorr.addEventListener("click", closeCorrectionModal);
   if (btnCancelCorr) btnCancelCorr.addEventListener("click", closeCorrectionModal);
 
   if (btnSaveCorr) {
     btnSaveCorr.addEventListener("click", async () => {
-      const situation = document.getElementById("modal-corr-situation").value.trim();
-      const wrongAction = document.getElementById("modal-corr-wrong").value.trim();
-      const rule = document.getElementById("modal-corr-rule").value.trim();
+      const sit = document.getElementById("input-corr-sit").value.trim();
+      const wrong = document.getElementById("input-corr-wrong").value.trim();
+      const rule = document.getElementById("input-corr-rule").value.trim();
 
-      if (!situation || !rule) return;
+      if (!sit || !rule) return;
 
       try {
         await fetch("/api/corrections", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            situation: situation,
-            wrong_action: wrongAction,
+            situation: sit,
+            wrong_action: wrong,
             correction: rule,
           }),
         });
         closeCorrectionModal();
-        loadLedger();
       } catch (e) {}
     });
   }
 
   // Memory Modal
-  const memModal = document.getElementById("memory-modal");
-  const btnAddMem = document.getElementById("btn-add-memory-modal");
-  const btnCloseMem = document.getElementById("btn-close-memory-modal");
-  const btnCancelMem = document.getElementById("btn-cancel-memory-modal");
-  const btnSaveMem = document.getElementById("btn-save-memory-modal");
+  const modalMem = document.getElementById("modal-memory");
+  const btnOpenMemModal = document.getElementById("btn-open-memory-modal");
+  const btnCloseMem = document.getElementById("btn-close-mem");
+  const btnCancelMem = document.getElementById("btn-cancel-mem");
+  const btnSaveMem = document.getElementById("btn-save-mem");
 
   function openMemoryModal() {
-    if (memModal) memModal.classList.remove("hidden");
+    if (modalMem) modalMem.classList.remove("hidden");
   }
 
   function closeMemoryModal() {
-    if (memModal) memModal.classList.add("hidden");
-    document.getElementById("modal-mem-fact").value = "";
-    document.getElementById("modal-mem-room").value = "";
-    document.getElementById("modal-mem-locus").value = "";
+    if (modalMem) modalMem.classList.add("hidden");
+    document.getElementById("input-mem-fact").value = "";
+    document.getElementById("input-mem-room").value = "";
+    document.getElementById("input-mem-locus").value = "";
   }
 
-  if (btnAddMem) btnAddMem.addEventListener("click", openMemoryModal);
+  if (btnOpenMemModal) btnOpenMemModal.addEventListener("click", openMemoryModal);
   if (btnCloseMem) btnCloseMem.addEventListener("click", closeMemoryModal);
   if (btnCancelMem) btnCancelMem.addEventListener("click", closeMemoryModal);
 
   if (btnSaveMem) {
     btnSaveMem.addEventListener("click", async () => {
-      const fact = document.getElementById("modal-mem-fact").value.trim();
-      const room = document.getElementById("modal-mem-room").value.trim();
-      const locus = document.getElementById("modal-mem-locus").value.trim();
+      const fact = document.getElementById("input-mem-fact").value.trim();
+      const room = document.getElementById("input-mem-room").value.trim();
+      const locus = document.getElementById("input-mem-locus").value.trim();
 
       if (!fact) return;
 
@@ -800,15 +827,13 @@ document.addEventListener("DOMContentLoaded", () => {
           }),
         });
         closeMemoryModal();
-        loadPalace();
+        loadMemoryPalace();
       } catch (e) {}
     });
   }
 
-  // Initial loads
-  refreshTelemetry();
+  // Initial load
+  loadMemoryPalace();
   loadSkills();
-  loadLedger();
-  loadPalace();
-  loadEvals();
+  loadBenchmarkResults();
 });
