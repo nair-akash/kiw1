@@ -1,53 +1,85 @@
 ```mermaid
-graph TD
-    subgraph Trusted_Client["LAPTOP (Trusted Boundary)"]
-        User["User / Web Dashboard"]
-        VaultNode["Local Vault Node (Synthetic Notes)"]
+flowchart TB
+    %% ── TRUSTED CLIENT / INTERFACE LAYER ──
+    subgraph Client_Layer["🖥️ CLIENT & INTERACTION LAYER"]
+        User["User / Web Studio Interface"]
+        VoiceOrb["Living Nebula Canvas & Audio I/O"]
+        ArtifactCanvas["Split-Screen Artifact & Code Canvas"]
     end
 
-    subgraph Google_Cloud["GOOGLE CLOUD (Cloud Run / us-central1)"]
-        Server["FastAPI Core & Telemetry"]
-        ADK["Google ADK Agent Runtime"]
-        Refinery["Prompt Refinery (Ambiguity Classifier)"]
-        Planner["Strategic Planner (3-Path Scorer)"]
-        Forge["Skill Forge & Registry (3-in-7 Trigger)"]
-        Ledger["Correction Ledger (Feedback Rules)"]
-        Palace["Memory Palace (room -> locus -> item)"]
-        Approval["Approval Layer (Manifest Risk Gates)"]
-        Router["Model Router & Thinking Budget"]
-        Research["Overnight Research Loop & Critique"]
-        
-        PubSub["Cloud Pub/Sub (Job Queue)"]
-        Scheduler["Cloud Scheduler (Overnight Cron)"]
+    %% ── SECURITY & GOVERNANCE PERIMETER ──
+    subgraph Security_Perimeter["🛡️ ZERO-TRUST SECURITY & GOVERNANCE PERIMETER"]
+        ModelArmor["Model Armor Inline Guardrails\n(Injection Defense • Tool Poisoning Shield • PII Redaction)"]
+        ZeroTrustGateway["Zero-Trust Agent Gateway & RBAC\n(HMAC-SHA256 Signatures • Cryptographic Nonces)"]
+        LocalVault["Local Vault Privacy Boundary\n(Zero Data Exfiltration • Answers-Only Mode)"]
     end
 
-    subgraph Google_Backend["GOOGLE BACKEND SERVICES"]
-        GeminiFlash["Gemini 3.7 Flash (Reasoning & Tools)"]
-        GeminiPro["Gemini 3.7 Pro (Critique & Planning)"]
-        Firestore["Cloud Firestore (Ledgers, Skills, Palace)"]
+    %% ── AGENTIC CORE & ORCHESTRATION LAYER ──
+    subgraph Agent_Core["⚙️ AGENTIC CORE (Google Cloud Run / us-central1)"]
+        FastAPIServer["FastAPI Server & Session Engine"]
+        ADKRuntime["Google ADK 2.8 Agent Core"]
+        PromptRefinery["Prompt Refinery\n(Intent Clarity Scoring & Progressive Clarification)"]
+        StrategicPlanner["Strategic Multi-Path Planner"]
+        CorrectionLedger["Correction & Rule Ledger\n(Reinforcement Weights & Feedback Adaptation)"]
+        MemoryPalace["Spatial Memory Palace\n(Hierarchical Rooms, Loci & Temporal Decay Curves)"]
+        SkillForge["Self-Taught Skill Forge\n(Repetition Detection & Auto-Retirement)"]
+        Taskmaster["Taskmaster Chore Automation Engine\n(5-Stage Multi-Step Heavy Lifting DAG)"]
     end
 
-    User <-->|HTTP / WebSockets| Server
-    Server <--> ADK
-    ADK --> Refinery
-    ADK --> Planner
-    ADK --> Forge
-    ADK --> Ledger
-    ADK --> Palace
-    ADK --> Approval
-    ADK --> Router
-    
-    Router -->|Thinking Budget: 0 - 2048| GeminiFlash
-    Router -->|Thinking Budget: 8192| GeminiPro
-    
-    Palace <--> Firestore
-    Ledger <--> Firestore
-    Forge <--> Firestore
-    
-    Scheduler -->|POST /research/run| Server
-    Server <--> PubSub
-    PubSub --> Research
-    Research --> GeminiPro
+    %% ── INSTITUTIONAL FLEET & EXECUTION LAYER ──
+    subgraph Fleet_Layer["🏛️ FORTIFIED ENTERPRISE FLEET & RUNTIME"]
+        Registry["Enterprise Agent Registry\n(Published & Versioned Manifests)"]
+        SecOps["SecOps Sentinel\n(Vulnerability Auditor)"]
+        FinOps["FinOps Analyzer\n(Invoice & FX Arbitrage)"]
+        DevOps["DevOps Orchestrator\n(Cloud Deployment Engine)"]
+        Compliance["Compliance Guardian\n(GDPR & Sovereignty)"]
+        PythonSandbox["Sandboxed Python Runtime\n(Isolated gVisor-compatible Sandbox)"]
+        ForexWebSearch["Live Forex (160+ Currencies) & Real-Time Open Web Engine"]
+    end
 
-    VaultNode <.-. "Local Privacy Boundary: Questions & Answers Only" .-> ADK
+    %% ── GOOGLE BACKEND SERVICES & VERTEX AI ──
+    subgraph Cloud_Infrastructure["☁️ GOOGLE CLOUD BACKEND SERVICES"]
+        VertexAI["Vertex AI / Gemini 2.5 Flash & Pro\n(Native Thinking Budget & Dynamic Reflection)"]
+        CloudFirestore["Cloud Firestore\n(Multi-Session Persistence, Ledgers & Memory)"]
+        CloudPubSub["Cloud Pub/Sub\n(Durable Async Queue & Idempotency Keys)"]
+        CloudScheduler["Cloud Scheduler\n(Automated 03:00 UTC Overnight Self-Improvement Loop)"]
+        OTelExporter["OpenTelemetry Observability Collector\n(W3C TraceContext Spans & Reasoning Waterfalls)"]
+    end
+
+    %% ── DATA FLOW CONNECTIONS ──
+    User <-->|HTTP / WebSockets| FastAPIServer
+    VoiceOrb <--> FastAPIServer
+    ArtifactCanvas <--> FastAPIServer
+
+    FastAPIServer --> ModelArmor
+    ModelArmor --> ZeroTrustGateway
+    ZeroTrustGateway --> ADKRuntime
+
+    ADKRuntime --> PromptRefinery
+    ADKRuntime --> StrategicPlanner
+    ADKRuntime --> CorrectionLedger
+    ADKRuntime --> MemoryPalace
+    ADKRuntime --> SkillForge
+    ADKRuntime --> Taskmaster
+
+    StrategicPlanner --> Registry
+    Registry --> SecOps
+    Registry --> FinOps
+    Registry --> DevOps
+    Registry --> Compliance
+
+    Taskmaster --> PythonSandbox
+    Taskmaster --> ForexWebSearch
+    Taskmaster --> ModelArmor
+
+    ADKRuntime <-->|Inference & Reflection| VertexAI
+    MemoryPalace <--> CloudFirestore
+    CorrectionLedger <--> CloudFirestore
+    SkillForge <--> CloudFirestore
+    Registry <--> CloudFirestore
+
+    CloudScheduler -->|POST /research/run| FastAPIServer
+    FastAPIServer <--> CloudPubSub
+    ADKRuntime --> OTelExporter
+    LocalVault <.-. "Local Privacy Boundary" .-> ADKRuntime
 ```
