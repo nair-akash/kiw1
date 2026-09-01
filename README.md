@@ -13,7 +13,6 @@
 ---
 
 ## 🌐 Live Access & Links
-* **🚀 Live Cloud Hosted App**: [https://kiw1-bsbxguxg2q-uc.a.run.app](https://kiw1-bsbxguxg2q-uc.a.run.app)
 * **💻 GitHub Repository**: [https://github.com/nair-akash/kiw1](https://github.com/nair-akash/kiw1)
 
 ---
