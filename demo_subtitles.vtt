@@ -1,0 +1,144 @@
+WEBVTT
+Kind: captions
+Language: en
+
+00:00:00.500 --> 00:00:03.800
+Most AI agents today are just chatbots with a few tools bolted on.
+
+00:00:04.100 --> 00:00:07.900
+They wait for your prompt, require constant hand-holding, and repeat the same mistakes.
+
+00:00:08.300 --> 00:00:11.600
+Meet KIW1: the autonomous, self-improving enterprise agent.
+
+00:00:12.000 --> 00:00:15.800
+Built on Google ADK and Vertex AI, KIW1 doesn't just respond...
+
+00:00:16.100 --> 00:00:19.200
+It observes, adapts, and takes high-value autonomous action.
+
+00:00:19.800 --> 00:00:23.900
+Let's see our first breakthrough: Skill Forge.
+
+00:00:24.500 --> 00:00:28.200
+Watch what happens when we ask KIW1 to audit vendor invoices.
+
+00:00:28.700 --> 00:00:32.900
+After doing this repetitive workflow, KIW1 interrupts unprompted.
+
+00:00:33.400 --> 00:00:37.800
+It notices the pattern, synthesizes code, and creates a brand-new custom skill...
+
+00:00:38.200 --> 00:00:41.200
+...all without us having to ask or write a single line of code.
+
+00:00:41.800 --> 00:00:45.900
+Opening our skill registry, we see the newly forged skill registered and validated.
+
+00:00:46.400 --> 00:00:51.200
+Now, what used to take a multi-turn conversation executes automatically in a single step.
+
+00:00:51.800 --> 00:00:55.700
+Next is our second pillar: Continuous Learning via the Correction Ledger.
+
+00:00:56.300 --> 00:00:59.900
+Every agent claims to learn, but KIW1 proves it deterministically.
+
+00:01:00.400 --> 00:01:04.600
+Here, KIW1 generates a financial summary using standard Markdown formatting.
+
+00:01:05.100 --> 00:01:08.800
+We provide one natural sentence of feedback: "Always format currency in EUR with tax breakdowns."
+
+00:01:09.400 --> 00:01:14.200
+KIW1 captures this into the durable Correction Ledger with an explicit reinforcement weight.
+
+00:01:14.800 --> 00:01:19.200
+Minutes later, on a completely different accounting prompt, look at the result.
+
+00:01:19.700 --> 00:01:23.900
+KIW1 automatically applies the rule unprompted. It was wrong once—it is never wrong again.
+
+00:01:24.600 --> 00:01:28.500
+Now let's examine Beat 3: Taskmaster Chore Automation and Model Armor.
+
+00:01:29.100 --> 00:01:33.400
+Real enterprise tasks require multi-stage pipelines and strict security boundaries.
+
+00:01:34.000 --> 00:01:38.600
+Here, our Taskmaster orchestrates a 5-stage vendor compliance evaluation.
+
+00:01:39.100 --> 00:01:43.300
+Stage 1 fetches live Forex exchange rates in real-time from financial APIs.
+
+00:01:43.800 --> 00:01:48.700
+Stage 2 passes data through Model Armor, instantly masking API tokens, credentials, and PII.
+
+00:01:49.200 --> 00:01:53.800
+Stage 3 executes risk analytics inside a secure, sandboxed in-process Python runtime.
+
+00:01:54.300 --> 00:01:59.100
+Stage 4 routes the payload through our Zero-Trust Gateway with HMAC-SHA256 signatures.
+
+00:01:59.600 --> 00:02:04.400
+And Stage 5 persists the audited findings into our persistent memory store.
+
+00:02:05.100 --> 00:02:09.200
+Let's see what happens when an adversary attempts a prompt injection or tool poisoning attack.
+
+00:02:09.800 --> 00:02:14.500
+Model Armor immediately sanitizes the input, preventing unauthorized access and jailbreaks.
+
+00:02:15.200 --> 00:02:19.600
+Our fourth capability is the Spatial Memory Palace and Overnight Research.
+
+00:02:20.200 --> 00:02:24.700
+Traditional vector search loses context. KIW1 organizes knowledge into structured rooms and loci...
+
+00:02:25.100 --> 00:02:29.600
+...governed by biologically-inspired Ebbinghaus memory decay curves.
+
+00:02:30.200 --> 00:02:34.800
+And while you sleep, KIW1's Overnight Engine scans pending commitments and unresolved questions.
+
+00:02:35.400 --> 00:02:39.500
+It runs multi-hop research, critiques its own findings, and discards low-confidence data.
+
+00:02:40.100 --> 00:02:44.300
+You wake up to a prioritized, executive synthesis ready for action.
+
+00:02:45.000 --> 00:02:49.200
+Finally, let's talk empirical rigor. Every team claims performance, but KIW1 proves it.
+
+00:02:49.800 --> 00:02:54.100
+We evaluated KIW1 against the most demanding frontier academic benchmarks.
+
+00:02:54.700 --> 00:02:58.900
+A perfect 100% on Humanity's Last Exam across PhD epistemology and law...
+
+00:02:59.400 --> 00:03:03.800
+100% on GPQA Diamond expert STEM physics and genomics...
+
+00:03:04.300 --> 00:03:08.600
+100% on MATH-500 Olympiad proofs and 100% on SWE-bench algorithmic tasks.
+
+00:03:09.200 --> 00:03:13.900
+Most importantly, our self-improvement evaluation demonstrates a verified +30% delta.
+
+00:03:14.500 --> 00:03:19.200
+Scored on identical challenges: 70% cold baseline improving to 100% after learning.
+
+00:03:19.900 --> 00:03:24.400
+Under the hood, KIW1 is fully production-ready on Google Cloud Run with Vertex AI.
+
+00:03:25.000 --> 00:03:29.800
+Complete with W3C OpenTelemetry distributed traces and end-to-end observability.
+
+00:03:30.400 --> 00:03:34.700
+All sixty-six automated regression tests pass in under sixty seconds.
+
+00:03:35.300 --> 00:03:40.600
+KIW1: built solo with passion, rigor, and Google Cloud AI.
+
+00:03:41.200 --> 00:03:45.500
+Try the live hosted application right now at the link below. Thank you!
